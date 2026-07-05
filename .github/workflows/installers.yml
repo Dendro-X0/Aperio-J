@@ -85,6 +85,10 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
+      - name: Install Android SDK packages
+        run: |
+          sdkmanager "platforms;android-36" "build-tools;35.0.0"
+
       - name: Install Android NDK
         run: sdkmanager "ndk;27.0.12077973"
 
@@ -102,7 +106,7 @@ jobs:
       - run: cp .env.example .env && cp apps/web/.env.example apps/web/.env
 
       - name: Build Android APK
-        run: pnpm build:android
+        run: pnpm --filter @aperio-j/desktop build:android -- --target aarch64 --apk
         env:
           DATABASE_URL: file:../../data/aperio-j-ci.db
           NDK_HOME: ${{ steps.ndk.outputs.path }}
