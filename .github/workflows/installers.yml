@@ -106,7 +106,11 @@ jobs:
       - run: cp .env.example .env && cp apps/web/.env.example apps/web/.env
 
       - name: Build Android APK
-        run: pnpm --filter @aperio-j/desktop build:android -- --target aarch64 --apk
+        working-directory: apps/desktop
+        run: |
+          node scripts/ensure-node-sidecar.mjs
+          node scripts/signing/patch-android-release-signing.mjs
+          pnpm exec tauri android build --target aarch64 --apk
         env:
           DATABASE_URL: file:../../data/aperio-j-ci.db
           NDK_HOME: ${{ steps.ndk.outputs.path }}
