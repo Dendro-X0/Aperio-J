@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { createFixtureSeekerProfile } from "@aperio-j/matcher";
+import { createTestSeekerProfile } from "./test-fixtures.js";
 import {
   buildSeekerTaxonomy,
   resolveTaxonomyFromText,
@@ -16,7 +16,7 @@ describe("taxonomy", () => {
   });
 
   it("builds seeker taxonomy from profile portfolio and intent", () => {
-    const profile = createFixtureSeekerProfile();
+    const profile = createTestSeekerProfile();
     const refs = buildSeekerTaxonomy(profile, "zh-CN");
     assert.ok(refs.some((ref) => ref.kind === "city"));
     assert.ok(refs.some((ref) => ref.kind === "subSector" || ref.kind === "industry"));
@@ -37,7 +37,7 @@ describe("taxonomy", () => {
   });
 
   it("scores overlap between seeker and opportunity taxonomy", () => {
-    const profile = createFixtureSeekerProfile();
+    const profile = createTestSeekerProfile();
     const seekerRefs = buildSeekerTaxonomy(profile, "zh-CN");
     const opportunityRefs = resolveOpportunityTaxonomy(
       {

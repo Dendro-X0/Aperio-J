@@ -162,9 +162,6 @@ importers:
         specifier: ^1.58.2
         version: 1.61.1
     devDependencies:
-      '@aperio-j/matcher':
-        specifier: workspace:*
-        version: link:../matcher
       '@types/node':
         specifier: ^22.15.32
         version: 22.20.0

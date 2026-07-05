@@ -20,7 +20,6 @@
     "playwright": "^1.58.2"
   },
   "devDependencies": {
-    "@aperio-j/matcher": "workspace:*",
     "@types/node": "^22.15.32",
     "typescript": "^6.0.3"
   }
