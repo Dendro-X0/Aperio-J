@@ -46,3 +46,9 @@ jobs:
         env:
           # Next build reads env files; CI has no secrets — use safe placeholders.
           DATABASE_URL: file:../../data/aperio-j-ci.db
+
+  installers:
+    name: Build desktop and mobile installers
+    needs: verify
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/installers.yml

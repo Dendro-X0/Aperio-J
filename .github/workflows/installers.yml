@@ -1,0 +1,104 @@
+name: Installers
+
+on:
+  workflow_call:
+
+jobs:
+  desktop-windows:
+    name: Desktop installer (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: apps/desktop/src-tauri -> target
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Shorten workspace path (NSIS 260-char limit)
+        run: subst X: ${{ github.workspace }}
+
+      - name: Prepare env for build
+        shell: cmd
+        run: |
+          copy X:\.env.example X:\.env
+          copy X:\apps\web\.env.example X:\apps\web\.env
+
+      - name: Build desktop installer
+        shell: cmd
+        run: pnpm build:desktop
+        working-directory: X:\
+        env:
+          DATABASE_URL: file:../../data/aperio-j-ci.db
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: aperio-j-desktop-windows
+          path: |
+            X:/apps/desktop/src-tauri/target/release/bundle/nsis/*.exe
+          if-no-files-found: error
+
+      - name: Remove drive subst
+        if: always()
+        run: subst X: /d
+
+  android:
+    name: Mobile installer (Android)
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: apps/desktop/src-tauri -> target
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - run: cp .env.example .env && cp apps/web/.env.example apps/web/.env
+
+      - name: Build Android APK
+        run: pnpm build:android
+        env:
+          DATABASE_URL: file:../../data/aperio-j-ci.db
+          NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
+
+      - name: Upload Android installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: aperio-j-android
+          path: |
+            apps/desktop/src-tauri/gen/android/app/build/outputs/apk/**/*.apk
+            apps/desktop/src-tauri/gen/android/app/build/outputs/bundle/**/*.aab
+          if-no-files-found: warn
