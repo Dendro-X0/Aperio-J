@@ -1,0 +1,24 @@
+{
+  "SearchResult": {
+    "SearchResultItems": [
+      {
+        "MatchedObjectId": "800001000",
+        "MatchedObjectDescriptor": {
+          "PositionTitle": "IT Specialist (Software Development)",
+          "OrganizationName": "Department of Example",
+          "PositionLocationDisplay": "Washington, DC",
+          "PositionURI": "https://www.usajobs.gov/job/800001000",
+          "QualificationSummary": "Software engineering for public systems.",
+          "PublicationStartDate": "2026-07-01",
+          "PositionRemuneration": [
+            {
+              "MinimumRange": "95000",
+              "MaximumRange": "120000",
+              "RateIntervalCode": "PA"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

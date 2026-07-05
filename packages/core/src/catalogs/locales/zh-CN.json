@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "locale": "zh-CN",
+    "version": "1"
+  },
+  "listSeparator": "、",
+  "sentenceSeparator": "；",
+  "explanationSuffix": "。",
+  "cautionSeparator": "；",
+  "common": {
+    "remoteLocation": "远程"
+  },
+  "redFlags": {
+    "deposit": "押金/保证金",
+    "training-fee": "培训费",
+    "medical-fee": "体检费自理/收费",
+    "id-collection": "证件异常收集",
+    "pay-to-apply": "付费应聘",
+    "contract-trap": "合同/协议陷阱",
+    "labor-broker": "劳务/中介",
+    "high-salary-lure": "高薪直招话术",
+    "advance-pay": "预支/日结诱导",
+    "off-platform": "站外联系",
+    "vague-employer": "模糊用工主体",
+    "illegal-overtime": "超时加班暗示"
+  },
+  "matcher": {
+    "exclusion": {
+      "locationOutOfRange": "地点不在可接受范围内",
+      "employmentTypeMismatch": "工作形态不符合（全职/兼职）",
+      "avoidRoleCategory": "命中你排除的岗位类型",
+      "avoidPhrase": "命中排除关键词：{phrase}",
+      "productionLine": "产线/工厂岗位已排除",
+      "sales": "销售类岗位已排除",
+      "foodService": "餐饮服务业岗位已排除",
+      "agencyFiltered": "劳务/中介发布已过滤",
+      "redFlags": "风险标记：{flags}",
+      "notInterested": "你已标记不感兴趣"
+    },
+    "notRecommended": "未推荐：{reason}。",
+    "explanation": {
+      "intentMatch": "匹配意向：{hits}",
+      "capabilityMatch": "经验重叠：{hits}",
+      "taxonomyMatch": "分类匹配：{hits}",
+      "location": "地点：{location}",
+      "posterDirect": "公司直招",
+      "posterAgency": "发布方含中介/劳务信号",
+      "cautions": "注意：{items}",
+      "fallback": "与您的意向有部分重合，建议人工查看。"
+    },
+    "caution": {
+      "unknownPoster": "未明确是否为直招",
+      "sourceAgencyScam": "该信号源曾被标记为疑似中介",
+      "dismissedCategory": "与你不感兴趣的岗位类型相似"
+    }
+  }
+}

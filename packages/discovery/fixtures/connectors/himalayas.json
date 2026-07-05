@@ -1,0 +1,19 @@
+{
+  "jobs": [
+    {
+      "title": "Senior Full-Stack Engineer",
+      "excerpt": "Build SaaS products with React and Node.js.",
+      "companyName": "Acme Remote",
+      "employmentType": "Full Time",
+      "minSalary": 120000,
+      "maxSalary": 160000,
+      "salaryPeriod": "annual",
+      "currency": "USD",
+      "seniority": ["Senior"],
+      "locationRestrictions": ["Worldwide"],
+      "description": "Remote-first engineering team.",
+      "pubDate": 1782419568,
+      "applicationLink": "https://himalayas.app/companies/acme-remote/jobs/senior-full-stack-engineer"
+    }
+  ]
+}

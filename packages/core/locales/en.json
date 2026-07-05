@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "locale": "en",
+    "version": "1"
+  },
+  "listSeparator": ", ",
+  "sentenceSeparator": "; ",
+  "explanationSuffix": ".",
+  "cautionSeparator": "; ",
+  "common": {
+    "remoteLocation": "Remote"
+  },
+  "redFlags": {
+    "deposit": "Deposit / security fee",
+    "training-fee": "Training fee",
+    "medical-fee": "Medical exam fee (self-paid)",
+    "id-collection": "Unusual ID collection",
+    "pay-to-apply": "Pay-to-apply",
+    "contract-trap": "Contract / agreement trap",
+    "labor-broker": "Labor agency / broker",
+    "high-salary-lure": "High-pay direct-hire pitch",
+    "advance-pay": "Advance pay / daily payout lure",
+    "off-platform": "Off-platform contact",
+    "vague-employer": "Vague employer",
+    "illegal-overtime": "Excessive overtime hint"
+  },
+  "matcher": {
+    "exclusion": {
+      "locationOutOfRange": "Location is outside your acceptable range",
+      "employmentTypeMismatch": "Employment type does not match (full-time / part-time)",
+      "avoidRoleCategory": "Matches a role type you excluded",
+      "avoidPhrase": "Matches excluded keyword: {phrase}",
+      "productionLine": "Production-line / factory roles excluded",
+      "sales": "Sales roles excluded",
+      "foodService": "Food service roles excluded",
+      "agencyFiltered": "Agency / labor-broker posting filtered",
+      "redFlags": "Risk flags: {flags}",
+      "notInterested": "You marked this as not interested"
+    },
+    "notRecommended": "Not recommended: {reason}.",
+    "explanation": {
+      "intentMatch": "Intent match: {hits}",
+      "capabilityMatch": "Experience overlap: {hits}",
+      "taxonomyMatch": "Category match: {hits}",
+      "location": "Location: {location}",
+      "posterDirect": "Direct employer posting",
+      "posterAgency": "Poster shows agency / labor-broker signals",
+      "cautions": "Caution: {items}",
+      "fallback": "Partial overlap with your intent — review manually."
+    },
+    "caution": {
+      "unknownPoster": "Direct hire status unclear",
+      "sourceAgencyScam": "This source was flagged as a suspected agency",
+      "dismissedCategory": "Similar to a role type you dismissed"
+    }
+  }
+}

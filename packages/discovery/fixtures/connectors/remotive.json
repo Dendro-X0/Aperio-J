@@ -1,0 +1,27 @@
+{
+  "job-count": 2,
+  "jobs": [
+    {
+      "id": 1,
+      "title": "Senior Full-Stack Engineer",
+      "company_name": "Acme Corp",
+      "candidate_required_location": "Worldwide",
+      "job_type": "full_time",
+      "salary": "$120k - $160k",
+      "description": "Build SaaS products with React and Node.js.",
+      "publication_date": "2026-07-03T10:00:00",
+      "url": "https://remotive.com/remote-jobs/software-dev/senior-full-stack-engineer-123"
+    },
+    {
+      "id": 2,
+      "title": "DevOps Engineer",
+      "company_name": "Platform Co",
+      "candidate_required_location": "Europe",
+      "job_type": "full_time",
+      "salary": "Competitive",
+      "description": "AWS, CI/CD, Kubernetes.",
+      "publication_date": "2026-07-02T08:00:00",
+      "url": "https://remotive.com/remote-jobs/devops/devops-engineer-456"
+    }
+  ]
+}

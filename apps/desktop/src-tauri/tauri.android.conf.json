@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "build": {
+    "beforeBuildCommand": ""
+  },
+  "bundle": {
+    "resources": [],
+    "externalBin": [],
+    "android": {
+      "minSdkVersion": 24
+    }
+  }
+}

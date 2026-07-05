@@ -1,0 +1,32 @@
+[
+  {
+    "legal": "API Terms of Service: Please link back to Remote OK.",
+    "last_updated": 1783180808
+  },
+  {
+    "slug": "remote-senior-full-stack-engineer-acme-corp-1001",
+    "id": "1001",
+    "epoch": 1783122430,
+    "date": "2026-07-03T10:00:00+00:00",
+    "company": "Acme Corp",
+    "position": "Senior Full-Stack Engineer",
+    "tags": ["javascript", "react", "node"],
+    "description": "Build SaaS products with React and Node.js.",
+    "location": "Worldwide",
+    "url": "https://remoteok.com/remote-jobs/senior-full-stack-engineer-acme-corp-1001",
+    "salary_min": 120000,
+    "salary_max": 160000
+  },
+  {
+    "slug": "remote-devops-engineer-platform-co-1002",
+    "id": "1002",
+    "epoch": 1783036030,
+    "date": "2026-07-02T08:00:00+00:00",
+    "company": "Platform Co",
+    "position": "DevOps Engineer",
+    "tags": ["aws", "kubernetes"],
+    "description": "AWS, CI/CD, Kubernetes.",
+    "location": "Europe",
+    "url": "https://remoteok.com/remote-jobs/devops-engineer-platform-co-1002"
+  }
+]

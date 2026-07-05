@@ -1,0 +1,26 @@
+{
+  "count": 2,
+  "results": [
+    {
+      "id": "5001",
+      "title": "Full Stack Developer (m/w/d)",
+      "description": "React, Node.js, TypeScript team in Frankfurt.",
+      "redirect_url": "https://www.adzuna.de/land/ad/5001",
+      "created": "2026-07-01T10:00:00Z",
+      "location": { "display_name": "Frankfurt am Main, Hessen" },
+      "company": { "display_name": "FinTech GmbH" },
+      "salary_min": 65000,
+      "salary_max": 85000,
+      "contract_type": "permanent"
+    },
+    {
+      "id": "5002",
+      "title": "Software Engineer Backend",
+      "description": "Java and cloud services.",
+      "redirect_url": "https://www.adzuna.de/land/ad/5002",
+      "created": "2026-06-28T08:00:00Z",
+      "location": { "display_name": "Frankfurt, Hessen" },
+      "company": { "display_name": "Logistics AG" }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "@aperio-j/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "predev": "node scripts/ensure-node-sidecar.mjs",
+    "dev": "tauri dev",
+    "prebuild": "node scripts/ensure-node-sidecar.mjs",
+    "build": "tauri build",
+    "prepare:server": "node scripts/prepare-server.mjs",
+    "dev:android": "tauri android dev",
+    "dev:ios": "tauri ios dev",
+    "build:android": "node scripts/signing/patch-android-release-signing.mjs && tauri android build",
+    "build:ios": "tauri ios build",
+    "android:init": "tauri android init --ci",
+    "ios:init": "tauri ios init --ci",
+    "signing:android-keystore": "node scripts/signing/generate-android-keystore.mjs",
+    "signing:android-props": "node scripts/signing/write-android-keystore-props.mjs",
+    "signing:windows-cert": "node scripts/signing/generate-windows-cert.mjs"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.4"
+  }
+}

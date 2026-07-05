@@ -1,0 +1,29 @@
+{
+  "maxErgebnisse": "2",
+  "stellenangebote": [
+    {
+      "refnr": "10001-1002716922-S",
+      "beruf": "Softwareentwickler/in Fullstack",
+      "arbeitgeber": "Example Tech GmbH",
+      "aktuelleVeroeffentlichungsdatum": "2026-07-02",
+      "arbeitsort": {
+        "ort": "Frankfurt am Main",
+        "plz": 60311,
+        "land": "Deutschland"
+      },
+      "externeUrl": null
+    },
+    {
+      "refnr": "10001-1002716923-S",
+      "beruf": "Webentwickler/in",
+      "arbeitgeber": "Digital Services AG",
+      "aktuelleVeroeffentlichungsdatum": "2026-07-01",
+      "arbeitsort": {
+        "ort": "Frankfurt",
+        "plz": 60486,
+        "land": "Deutschland"
+      },
+      "externeUrl": "https://example.com/jobs/web-dev-frankfurt"
+    }
+  ]
+}

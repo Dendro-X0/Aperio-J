@@ -1,0 +1,746 @@
+/** Locale-keyed probe pack — community-extensible registry. */
+
+export interface RegistryStreamDef {
+  id: string;
+  label: string;
+  seedUrl: string;
+  kind: "rss" | "list_page";
+  domainTier: "gov" | "edu" | "company" | "aggregator" | "unknown";
+}
+
+export interface ProbePack {
+  id: string;
+  locale: string;
+  region?: string;
+  cityLabels: string[];
+  /** Lowercase aliases for city matching */
+  cityAliases: string[];
+  /** URL slug for aggregator templates, e.g. shenzhen */
+  citySlug?: string;
+  registryStreams: RegistryStreamDef[];
+  /** Pages to scan for RSS autodiscovery */
+  seedPages: string[];
+}
+
+/** National boards included in every matched CN city pack. */
+const NATIONAL_AGGREGATORS: RegistryStreamDef[] = [
+  {
+    id: "cn-51job",
+    label: "前程无忧",
+    seedUrl: "https://www.51job.com/",
+    kind: "list_page",
+    domainTier: "aggregator",
+  },
+  {
+    id: "cn-lagou",
+    label: "拉勾招聘",
+    seedUrl: "https://www.lagou.com/",
+    kind: "list_page",
+    domainTier: "aggregator",
+  },
+];
+
+function cityAggregators(cityLabel: string, slug: string): RegistryStreamDef[] {
+  return [
+    {
+      id: `${slug}-zhaopin`,
+      label: `智联招聘·${cityLabel}`,
+      seedUrl: `https://${slug}.zhaopin.com/`,
+      kind: "list_page",
+      domainTier: "aggregator",
+    },
+    {
+      id: `${slug}-zhipin`,
+      label: `BOSS直聘·${cityLabel}`,
+      seedUrl: `https://www.zhipin.com/${slug}/`,
+      kind: "list_page",
+      domainTier: "aggregator",
+    },
+  ];
+}
+
+/** China metro slug aliases — used for CN probe packs and isChinaCityProfile. */
+export const CN_CITY_SLUG_ALIASES: Record<string, string> = {
+  深圳: "shenzhen",
+  深圳市: "shenzhen",
+  shenzhen: "shenzhen",
+  sz: "shenzhen",
+  东莞: "dongguan",
+  东莞市: "dongguan",
+  dongguan: "dongguan",
+  dg: "dongguan",
+  广州: "guangzhou",
+  广州市: "guangzhou",
+  guangzhou: "guangzhou",
+  gz: "guangzhou",
+  北京: "beijing",
+  北京市: "beijing",
+  beijing: "beijing",
+  上海: "shanghai",
+  上海市: "shanghai",
+  shanghai: "shanghai",
+  杭州: "hangzhou",
+  杭州市: "hangzhou",
+  hangzhou: "hangzhou",
+  成都: "chengdu",
+  成都市: "chengdu",
+  chengdu: "chengdu",
+  武汉: "wuhan",
+  武汉市: "wuhan",
+  wuhan: "wuhan",
+  南京: "nanjing",
+  南京市: "nanjing",
+  nanjing: "nanjing",
+  苏州: "suzhou",
+  苏州市: "suzhou",
+  suzhou: "suzhou",
+  佛山: "foshan",
+  佛山市: "foshan",
+  foshan: "foshan",
+  惠州: "huizhou",
+  惠州市: "huizhou",
+  huizhou: "huizhou",
+  中山: "zhongshan",
+  中山市: "zhongshan",
+  zhongshan: "zhongshan",
+  珠海: "zhuhai",
+  珠海市: "zhuhai",
+  zhuhai: "zhuhai",
+  香港: "hongkong",
+  "hong kong": "hongkong",
+  hongkong: "hongkong",
+};
+
+/** Japan metro slug aliases — used for JP search sphere and slug resolution. */
+export const JP_CITY_SLUG_ALIASES: Record<string, string> = {
+  tokyo: "tokyo",
+  东京: "tokyo",
+  東京: "tokyo",
+  osaka: "osaka",
+  大阪: "osaka",
+  yokohama: "yokohama",
+  横浜: "yokohama",
+  横滨: "yokohama",
+  nagoya: "nagoya",
+  名古屋: "nagoya",
+  kyoto: "kyoto",
+  京都: "kyoto",
+  fukuoka: "fukuoka",
+  福岡: "fukuoka",
+  福冈: "fukuoka",
+  kobe: "kobe",
+  神戸: "kobe",
+  神户: "kobe",
+  sapporo: "sapporo",
+  札幌: "sapporo",
+};
+
+const JAPANESE_KANA_PATTERN = /[\u3040-\u309f\u30a0-\u30ff]/;
+
+export function hasJapaneseKana(text: string): boolean {
+  return JAPANESE_KANA_PATTERN.test(text);
+}
+
+export function isJapanCityLabel(city: string): boolean {
+  const raw = city.trim();
+  if (!raw) return false;
+  if (hasJapaneseKana(raw)) return true;
+
+  const normalized = normalizeCity(raw);
+  return raw in JP_CITY_SLUG_ALIASES || normalized in JP_CITY_SLUG_ALIASES;
+}
+
+export function isJapanCityProfile(primaryCity: string, acceptableCities: string[] = []): boolean {
+  const cities = [primaryCity, ...acceptableCities].map((city) => city.trim()).filter(Boolean);
+  return cities.some((city) => isJapanCityLabel(city));
+}
+
+const INTL_CITY_SLUG_ALIASES: Record<string, string> = {
+  paris: "paris",
+  london: "london",
+  frankfurt: "frankfurt",
+  "frankfurt am main": "frankfurt",
+  bonn: "bonn",
+  berlin: "berlin",
+  amsterdam: "amsterdam",
+  "new york": "newyork",
+  nyc: "newyork",
+  "san francisco": "sanfrancisco",
+  sf: "sanfrancisco",
+  "los angeles": "losangeles",
+  austin: "austin",
+  philadelphia: "philadelphia",
+  chicago: "chicago",
+  seattle: "seattle",
+  boston: "boston",
+  miami: "miami",
+  denver: "denver",
+  atlanta: "atlanta",
+  "washington dc": "washingtondc",
+  "washington d.c.": "washingtondc",
+  "washington, d.c.": "washingtondc",
+  toronto: "toronto",
+  sydney: "sydney",
+  singapore: "singapore",
+  tokyo: "tokyo",
+  东京: "tokyo",
+  東京: "tokyo",
+  osaka: "osaka",
+  大阪: "osaka",
+  yokohama: "yokohama",
+  横浜: "yokohama",
+  横滨: "yokohama",
+  nagoya: "nagoya",
+  名古屋: "nagoya",
+  kyoto: "kyoto",
+  京都: "kyoto",
+  fukuoka: "fukuoka",
+  福岡: "fukuoka",
+  福冈: "fukuoka",
+  kobe: "kobe",
+  神戸: "kobe",
+  神户: "kobe",
+  sapporo: "sapporo",
+  札幌: "sapporo",
+  巴黎: "paris",
+  伦敦: "london",
+  法兰克福: "frankfurt",
+  波恩: "bonn",
+  柏林: "berlin",
+};
+
+/** Slug lookup for generic-pack fallback (community packs preferred when available). */
+export const CITY_SLUG_ALIASES: Record<string, string> = {
+  ...CN_CITY_SLUG_ALIASES,
+  ...JP_CITY_SLUG_ALIASES,
+  ...INTL_CITY_SLUG_ALIASES,
+};
+
+export const PROBE_PACKS: ProbePack[] = [
+  {
+    id: "zh-CN-GD-SZ",
+    locale: "zh-CN",
+    region: "GD-SZ",
+    citySlug: "shenzhen",
+    cityLabels: ["深圳", "深圳市"],
+    cityAliases: ["深圳", "深圳市", "shenzhen", "sz"],
+    registryStreams: [
+      ...cityAggregators("深圳", "shenzhen"),
+      {
+        id: "sz-szhr",
+        label: "深圳人才网",
+        seedUrl: "https://www.szhr.com.cn/",
+        kind: "list_page",
+        domainTier: "gov",
+      },
+      {
+        id: "sz-gov-hrss-portal",
+        label: "深圳人社·通知公告",
+        seedUrl: "https://hrss.sz.gov.cn/tzgg/",
+        kind: "list_page",
+        domainTier: "gov",
+      },
+      {
+        id: "sz-gov-hrss",
+        label: "深圳市政府·人社",
+        seedUrl: "https://www.sz.gov.cn/cn/hrss/tzgg/",
+        kind: "list_page",
+        domainTier: "gov",
+      },
+      {
+        id: "sz-jyzx",
+        label: "深圳市公共就业服务中心",
+        seedUrl: "https://jyzx.sz.gov.cn/",
+        kind: "list_page",
+        domainTier: "gov",
+      },
+    ],
+    seedPages: [
+      "https://hrss.sz.gov.cn/",
+      "https://www.sz.gov.cn/cn/hrss/",
+      "https://shenzhen.zhaopin.com/",
+    ],
+  },
+  {
+    id: "zh-CN-GD-DG",
+    locale: "zh-CN",
+    region: "GD-DG",
+    citySlug: "dongguan",
+    cityLabels: ["东莞", "东莞市"],
+    cityAliases: ["东莞", "东莞市", "dongguan", "dg"],
+    registryStreams: [
+      ...cityAggregators("东莞", "dongguan"),
+      {
+        id: "dg-gov-hrss",
+        label: "东莞市人力资源和社会保障局",
+        seedUrl: "https://rsj.dg.gov.cn/",
+        kind: "list_page",
+        domainTier: "gov",
+      },
+    ],
+    seedPages: ["https://rsj.dg.gov.cn/", "https://dongguan.zhaopin.com/"],
+  },
+  {
+    id: "zh-CN-GD-GZ",
+    locale: "zh-CN",
+    region: "GD-GZ",
+    citySlug: "guangzhou",
+    cityLabels: ["广州", "广州市"],
+    cityAliases: ["广州", "广州市", "guangzhou", "gz"],
+    registryStreams: [
+      ...cityAggregators("广州", "guangzhou"),
+      {
+        id: "gz-gov-hrss",
+        label: "广州市人力资源和社会保障局",
+        seedUrl: "https://rsj.gz.gov.cn/",
+        kind: "list_page",
+        domainTier: "gov",
+      },
+    ],
+    seedPages: ["https://rsj.gz.gov.cn/", "https://guangzhou.zhaopin.com/"],
+  },
+  {
+    id: "zh-CN-generic",
+    locale: "zh-CN",
+    cityLabels: [],
+    cityAliases: [],
+    registryStreams: [...NATIONAL_AGGREGATORS],
+    seedPages: [],
+  },
+  {
+    id: "global-city",
+    locale: "en",
+    cityLabels: [],
+    cityAliases: [],
+    registryStreams: [],
+    seedPages: [],
+  },
+  {
+    id: "global-remote",
+    locale: "en",
+    cityLabels: [],
+    cityAliases: [],
+    registryStreams: [],
+    seedPages: [],
+  },
+];
+
+/** Remote-only RSS boards — used when no city is set, or as hybrid supplements. */
+export const REMOTE_REGISTRY_STREAMS: RegistryStreamDef[] = [
+  {
+    id: "wwr-programming",
+    label: "We Work Remotely · Programming",
+    seedUrl: "https://weworkremotely.com/categories/remote-programming-jobs.rss",
+    kind: "rss",
+    domainTier: "aggregator",
+  },
+  {
+    id: "wwr-devops",
+    label: "We Work Remotely · DevOps & Sysadmin",
+    seedUrl: "https://weworkremotely.com/categories/remote-devops-sysadmin-jobs.rss",
+    kind: "rss",
+    domainTier: "aggregator",
+  },
+  {
+    id: "wwr-design",
+    label: "We Work Remotely · Design",
+    seedUrl: "https://weworkremotely.com/categories/remote-design-jobs.rss",
+    kind: "rss",
+    domainTier: "aggregator",
+  },
+  {
+    id: "remoteco-feed",
+    label: "Remote.co · Jobs",
+    seedUrl: "https://remote.co/remote-jobs/feed/",
+    kind: "rss",
+    domainTier: "aggregator",
+  },
+  {
+    id: "remoteok-feed",
+    label: "Remote OK · Jobs",
+    seedUrl: "https://remoteok.com/remote-jobs.rss",
+    kind: "rss",
+    domainTier: "aggregator",
+  },
+  {
+    id: "jobspresso-feed",
+    label: "Jobspresso · Remote",
+    seedUrl: "https://jobspresso.co/feed/",
+    kind: "rss",
+    domainTier: "aggregator",
+  },
+  {
+    id: "wwr-all-remote",
+    label: "We Work Remotely · All remote",
+    seedUrl: "https://weworkremotely.com/remote-jobs.rss",
+    kind: "rss",
+    domainTier: "aggregator",
+  },
+  {
+    id: "hn-hiring",
+    label: "Hacker News · Who is hiring",
+    seedUrl: "https://hnhiring.com/latest/rss",
+    kind: "rss",
+    domainTier: "aggregator",
+  },
+  {
+    id: "remotive-feed",
+    label: "Remotive · Remote jobs",
+    seedUrl: "https://remotive.com/remote-jobs/feed",
+    kind: "rss",
+    domainTier: "aggregator",
+  },
+  {
+    id: "workingnomads-feed",
+    label: "Working Nomads · Remote",
+    seedUrl: "https://www.workingnomads.com/jobs.rss",
+    kind: "rss",
+    domainTier: "aggregator",
+  },
+  {
+    id: "arbeitnow-feed",
+    label: "Arbeitnow · Remote & visa-friendly",
+    seedUrl: "https://www.arbeitnow.com/api/job-board/feed",
+    kind: "rss",
+    domainTier: "aggregator",
+  },
+  {
+    id: "dynamitejobs-feed",
+    label: "Dynamite Jobs · Remote",
+    seedUrl: "https://dynamitejobs.com/feed",
+    kind: "rss",
+    domainTier: "aggregator",
+  },
+];
+
+/** Known employment portals for major international cities. */
+export const INTL_CITY_REGISTRY: Record<string, RegistryStreamDef[]> = {
+  paris: [
+    {
+      id: "paris-francetravail",
+      label: "France Travail",
+      seedUrl: "https://candidat.francetravail.fr/offres/recherche",
+      kind: "list_page",
+      domainTier: "gov",
+    },
+    {
+      id: "paris-service-public",
+      label: "Service Public · Recrutement",
+      seedUrl: "https://choisirleservicepublic.gouv.fr/nous-recherchons-des-candidats",
+      kind: "list_page",
+      domainTier: "gov",
+    },
+  ],
+  sanfrancisco: [
+    {
+      id: "sf-careers",
+      label: "City of San Francisco Careers",
+      seedUrl: "https://careers.sf.gov/",
+      kind: "list_page",
+      domainTier: "gov",
+    },
+    {
+      id: "sf-gov-jobs",
+      label: "SF.gov Jobs",
+      seedUrl: "https://www.sf.gov/departments--jobs",
+      kind: "list_page",
+      domainTier: "gov",
+    },
+    {
+      id: "sf-calcareers",
+      label: "CalCareers · California state jobs",
+      seedUrl: "https://www.calcareers.ca.gov/",
+      kind: "list_page",
+      domainTier: "gov",
+    },
+    {
+      id: "sf-usajobs",
+      label: "USAJOBS · Federal",
+      seedUrl: "https://www.usajobs.gov/JobSearch/Search/GetFeed",
+      kind: "rss",
+      domainTier: "gov",
+    },
+  ],
+  london: [
+    {
+      id: "uk-find-a-job",
+      label: "GOV.UK Find a job",
+      seedUrl: "https://www.gov.uk/find-a-job",
+      kind: "list_page",
+      domainTier: "gov",
+    },
+    {
+      id: "uk-civil-service",
+      label: "Civil Service Jobs",
+      seedUrl: "https://www.civilservicejobs.service.gov.uk/",
+      kind: "list_page",
+      domainTier: "gov",
+    },
+    {
+      id: "uk-reed",
+      label: "Reed.co.uk · Jobs",
+      seedUrl: "https://www.reed.co.uk/jobs",
+      kind: "list_page",
+      domainTier: "aggregator",
+    },
+  ],
+  frankfurt: [
+    {
+      id: "de-arbeitsagentur",
+      label: "Bundesagentur für Arbeit",
+      seedUrl: "https://www.arbeitsagentur.de/jobsuche/",
+      kind: "list_page",
+      domainTier: "gov",
+    },
+  ],
+  bonn: [
+    {
+      id: "de-arbeitsagentur-bonn",
+      label: "Bundesagentur für Arbeit",
+      seedUrl: "https://www.arbeitsagentur.de/jobsuche/",
+      kind: "list_page",
+      domainTier: "gov",
+    },
+  ],
+  berlin: [
+    {
+      id: "de-arbeitsagentur-berlin",
+      label: "Bundesagentur für Arbeit",
+      seedUrl: "https://www.arbeitsagentur.de/jobsuche/suche?wo=Berlin",
+      kind: "list_page",
+      domainTier: "gov",
+    },
+    {
+      id: "berlin-stepstone",
+      label: "StepStone · Berlin",
+      seedUrl: "https://www.stepstone.de/jobs/in-berlin",
+      kind: "list_page",
+      domainTier: "aggregator",
+    },
+  ],
+  newyork: [
+    {
+      id: "nyc-careers",
+      label: "NYC Careers",
+      seedUrl: "https://www.nyc.gov/html/careers/html/home/home.shtml",
+      kind: "list_page",
+      domainTier: "gov",
+    },
+    {
+      id: "nyc-usajobs",
+      label: "USAJOBS · Federal",
+      seedUrl: "https://www.usajobs.gov/JobSearch/Search/GetFeed",
+      kind: "rss",
+      domainTier: "gov",
+    },
+  ],
+  toronto: [
+    {
+      id: "ca-jobbank",
+      label: "Job Bank Canada",
+      seedUrl: "https://www.jobbank.gc.ca/jobsearch/",
+      kind: "list_page",
+      domainTier: "gov",
+    },
+  ],
+  sydney: [
+    {
+      id: "au-workforce",
+      label: "Workforce Australia",
+      seedUrl: "https://www.workforceaustralia.gov.au/",
+      kind: "list_page",
+      domainTier: "gov",
+    },
+  ],
+  singapore: [
+    {
+      id: "sg-mycareersfuture",
+      label: "MyCareersFuture Singapore",
+      seedUrl: "https://www.mycareersfuture.gov.sg/",
+      kind: "list_page",
+      domainTier: "gov",
+    },
+  ],
+  tokyo: [
+    {
+      id: "jp-hellowork",
+      label: "Hello Work (Japan)",
+      seedUrl: "https://www.hellowork.mhlw.go.jp/",
+      kind: "list_page",
+      domainTier: "gov",
+    },
+  ],
+  osaka: [
+    {
+      id: "jp-hellowork-osaka",
+      label: "Hello Work (Japan)",
+      seedUrl: "https://www.hellowork.mhlw.go.jp/",
+      kind: "list_page",
+      domainTier: "gov",
+    },
+  ],
+  amsterdam: [
+    {
+      id: "nl-werk",
+      label: "Werk.nl",
+      seedUrl: "https://www.werk.nl/werkzoekenden/",
+      kind: "list_page",
+      domainTier: "gov",
+    },
+  ],
+};
+
+// Attach remote streams to global-remote pack entry
+const globalRemotePack = PROBE_PACKS.find((pack) => pack.id === "global-remote");
+if (globalRemotePack) {
+  globalRemotePack.registryStreams = [...REMOTE_REGISTRY_STREAMS];
+}
+
+export function normalizeCity(value: string): string {
+  return value.trim().replace(/市$/u, "").toLowerCase();
+}
+
+export function resolveCitySlug(city: string): string | null {
+  const raw = city.trim();
+  if (!raw) return null;
+
+  const direct = CITY_SLUG_ALIASES[raw] ?? CITY_SLUG_ALIASES[normalizeCity(raw)];
+  if (direct) return direct;
+
+  const normalized = normalizeCity(raw);
+  const firstToken = normalized.split(/\s+/)[0] ?? "";
+  if (firstToken && CITY_SLUG_ALIASES[firstToken]) {
+    return CITY_SLUG_ALIASES[firstToken];
+  }
+
+  for (const pack of PROBE_PACKS) {
+    if (!pack.citySlug) continue;
+    const aliases = pack.cityAliases.map(normalizeCity);
+    if (aliases.some((alias) => normalized.includes(alias) || alias.includes(normalized))) {
+      return pack.citySlug;
+    }
+  }
+
+  if (/^[a-z][a-z0-9-]*$/i.test(normalized)) return normalized;
+  if (firstToken && /^[a-z][a-z0-9-]*$/i.test(firstToken)) return firstToken;
+  return null;
+}
+
+const FALLBACK_PACK_IDS = new Set(["zh-CN-generic", "global-remote", "global-city"]);
+
+/** CN city profile that accepts remote/hybrid — Work Best-style intake (remote boards first). */
+export function isCnRemoteFirstProfile(
+  primaryCity: string,
+  acceptableCities: string[] = [],
+  remotePreference: "remote-only" | "hybrid-ok" | "onsite-only" = "hybrid-ok",
+): boolean {
+  if (remotePreference === "onsite-only") return false;
+  return isChinaCityProfile(primaryCity, acceptableCities);
+}
+
+export function isChinaCityProfile(primaryCity: string, acceptableCities: string[] = []): boolean {
+  const cities = [primaryCity, ...acceptableCities].map((city) => city.trim()).filter(Boolean);
+  if (cities.length === 0) return false;
+  if (isJapanCityProfile(primaryCity, acceptableCities)) return false;
+
+  for (const pack of PROBE_PACKS) {
+    if (FALLBACK_PACK_IDS.has(pack.id)) continue;
+    const aliases = pack.cityAliases.map(normalizeCity);
+    if (
+      cities.some((city) => {
+        const normalized = normalizeCity(city);
+        return aliases.some((alias) => normalized.includes(alias) || alias.includes(normalized));
+      })
+    ) {
+      return true;
+    }
+  }
+
+  return cities.some((city) => {
+    if (/[\u4e00-\u9fff]/.test(city)) return true;
+    const raw = city.trim();
+    const normalized = normalizeCity(raw);
+    return (
+      raw in CN_CITY_SLUG_ALIASES ||
+      normalized in CN_CITY_SLUG_ALIASES
+    );
+  });
+}
+
+export function resolveProbePack(primaryCity: string, acceptableCities: string[] = []): ProbePack {
+  const cities = [primaryCity, ...acceptableCities].map(normalizeCity).filter(Boolean);
+
+  if (cities.length === 0) {
+    return PROBE_PACKS.find((pack) => pack.id === "global-remote")!;
+  }
+
+  for (const pack of PROBE_PACKS) {
+    if (FALLBACK_PACK_IDS.has(pack.id)) continue;
+    const aliases = pack.cityAliases.map(normalizeCity);
+    if (cities.some((city) => aliases.some((alias) => city.includes(alias) || alias.includes(city)))) {
+      return pack;
+    }
+  }
+
+  if (isChinaCityProfile(primaryCity, acceptableCities)) {
+    return PROBE_PACKS.find((pack) => pack.id === "zh-CN-generic")!;
+  }
+
+  return PROBE_PACKS.find((pack) => pack.id === "global-city")!;
+}
+
+export function getRegistryStreamById(packId: string, streamId: string): RegistryStreamDef | null {
+  const pack = PROBE_PACKS.find((row) => row.id === packId);
+  return pack?.registryStreams.find((row) => row.id === streamId) ?? null;
+}
+
+/** Build aggregator registry entries for a city slug (generic pack expansion). */
+export function buildGenericCityStreams(city: string): RegistryStreamDef[] {
+  const slug = resolveCitySlug(city);
+  if (!slug) return [];
+
+  const label = city.trim().replace(/市$/u, "") || city;
+  return cityAggregators(label, slug);
+}
+
+/** German metros — use country-specific job boards in buildInternationalCityStreams. */
+const GERMAN_CITY_SLUGS = new Set(["berlin", "bonn", "frankfurt", "munich", "hamburg", "cologne"]);
+
+function resolveIndeedHost(city: string, slug: string): string {
+  if (isJapanCityLabel(city)) return "jp.indeed.com";
+  if (GERMAN_CITY_SLUGS.has(slug)) return "de.indeed.com";
+  return "www.indeed.com";
+}
+
+/** Build international city registry + aggregator probes for global-city pack. */
+export function buildInternationalCityStreams(city: string): RegistryStreamDef[] {
+  const slug = resolveCitySlug(city) ?? normalizeCity(city).replace(/\s+/g, "");
+  if (!slug) return [];
+
+  const label = city.trim().replace(/市$/u, "") || city;
+  const known = INTL_CITY_REGISTRY[slug] ?? [];
+  const indeedHost = resolveIndeedHost(city, slug);
+  const generic: RegistryStreamDef[] = [
+    {
+      id: `${slug}-indeed`,
+      label: `Indeed · ${label}`,
+      seedUrl: `https://${indeedHost}/jobs?l=${encodeURIComponent(label)}`,
+      kind: "list_page",
+      domainTier: "aggregator",
+    },
+    {
+      id: `${slug}-linkedin`,
+      label: `LinkedIn · ${label}`,
+      seedUrl: `https://www.linkedin.com/jobs/search?location=${encodeURIComponent(label)}`,
+      kind: "list_page",
+      domainTier: "aggregator",
+    },
+  ];
+
+  const seen = new Set<string>();
+  return [...known, ...generic].filter((stream) => {
+    if (seen.has(stream.seedUrl)) return false;
+    seen.add(stream.seedUrl);
+    return true;
+  });
+}

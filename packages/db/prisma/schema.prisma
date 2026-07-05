@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model SeekerProfileRecord {
+  id                 String                @id @default(cuid())
+  displayName        String?
+  profileJson        String
+  onboardingComplete Boolean               @default(false)
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  matchRuns          MatchRun[]
+  streamEntries      StreamRegistryEntry[]
+  sourceDiscoveryRuns SourceDiscoveryRun[]
+  opportunityFeedback OpportunityFeedback[]
+  discoveryMemories   DiscoveryMemory[]
+  localSettings       ProfileLocalSetting[]
+}
+
+model ProfileLocalSetting {
+  id              String              @id @default(cuid())
+  seekerProfileId String
+  seekerProfile   SeekerProfileRecord @relation(fields: [seekerProfileId], references: [id], onDelete: Cascade)
+  key             String
+  value           String
+  updatedAt       DateTime            @updatedAt
+  createdAt       DateTime            @default(now())
+
+  @@unique([seekerProfileId, key])
+}
+
+model OpportunityRecord {
+  id         String   @id
+  title      String
+  body       String
+  url        String   @unique
+  sourceId   String
+  fetchedAt  DateTime
+  parsedJson String
+  createdAt  DateTime @default(now())
+}
+
+model MatchRun {
+  id                String              @id @default(cuid())
+  seekerProfileId   String
+  seekerProfile     SeekerProfileRecord @relation(fields: [seekerProfileId], references: [id], onDelete: Cascade)
+  ranAt             DateTime            @default(now())
+  opportunityCount  Int
+  matchedCount      Int
+  resultsJson       String
+}
+
+model StreamRegistryEntry {
+  id                String              @id @default(cuid())
+  seekerProfileId   String
+  seekerProfile     SeekerProfileRecord @relation(fields: [seekerProfileId], references: [id], onDelete: Cascade)
+  label             String
+  kind              String
+  seedUrl           String
+  discoveredVia     String
+  regionHint        String
+  confidence        Float
+  sampleItemCount   Int                 @default(0)
+  validationTier    String              @default("proven")
+  enabled           Boolean             @default(true)
+  health            String              @default("unknown")
+  pollLane          String              @default("warm")
+  opportunityYield  Float               @default(0)
+  matchYield        Float               @default(0)
+  learningWeight    Float               @default(1)
+  emptyFetchCount   Int                 @default(0)
+  userBlocked       Boolean             @default(false)
+  lastValidatedAt   DateTime
+  authMode          String              @default("none")
+  authSecret        String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@unique([seekerProfileId, seedUrl])
+}
+
+model SourceDiscoveryRun {
+  id                String              @id @default(cuid())
+  seekerProfileId   String
+  seekerProfile     SeekerProfileRecord @relation(fields: [seekerProfileId], references: [id], onDelete: Cascade)
+  manifestJson      String
+  candidatesFound   Int
+  candidatesEnabled Int
+  ranAt             DateTime            @default(now())
+}
+
+model DiscoveryMemory {
+  id              String              @id @default(cuid())
+  seekerProfileId String
+  seekerProfile   SeekerProfileRecord @relation(fields: [seekerProfileId], references: [id], onDelete: Cascade)
+  cityNorm        String
+  memoryJson      String
+  updatedAt       DateTime            @updatedAt
+  createdAt       DateTime            @default(now())
+
+  @@unique([seekerProfileId, cityNorm])
+}
+
+model OpportunityFeedback {
+  id              String              @id @default(cuid())
+  seekerProfileId String
+  seekerProfile   SeekerProfileRecord @relation(fields: [seekerProfileId], references: [id], onDelete: Cascade)
+  opportunityId   String
+  sourceId        String
+  action          String
+  reason          String?
+  roleCategories  String              @default("[]")
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@unique([seekerProfileId, opportunityId])
+}

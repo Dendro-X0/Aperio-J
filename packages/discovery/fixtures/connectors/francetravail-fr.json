@@ -1,0 +1,16 @@
+{
+  "resultats": [
+    {
+      "id": "1234567",
+      "intitule": "Développeur Full Stack",
+      "description": "Equipe produit React/Node.",
+      "dateCreation": "2026-07-01",
+      "salaire": { "libelle": "35K - 45K € brut annuel" },
+      "lieuTravail": { "libelle": "Paris 11e", "commune": "Paris" },
+      "entreprise": { "nom": "Example SAS" },
+      "origineOffre": {
+        "urlOrigine": "https://candidat.francetravail.fr/offres/recherche/detail/1234567"
+      }
+    }
+  ]
+}

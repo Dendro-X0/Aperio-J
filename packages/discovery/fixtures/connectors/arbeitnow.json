@@ -1,0 +1,42 @@
+{
+  "data": [
+    {
+      "slug": "remote-senior-full-stack-engineer-acme-corp-2001",
+      "company_name": "Acme Corp",
+      "title": "Senior Full-Stack Engineer",
+      "description": "React and Node.js remote role.",
+      "remote": true,
+      "url": "https://www.arbeitnow.com/jobs/companies/acme-corp/senior-full-stack-engineer-2001",
+      "tags": ["Software"],
+      "job_types": ["Full-time"],
+      "location": "Europe",
+      "created_at": 1783122430
+    },
+    {
+      "slug": "onsite-operations-intern-berlin-2002",
+      "company_name": "Local GmbH",
+      "title": "Operations Intern",
+      "description": "On-site support in Berlin office.",
+      "remote": false,
+      "url": "https://www.arbeitnow.com/jobs/companies/local-gmbh/operations-intern-2002",
+      "tags": ["Operations"],
+      "job_types": ["Internship"],
+      "location": "Berlin",
+      "created_at": 1783036030
+    },
+    {
+      "slug": "remote-backend-engineer-starter-2003",
+      "company_name": "Starter Labs",
+      "title": "Backend Engineer",
+      "description": "Go and PostgreSQL.",
+      "remote": true,
+      "url": "https://www.arbeitnow.com/jobs/companies/starter-labs/backend-engineer-2003",
+      "tags": ["Engineering"],
+      "job_types": ["Full-time"],
+      "location": "Germany",
+      "created_at": 1782949630
+    }
+  ],
+  "links": {},
+  "meta": { "current_page": 1, "last_page": 1, "total": 3 }
+}

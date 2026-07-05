@@ -1,0 +1,30 @@
+{
+  "name": "@aperio-j/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./locales/*": "./locales/*",
+    "./taxonomies/*": "./taxonomies/*"
+  },
+  "files": [
+    "dist",
+    "locales",
+    "taxonomies"
+  ],
+  "scripts": {
+    "build": "node scripts/sync-catalogs.mjs && tsc && node -e \"import{cpSync}from'node:fs';cpSync('locales','dist/locales',{recursive:true});cpSync('taxonomies','dist/taxonomies',{recursive:true});cpSync('src/catalogs','dist/catalogs',{recursive:true})\"",
+    "typecheck": "tsc --noEmit",
+    "test": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.32",
+    "typescript": "^6.0.3"
+  }
+}

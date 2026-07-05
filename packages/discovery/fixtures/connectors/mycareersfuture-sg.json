@@ -1,0 +1,29 @@
+{
+  "results": [
+    {
+      "uuid": "abc123-sg-test",
+      "title": "Software Engineer",
+      "description": "<p>Build government digital services.</p>",
+      "postedCompany": {
+        "name": "Example Tech Pte Ltd",
+        "uen": "201234567A"
+      },
+      "salary": {
+        "minimum": 6000,
+        "maximum": 9000,
+        "type": { "salaryType": "Monthly" }
+      },
+      "address": {
+        "street": "1 Marina Boulevard",
+        "postalCode": "018989",
+        "districts": [{ "location": "D01 Cecil, Marina", "region": "Central" }]
+      },
+      "metadata": {
+        "jobDetailsUrl": "https://www.mycareersfuture.gov.sg/job/information-technology/software-engineer-example-tech-abc123-sg-test",
+        "newPostingDate": "2026-07-01"
+      },
+      "categories": [{ "category": "Information Technology" }],
+      "employmentTypes": [{ "employmentType": "Full Time" }]
+    }
+  ]
+}

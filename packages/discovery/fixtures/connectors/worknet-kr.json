@@ -1,0 +1,16 @@
+{
+  "jobs": [
+    {
+      "wantedAuthNo": "K240701001",
+      "company": "Example Tech Co",
+      "title": "백엔드 개발자",
+      "salTpNm": "월급",
+      "minSal": "4000000",
+      "maxSal": "5500000",
+      "region": "서울",
+      "basicAddr": "서울특별시 강남구",
+      "closeDt": "2026-07-31",
+      "wantedInfoUrl": "https://www.work.go.kr/empInfo/empInfoSrch/detail/empDetailAuthView.do?wantedAuthNo=K240701001"
+    }
+  ]
+}

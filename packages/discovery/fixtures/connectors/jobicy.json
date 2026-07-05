@@ -1,0 +1,20 @@
+{
+  "jobs": [
+    {
+      "id": 1001,
+      "url": "https://jobicy.com/jobs/1001-senior-full-stack-engineer",
+      "jobTitle": "Senior Full-Stack Engineer",
+      "companyName": "Acme Remote",
+      "jobIndustry": ["Software Engineering"],
+      "jobType": ["Full-Time"],
+      "jobGeo": "Singapore",
+      "jobLevel": "Senior",
+      "jobExcerpt": "React and Node.js platform team.",
+      "jobDescription": "<p>Remote-friendly full-stack role.</p>",
+      "pubDate": "2026-07-03T10:00:00+00:00",
+      "annualSalaryMin": 120000,
+      "annualSalaryMax": 150000,
+      "salaryCurrency": "SGD"
+    }
+  ]
+}

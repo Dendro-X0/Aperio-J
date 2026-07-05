@@ -1,0 +1,26 @@
+{
+  "name": "@aperio-j/probe",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "tsc && node --test dist/*.test.js"
+  },
+  "dependencies": {
+    "@aperio-j/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.32",
+    "typescript": "^6.0.3"
+  }
+}

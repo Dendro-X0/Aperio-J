@@ -1,0 +1,530 @@
+{
+  "meta": {
+    "version": "1",
+    "defaultLocale": "zh-CN"
+  },
+  "nodes": [
+    {
+      "id": "city:shenzhen",
+      "kind": "city",
+      "labels": { "zh-CN": "深圳", "en": "Shenzhen" },
+      "matchTerms": ["深圳", "shenzhen"]
+    },
+    {
+      "id": "city:guangzhou",
+      "kind": "city",
+      "labels": { "zh-CN": "广州", "en": "Guangzhou" },
+      "matchTerms": ["广州", "guangzhou"]
+    },
+    {
+      "id": "city:dongguan",
+      "kind": "city",
+      "labels": { "zh-CN": "东莞", "en": "Dongguan" },
+      "matchTerms": ["东莞", "dongguan"]
+    },
+    {
+      "id": "city:foshan",
+      "kind": "city",
+      "labels": { "zh-CN": "佛山", "en": "Foshan" },
+      "matchTerms": ["佛山", "foshan"]
+    },
+    {
+      "id": "city:huizhou",
+      "kind": "city",
+      "labels": { "zh-CN": "惠州", "en": "Huizhou" },
+      "matchTerms": ["惠州", "huizhou"]
+    },
+    {
+      "id": "city:beijing",
+      "kind": "city",
+      "labels": { "zh-CN": "北京", "en": "Beijing" },
+      "matchTerms": ["北京", "北京市", "beijing"]
+    },
+    {
+      "id": "city:shanghai",
+      "kind": "city",
+      "labels": { "zh-CN": "上海", "en": "Shanghai" },
+      "matchTerms": ["上海", "上海市", "shanghai"]
+    },
+    {
+      "id": "city:chengdu",
+      "kind": "city",
+      "labels": { "zh-CN": "成都", "en": "Chengdu" },
+      "matchTerms": ["成都", "成都市", "chengdu"]
+    },
+    {
+      "id": "city:wuhan",
+      "kind": "city",
+      "labels": { "zh-CN": "武汉", "en": "Wuhan" },
+      "matchTerms": ["武汉", "武汉市", "wuhan"]
+    },
+    {
+      "id": "city:nanjing",
+      "kind": "city",
+      "labels": { "zh-CN": "南京", "en": "Nanjing" },
+      "matchTerms": ["南京", "南京市", "nanjing"]
+    },
+    {
+      "id": "city:suzhou",
+      "kind": "city",
+      "labels": { "zh-CN": "苏州", "en": "Suzhou" },
+      "matchTerms": ["苏州", "苏州市", "suzhou"]
+    },
+    {
+      "id": "city:hongkong",
+      "kind": "city",
+      "labels": { "zh-CN": "香港", "en": "Hong Kong" },
+      "matchTerms": ["香港", "hong kong", "hongkong"]
+    },
+    {
+      "id": "city:paris",
+      "kind": "city",
+      "labels": { "zh-CN": "巴黎", "en": "Paris" },
+      "matchTerms": ["巴黎", "paris"]
+    },
+    {
+      "id": "city:london",
+      "kind": "city",
+      "labels": { "zh-CN": "伦敦", "en": "London" },
+      "matchTerms": ["伦敦", "london"]
+    },
+    {
+      "id": "city:frankfurt",
+      "kind": "city",
+      "labels": { "zh-CN": "法兰克福", "en": "Frankfurt" },
+      "matchTerms": ["法兰克福", "frankfurt", "frankfurt am main"]
+    },
+    {
+      "id": "city:bonn",
+      "kind": "city",
+      "labels": { "zh-CN": "波恩", "en": "Bonn" },
+      "matchTerms": ["波恩", "bonn"]
+    },
+    {
+      "id": "city:berlin",
+      "kind": "city",
+      "labels": { "zh-CN": "柏林", "en": "Berlin" },
+      "matchTerms": ["柏林", "berlin"]
+    },
+    {
+      "id": "city:amsterdam",
+      "kind": "city",
+      "labels": { "zh-CN": "阿姆斯特丹", "en": "Amsterdam" },
+      "matchTerms": ["阿姆斯特丹", "amsterdam"]
+    },
+    {
+      "id": "city:newyork",
+      "kind": "city",
+      "labels": { "zh-CN": "纽约", "en": "New York" },
+      "matchTerms": ["纽约", "new york", "nyc"]
+    },
+    {
+      "id": "city:sanfrancisco",
+      "kind": "city",
+      "labels": { "zh-CN": "旧金山", "en": "San Francisco" },
+      "matchTerms": ["旧金山", "san francisco", "sf"]
+    },
+    {
+      "id": "city:toronto",
+      "kind": "city",
+      "labels": { "zh-CN": "多伦多", "en": "Toronto" },
+      "matchTerms": ["多伦多", "toronto"]
+    },
+    {
+      "id": "city:sydney",
+      "kind": "city",
+      "labels": { "zh-CN": "悉尼", "en": "Sydney" },
+      "matchTerms": ["悉尼", "sydney"]
+    },
+    {
+      "id": "city:singapore",
+      "kind": "city",
+      "labels": { "zh-CN": "新加坡", "en": "Singapore" },
+      "matchTerms": ["新加坡", "singapore"]
+    },
+    {
+      "id": "city:tokyo",
+      "kind": "city",
+      "labels": { "zh-CN": "东京", "en": "Tokyo" },
+      "matchTerms": ["东京", "tokyo"]
+    },
+    {
+      "id": "city:remote",
+      "kind": "city",
+      "labels": { "zh-CN": "远程", "en": "Remote" },
+      "matchTerms": ["远程", "remote", "居家办公", "work from home"]
+    },
+    {
+      "id": "industry:electronics-manufacturing",
+      "kind": "industry",
+      "industryGroup": "manufacturing",
+      "labels": { "zh-CN": "电子制造", "en": "Electronics manufacturing" },
+      "matchTerms": ["电子", "制造", "组装", "半导体", "electronics", "assembly", "smt", "pcb"]
+    },
+    {
+      "id": "industry:logistics-warehousing",
+      "kind": "industry",
+      "industryGroup": "logistics",
+      "labels": { "zh-CN": "物流仓储", "en": "Logistics & warehousing" },
+      "matchTerms": ["物流", "仓储", "仓库", "配送", "logistics", "warehouse"]
+    },
+    {
+      "id": "industry:general-manufacturing",
+      "kind": "industry",
+      "industryGroup": "manufacturing",
+      "labels": { "zh-CN": "通用制造", "en": "General manufacturing" },
+      "matchTerms": ["工厂", "制造业", "manufacturing", "产线", "生产"]
+    },
+    {
+      "id": "industry:food-service",
+      "kind": "industry",
+      "industryGroup": "services",
+      "labels": { "zh-CN": "餐饮服务业", "en": "Food service" },
+      "matchTerms": ["餐饮", "服务员", "后厨", "hospitality", "food service"]
+    },
+    {
+      "id": "industry:automotive",
+      "kind": "industry",
+      "industryGroup": "manufacturing",
+      "labels": { "zh-CN": "汽车制造", "en": "Automotive manufacturing" },
+      "matchTerms": ["汽车", "零部件", "automotive", "vehicle", "新能源车"]
+    },
+    {
+      "id": "industry:textile-apparel",
+      "kind": "industry",
+      "industryGroup": "manufacturing",
+      "labels": { "zh-CN": "纺织服装", "en": "Textile & apparel" },
+      "matchTerms": ["纺织", "服装", "鞋帽", "textile", "apparel", "garment"]
+    },
+    {
+      "id": "industry:pharmaceutical",
+      "kind": "industry",
+      "industryGroup": "manufacturing",
+      "labels": { "zh-CN": "医药生物", "en": "Pharma & biotech" },
+      "matchTerms": ["医药", "制药", "生物", "pharma", "biotech", "medical device"]
+    },
+    {
+      "id": "industry:it-software",
+      "kind": "industry",
+      "industryGroup": "technology",
+      "labels": { "zh-CN": "IT/软件", "en": "IT & software" },
+      "matchTerms": ["软件", "互联网", "程序员", "it", "software", "developer", "saas"]
+    },
+    {
+      "id": "industry:internet-platform",
+      "kind": "industry",
+      "industryGroup": "technology",
+      "labels": { "zh-CN": "互联网平台", "en": "Internet & platforms" },
+      "matchTerms": ["平台", "电商运营", "新媒体", "platform", "e-commerce", "content"]
+    },
+    {
+      "id": "industry:telecom",
+      "kind": "industry",
+      "industryGroup": "technology",
+      "labels": { "zh-CN": "通信网络", "en": "Telecommunications" },
+      "matchTerms": ["通信", "运营商", "网络", "telecom", "5g", "broadband"]
+    },
+    {
+      "id": "industry:retail-ecommerce",
+      "kind": "industry",
+      "industryGroup": "services",
+      "labels": { "zh-CN": "零售电商", "en": "Retail & e-commerce" },
+      "matchTerms": ["零售", "商超", "门店", "retail", "store", "shop", "电商"]
+    },
+    {
+      "id": "industry:hospitality-tourism",
+      "kind": "industry",
+      "industryGroup": "services",
+      "labels": { "zh-CN": "酒店旅游", "en": "Hospitality & tourism" },
+      "matchTerms": ["酒店", "旅游", "民宿", "hospitality", "tourism", "hotel"]
+    },
+    {
+      "id": "industry:healthcare",
+      "kind": "industry",
+      "industryGroup": "services",
+      "labels": { "zh-CN": "医疗健康", "en": "Healthcare" },
+      "matchTerms": ["医院", "诊所", "护理", "healthcare", "clinic", "nursing"]
+    },
+    {
+      "id": "industry:education-training",
+      "kind": "industry",
+      "industryGroup": "services",
+      "labels": { "zh-CN": "教育培训", "en": "Education & training" },
+      "matchTerms": ["教育", "培训", "学校", "education", "training", "tutor"]
+    },
+    {
+      "id": "industry:professional-services",
+      "kind": "industry",
+      "industryGroup": "services",
+      "labels": { "zh-CN": "专业服务", "en": "Professional services" },
+      "matchTerms": ["咨询", "人力", "猎头", "consulting", "hr", "agency", "外包"]
+    },
+    {
+      "id": "industry:finance-insurance",
+      "kind": "industry",
+      "industryGroup": "finance",
+      "labels": { "zh-CN": "金融保险", "en": "Finance & insurance" },
+      "matchTerms": ["银行", "保险", "证券", "finance", "insurance", "banking"]
+    },
+    {
+      "id": "industry:real-estate",
+      "kind": "industry",
+      "industryGroup": "finance",
+      "labels": { "zh-CN": "房地产", "en": "Real estate" },
+      "matchTerms": ["房地产", "物业", "中介", "real estate", "property"]
+    },
+    {
+      "id": "industry:construction",
+      "kind": "industry",
+      "industryGroup": "other",
+      "labels": { "zh-CN": "建筑工程", "en": "Construction & engineering" },
+      "matchTerms": ["建筑", "装修", "工地", "construction", "civil", "decorating"]
+    },
+    {
+      "id": "industry:transport-delivery",
+      "kind": "industry",
+      "industryGroup": "logistics",
+      "labels": { "zh-CN": "交通运输", "en": "Transport & delivery" },
+      "matchTerms": ["快递", "配送", "司机", "货运", "delivery", "courier", "driver"]
+    },
+    {
+      "id": "industry:energy-utilities",
+      "kind": "industry",
+      "industryGroup": "other",
+      "labels": { "zh-CN": "能源公用", "en": "Energy & utilities" },
+      "matchTerms": ["电力", "能源", "水务", "energy", "utilities", "power"]
+    },
+    {
+      "id": "industry:agriculture",
+      "kind": "industry",
+      "industryGroup": "other",
+      "labels": { "zh-CN": "农业", "en": "Agriculture" },
+      "matchTerms": ["农业", "种植", "养殖", "agriculture", "farming"]
+    },
+    {
+      "id": "industry:media-creative",
+      "kind": "industry",
+      "industryGroup": "services",
+      "labels": { "zh-CN": "传媒文创", "en": "Media & creative" },
+      "matchTerms": ["传媒", "广告", "设计", "media", "creative", "advertising"]
+    },
+    {
+      "id": "industry:security-property",
+      "kind": "industry",
+      "industryGroup": "services",
+      "labels": { "zh-CN": "安保物业", "en": "Security & property management" },
+      "matchTerms": ["保安", "物业", "保洁", "security", "cleaning", "janitor"]
+    },
+    {
+      "id": "industry:beauty-wellness",
+      "kind": "industry",
+      "industryGroup": "services",
+      "labels": { "zh-CN": "美容健康", "en": "Beauty & wellness" },
+      "matchTerms": ["美容", "美发", "养生", "beauty", "wellness", "spa"]
+    },
+    {
+      "id": "industry:government-public",
+      "kind": "industry",
+      "industryGroup": "public",
+      "labels": { "zh-CN": "政府公共", "en": "Government & public sector" },
+      "matchTerms": ["政府", "事业单位", "国企", "public sector", "state-owned"]
+    },
+    {
+      "id": "subSector:qc",
+      "kind": "subSector",
+      "parentId": "industry:electronics-manufacturing",
+      "roleCategory": "qc",
+      "labels": { "zh-CN": "质检", "en": "Quality control" },
+      "matchTerms": ["质检", "品检", "iqc", "oqc", "fqc", "qc", "quality control", "检验员"]
+    },
+    {
+      "id": "subSector:warehouse",
+      "kind": "subSector",
+      "parentId": "industry:logistics-warehousing",
+      "roleCategory": "warehouse",
+      "labels": { "zh-CN": "仓储", "en": "Warehousing" },
+      "matchTerms": ["仓储", "仓库", "仓管", "warehouse", "拣货", "理货"]
+    },
+    {
+      "id": "subSector:materials",
+      "kind": "subSector",
+      "parentId": "industry:logistics-warehousing",
+      "roleCategory": "materials",
+      "labels": { "zh-CN": "物料", "en": "Materials" },
+      "matchTerms": ["物料", "备料", "发料", "material", "kitting"]
+    },
+    {
+      "id": "subSector:production-line",
+      "kind": "subSector",
+      "parentId": "industry:general-manufacturing",
+      "roleCategory": "production-line",
+      "labels": { "zh-CN": "产线/普工", "en": "Production line" },
+      "matchTerms": ["流水线", "产线", "普工", "组装", "操作工", "production line"]
+    },
+    {
+      "id": "subSector:equipment-maintenance",
+      "kind": "subSector",
+      "parentId": "industry:general-manufacturing",
+      "roleCategory": "equipment-maintenance",
+      "labels": { "zh-CN": "设备维护", "en": "Equipment maintenance" },
+      "matchTerms": ["设备维护", "机修", "维修", "保养", "maintenance", "technician"]
+    },
+    {
+      "id": "subSector:office-admin",
+      "kind": "subSector",
+      "parentId": "industry:general-manufacturing",
+      "roleCategory": "office-admin",
+      "labels": { "zh-CN": "文职/行政", "en": "Office admin" },
+      "matchTerms": ["文职", "行政", "跟单", "文员", "office admin", "coordinator"]
+    },
+    {
+      "id": "subSector:sales",
+      "kind": "subSector",
+      "parentId": "industry:general-manufacturing",
+      "roleCategory": "sales",
+      "labels": { "zh-CN": "销售", "en": "Sales" },
+      "matchTerms": ["销售", "业务员", "推广", "sales", "business development"]
+    },
+    {
+      "id": "subSector:food-service",
+      "kind": "subSector",
+      "parentId": "industry:food-service",
+      "roleCategory": "food-service",
+      "labels": { "zh-CN": "餐饮岗位", "en": "Food service roles" },
+      "matchTerms": ["服务员", "餐饮", "后厨", "收银", "waiter"]
+    },
+    {
+      "id": "subSector:general-labor",
+      "kind": "subSector",
+      "parentId": "industry:general-manufacturing",
+      "roleCategory": "general-labor",
+      "labels": { "zh-CN": "通用劳务", "en": "General labor" },
+      "matchTerms": ["杂工", "搬运", "保洁", "保安", "general labor"]
+    },
+    {
+      "id": "subSector:frontend-dev",
+      "kind": "subSector",
+      "parentId": "industry:it-software",
+      "labels": { "zh-CN": "前端开发", "en": "Front-end development" },
+      "matchTerms": [
+        "前端",
+        "front-end",
+        "frontend",
+        "front end",
+        "react",
+        "vue",
+        "angular",
+        "web developer",
+        "ui developer",
+        "javascript developer"
+      ]
+    },
+    {
+      "id": "subSector:backend-dev",
+      "kind": "subSector",
+      "parentId": "industry:it-software",
+      "labels": { "zh-CN": "后端开发", "en": "Back-end development" },
+      "matchTerms": [
+        "后端",
+        "back-end",
+        "backend",
+        "back end",
+        "server-side",
+        "api developer",
+        "java developer",
+        "python developer",
+        "golang",
+        "node.js developer",
+        "php developer"
+      ]
+    },
+    {
+      "id": "subSector:fullstack-dev",
+      "kind": "subSector",
+      "parentId": "industry:it-software",
+      "labels": { "zh-CN": "全栈开发", "en": "Full-stack development" },
+      "matchTerms": ["全栈", "full-stack", "fullstack", "full stack"]
+    },
+    {
+      "id": "subSector:devops",
+      "kind": "subSector",
+      "parentId": "industry:it-software",
+      "labels": { "zh-CN": "DevOps / 运维", "en": "DevOps" },
+      "matchTerms": [
+        "devops",
+        "sre",
+        "site reliability",
+        "ci/cd",
+        "kubernetes",
+        "k8s",
+        "docker",
+        "infrastructure engineer",
+        "platform engineer",
+        "运维工程师",
+        "系统运维"
+      ]
+    },
+    {
+      "id": "subSector:mobile-dev",
+      "kind": "subSector",
+      "parentId": "industry:it-software",
+      "labels": { "zh-CN": "移动开发", "en": "Mobile development" },
+      "matchTerms": [
+        "移动开发",
+        "mobile developer",
+        "ios developer",
+        "android developer",
+        "flutter",
+        "react native",
+        "swift developer",
+        "kotlin developer"
+      ]
+    },
+    {
+      "id": "subSector:game-dev",
+      "kind": "subSector",
+      "parentId": "industry:it-software",
+      "labels": { "zh-CN": "游戏开发", "en": "Game development" },
+      "matchTerms": [
+        "游戏开发",
+        "game developer",
+        "game engineer",
+        "unity",
+        "unreal",
+        "游戏程序",
+        "游戏客户端"
+      ]
+    },
+    {
+      "id": "subSector:data-ml",
+      "kind": "subSector",
+      "parentId": "industry:it-software",
+      "labels": { "zh-CN": "数据 / 机器学习", "en": "Data & ML" },
+      "matchTerms": [
+        "数据科学",
+        "data scientist",
+        "machine learning",
+        "ml engineer",
+        "ai engineer",
+        "deep learning",
+        "数据分析师",
+        "算法工程师"
+      ]
+    },
+    {
+      "id": "subSector:qa-automation",
+      "kind": "subSector",
+      "parentId": "industry:it-software",
+      "labels": { "zh-CN": "测试 / 自动化", "en": "QA & automation" },
+      "matchTerms": [
+        "测试工程师",
+        "qa engineer",
+        "sdet",
+        "test automation",
+        "quality assurance engineer",
+        "software tester",
+        "automation engineer"
+      ]
+    }
+  ]
+}

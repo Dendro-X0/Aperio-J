@@ -1,0 +1,16 @@
+{
+  "results": [
+    {
+      "jobId": 5001,
+      "jobTitle": "Senior Full-Stack Developer",
+      "employerName": "Example Tech Ltd",
+      "locationName": "London",
+      "minimumSalary": 65000,
+      "maximumSalary": 85000,
+      "currency": "GBP",
+      "jobDescription": "React and Node.js platform team.",
+      "datePosted": "2026-07-01",
+      "jobUrl": "https://www.reed.co.uk/jobs/full-stack-developer/5001"
+    }
+  ]
+}
