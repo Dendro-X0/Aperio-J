@@ -30,7 +30,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Shorten workspace path (NSIS 260-char limit)
-        run: subst X: ${{ github.workspace }}
+        run: 'subst X: ${{ github.workspace }}'
 
       - name: Prepare env for build
         shell: cmd
@@ -55,7 +55,7 @@ jobs:
 
       - name: Remove drive subst
         if: always()
-        run: subst X: /d
+        run: 'subst X: /d'
 
   android:
     name: Mobile installer (Android)
