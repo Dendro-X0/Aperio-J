@@ -52,6 +52,8 @@ try {
     /Caused by:/m,
     /error: /m,
     /Error /m,
+    /Kotlin metadata mismatch/i,
+    /compiler version .* can read versions/i,
   ];
 
   const lines = log.split("\n");
