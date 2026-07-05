@@ -22,6 +22,7 @@ function runStep(label, cmd, cwd = desktopRoot) {
 }
 
 try {
+  runStep("preflight", "bash ../../scripts/android-preflight.sh");
   runStep("ensure sidecar + frontend dist", "node scripts/ensure-node-sidecar.mjs");
   runStep("patch release signing", "node scripts/signing/patch-android-release-signing.mjs");
 

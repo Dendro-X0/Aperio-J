@@ -105,6 +105,11 @@ jobs:
 
       - run: cp .env.example .env && cp apps/web/.env.example apps/web/.env
 
+      - name: Preflight Android toolchain
+        run: bash scripts/android-preflight.sh
+        env:
+          NDK_HOME: ${{ steps.ndk.outputs.path }}
+
       - name: Build Android APK
         working-directory: apps/desktop
         run: node scripts/build-android-ci.mjs --target aarch64 --apk --debug

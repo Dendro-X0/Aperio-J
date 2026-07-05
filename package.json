@@ -20,6 +20,7 @@
     "build:android": "pnpm --filter @aperio-j/desktop build:android",
     "build:ios": "pnpm --filter @aperio-j/desktop build:ios",
     "build:mobile": "pnpm --filter @aperio-j/desktop build:android",
+    "preflight:android": "bash scripts/android-preflight.sh",
     "db:push": "dotenv -c -- pnpm --filter @aperio-j/db push",
     "db:generate": "dotenv -c -- pnpm --filter @aperio-j/db generate",
     "postinstall": "node scripts/rebuild-native-modules.mjs",
