@@ -75,13 +75,26 @@ function copyNodeSidecar() {
 
 copyNodeSidecar();
 
+const buildEnv = {
+  ...process.env,
+  TAURI_BUILD: "1",
+  DATABASE_URL: process.env.DATABASE_URL ?? "file:../../data/aperio-j-ci.db",
+};
+
+function run(command) {
+  console.log(`prepare-server: ${command}`);
+  try {
+    execSync(command, { cwd: repoRoot, stdio: "inherit", env: buildEnv });
+  } catch (error) {
+    console.error(`prepare-server: command failed: ${command}`);
+    throw error;
+  }
+}
+
+console.log("prepare-server: building workspace packages…");
+run('pnpm -r --filter "./packages/*" build');
 console.log("prepare-server: building Next.js standalone…");
-execSync("pnpm --filter @aperio-j/db build", { cwd: repoRoot, stdio: "inherit" });
-execSync("pnpm --filter @aperio-j/web build", {
-  cwd: repoRoot,
-  stdio: "inherit",
-  env: { ...process.env, TAURI_BUILD: "1" },
-});
+run("pnpm --filter @aperio-j/web build");
 
 const standaloneSrc = join(webRoot, ".next", "standalone");
 if (!existsSync(standaloneSrc)) {
