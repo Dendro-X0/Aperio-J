@@ -77,7 +77,7 @@ Artifacts: `apps/desktop/src-tauri/target/release/bundle/`
 pnpm build:android
 ```
 
-Release APK/AAB is signed when `src-tauri/gen/android/keystore.properties` exists (see self-signing below). Without it, release builds use debug signing (fine for sideload testing).
+Release APK/AAB is signed when `src-tauri/gen/android/keystore.properties` exists (see self-signing below). CI uses the committed upload keystore at `apps/desktop/signing/android-upload.jks` and publishes **signed release APKs** to [GitHub Releases](https://github.com/Dendro-X0/Aperio-J/releases/latest) on every `main` push.
 
 ### iOS
 
@@ -93,9 +93,11 @@ The employment engine still runs in the **Next.js + Prisma** server. That stack 
 
 ## OSS-friendly self-signing
 
-No paid certificates are required for local distribution or GitHub Releases. Users generate keys locally; nothing secret is committed.
+No paid certificates are required for local distribution or GitHub Releases.
 
-Copy `apps/desktop/.env.signing.example` → `.env.signing` (gitignored) and export variables before release builds.
+**CI (automatic):** Every push to `main` builds installers and publishes them to the rolling [`latest` release](https://github.com/Dendro-X0/Aperio-J/releases/latest) — `Aperio-J-windows-setup.exe` and `Aperio-J-android.apk` (signed release APK for sideload).
+
+Copy `apps/desktop/.env.signing.example` → `.env.signing` (gitignored) and export variables before local release builds.
 
 ### Windows
 
@@ -115,12 +117,13 @@ pnpm build:desktop
 ### Android
 
 ```bash
+# Local override only — CI uses apps/desktop/signing/android-upload.jks
 pnpm --filter @aperio-j/desktop signing:android-keystore
 pnpm --filter @aperio-j/desktop signing:android-props
 pnpm build:android
 ```
 
-Keystore defaults to `apps/desktop/.signing/android-upload.jks`. `patch-android-release-signing.mjs` wires Gradle release signing when `keystore.properties` exists.
+Default CI keystore: `apps/desktop/signing/android-upload.jks` (alias `aperio-j-upload`, password `aperio-j-local`). Friends sideload the release APK with「允许安装未知来源」— no app store or 备案 required.
 
 ### iOS
 

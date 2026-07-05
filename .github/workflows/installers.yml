@@ -110,13 +110,15 @@ jobs:
         env:
           NDK_HOME: ${{ steps.ndk.outputs.path }}
 
-      - name: Build Android APK
+      - name: Build Android APK (signed release)
         working-directory: apps/desktop
-        run: node scripts/build-android-ci.mjs --target aarch64 --apk --debug
+        run: node scripts/build-android-ci.mjs --target aarch64 --apk
         env:
           DATABASE_URL: file:../../data/aperio-j-ci.db
           NDK_HOME: ${{ steps.ndk.outputs.path }}
           JAVA_HOME: ${{ env.JAVA_HOME }}
+          APERIO_J_ANDROID_KEYSTORE_BASE64: ${{ secrets.APERIO_J_ANDROID_KEYSTORE_BASE64 }}
+          APERIO_J_ANDROID_KEY_PASSWORD: ${{ secrets.APERIO_J_ANDROID_KEY_PASSWORD }}
 
       - name: Upload Android build log on failure
         if: failure()
@@ -133,6 +135,5 @@ jobs:
         with:
           name: aperio-j-android
           path: |
-            apps/desktop/src-tauri/gen/android/app/build/outputs/apk/**/*.apk
-            apps/desktop/src-tauri/gen/android/app/build/outputs/bundle/**/*.aab
-          if-no-files-found: warn
+            apps/desktop/src-tauri/gen/android/app/build/outputs/apk/**/release/*.apk
+          if-no-files-found: error

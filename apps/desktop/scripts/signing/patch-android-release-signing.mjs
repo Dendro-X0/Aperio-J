@@ -64,10 +64,10 @@ source = source.replace(
 );
 
 source = source.replace(
-  /getByName\("release"\) \{\s*\n\s*isMinifyEnabled = true/,
+  /getByName\("release"\) \{[^}]*isMinifyEnabled = (true|false)/,
   `getByName("release") {
             signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = true`,
+            isMinifyEnabled = false`,
 );
 
 writeFileSync(gradlePath, source, "utf8");
