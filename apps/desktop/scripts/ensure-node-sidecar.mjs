@@ -3,7 +3,9 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const tauriRoot = resolve(__dirname, "../src-tauri");
+const desktopRoot = resolve(__dirname, "..");
+const tauriRoot = resolve(desktopRoot, "src-tauri");
+const frontendDist = resolve(desktopRoot, "dist");
 const binariesOut = join(tauriRoot, "binaries");
 const serverRoot = join(tauriRoot, "server");
 
@@ -32,4 +34,25 @@ if (!existsSync(placeholderServer)) {
   mkdirSync(dirname(placeholderServer), { recursive: true });
   writeFileSync(placeholderServer, "// dev placeholder — replaced by prepare:server before release builds\n");
   console.log("ensure-node-sidecar: placeholder server bundle");
+}
+
+const frontendIndex = join(frontendDist, "index.html");
+if (!existsSync(frontendIndex)) {
+  mkdirSync(frontendDist, { recursive: true });
+  writeFileSync(
+    frontendIndex,
+    `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Aperio-J</title>
+    <meta http-equiv="refresh" content="0;url=http://127.0.0.1:3010" />
+  </head>
+  <body>
+    <p>Starting Aperio-J…</p>
+  </body>
+</html>
+`,
+  );
+  console.log("ensure-node-sidecar: placeholder frontend dist");
 }

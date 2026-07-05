@@ -92,6 +92,7 @@ function run(command) {
 }
 
 console.log("prepare-server: building workspace packages…");
+mkdirSync(resolve(repoRoot, "data"), { recursive: true });
 run('pnpm -r --filter "./packages/*" build');
 console.log("prepare-server: building Next.js standalone…");
 run("pnpm --filter @aperio-j/web build");
