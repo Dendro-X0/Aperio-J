@@ -34,6 +34,7 @@
       "sales": "Sales roles excluded",
       "foodService": "Food service roles excluded",
       "agencyFiltered": "Agency / labor-broker posting filtered",
+      "irrelevantListing": "Listing does not match your roles (e.g. teacher, civil service, portal page)",
       "redFlags": "Risk flags: {flags}",
       "notInterested": "You marked this as not interested"
     },

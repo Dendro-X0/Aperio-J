@@ -6,6 +6,8 @@ import { AppSidebar } from "@/components/shell/app-sidebar";
 import { AppTopbar, type ShellStats } from "@/components/shell/app-topbar";
 import { DesktopTitlebar } from "@/components/shell/desktop-titlebar";
 import { SkipToContent } from "@/components/shell/skip-to-content";
+import { MatchRunProvider } from "@/components/match/match-run-provider";
+import { GlobalMatchRunBanner } from "@/components/match/global-match-run-banner";
 
 export interface AppShellProfileSummary {
   city: string;
@@ -33,7 +35,8 @@ export function AppShell({
   }, [pathname]);
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-background">
+    <MatchRunProvider>
+      <div className="flex h-dvh flex-col overflow-hidden bg-background">
       <DesktopTitlebar />
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <SkipToContent />
@@ -53,6 +56,7 @@ export function AppShell({
             onOpenMobileMenu={() => setMobileOpen(true)}
             primaryAction={primaryAction}
           />
+          <GlobalMatchRunBanner />
           <main
             id="main-content"
             tabIndex={-1}
@@ -62,6 +66,7 @@ export function AppShell({
           </main>
         </div>
       </div>
-    </div>
+      </div>
+    </MatchRunProvider>
   );
 }

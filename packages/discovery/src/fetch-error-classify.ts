@@ -50,7 +50,9 @@ export function classifyStreamFetchFailure(
 
   if (
     /\b429\b/.test(normalized) ||
-    /rate limit|too many requests|quota exceeded|daily limit/.test(normalized)
+    /rate limit|too many requests|quota exceeded|daily limit|host cooldown|waf challenge|访问过于频繁|验证码/.test(
+      normalized,
+    )
   ) {
     return { label, kind: "rate_limit", detail: message };
   }

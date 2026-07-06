@@ -1,6 +1,15 @@
 /** Expand user intent roles to synonym tokens for overlap matching. */
 
 export const INTENT_SYNONYMS: Record<string, string[]> = {
+  普工: ["普工", "操作工", "生产员", "产线", "组装", "assembly", "general labor", "line operator"],
+  开发: ["开发", "developer", "engineer", "engineering", "programmer"],
+  工程师: ["工程师", "engineer", "developer"],
+  前端: ["前端", "frontend", "front-end", "react", "vue"],
+  后端: ["后端", "backend", "back-end", "api", "server"],
+  全栈: ["全栈", "full stack", "full-stack", "fullstack"],
+  运维: ["运维", "devops", "sre", "platform", "infrastructure"],
+  设计: ["设计", "designer", "ui", "ux", "product design"],
+  产品: ["产品", "product manager", "pm", "product owner"],
   质检: ["质检", "品检", "iqc", "oqc", "fqc", "qc", "检验", "quality", "inspect"],
   品检: ["品检", "质检", "iqc", "oqc", "检验"],
   仓储: ["仓储", "仓库", "仓管", "warehouse", "storage"],

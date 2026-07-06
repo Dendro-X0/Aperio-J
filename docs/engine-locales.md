@@ -6,14 +6,16 @@ Match explanations, exclusion reasons, red-flag labels, and caution strings are 
 
 ```
 packages/core/locales/
-  zh-CN.json   # default
-  en.json
+  en.json      # default
+  zh-CN.json
+  es.json
 ```
 
 Published paths (for forks and overlays):
 
-- `@aperio-j/core/locales/zh-CN.json`
 - `@aperio-j/core/locales/en.json`
+- `@aperio-j/core/locales/zh-CN.json`
+- `@aperio-j/core/locales/es.json`
 
 After `pnpm --filter @aperio-j/core build`, catalogs are copied to `packages/core/dist/locales/` and `dist/taxonomies/` for Node consumers. Runtime code imports bundled JSON from `src/catalogs/` (synced from those folders at build) so Next.js and other bundlers never pull in `node:fs`.
 

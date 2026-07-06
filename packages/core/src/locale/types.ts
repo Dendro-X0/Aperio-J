@@ -1,6 +1,6 @@
-export type EngineLocale = "zh-CN" | "en";
+export type EngineLocale = "zh-CN" | "en" | "es";
 
-export const DEFAULT_ENGINE_LOCALE: EngineLocale = "zh-CN";
+export const DEFAULT_ENGINE_LOCALE: EngineLocale = "en";
 
 export interface EngineCatalogMeta {
   locale: string;

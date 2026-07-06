@@ -44,4 +44,21 @@ RSS/list pages fetch in parallel batches (default **4** concurrent streams). Ove
 APERO_J_STREAM_FETCH_CONCURRENCY=6
 ```
 
-**Last updated:** 2026-07-04
+## Fetch cache, host cooldown, and search tuning
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `APERO_J_STREAM_FETCH_CACHE_TTL_MS` | dev 1h / prod 15m | SQLite cache TTL for per-stream feed items |
+| `APERO_J_FETCH_HOST_INTERVAL_MS` | 3000 | Minimum gap between requests to the same host |
+| `APERO_J_FETCH_HOST_COOLDOWN_MS` | 120000 | Cooldown after WAF/429 before retrying a host |
+| `APERO_J_CN_PLAYWRIGHT` | `true` | Set `false` to skip Playwright for CN aggregators |
+| `APERO_J_SEARCH_PROBE` | `true` | Set `false` to disable search-engine discovery |
+| `APERO_J_SEARXNG_URL` | unset | Self-hosted SearXNG base URL (prepended to CN/global search probes) |
+| `APERO_J_CN_XHR_JSON` | `true` | Set `false` to disable Playwright XHR JSON intercept on BOSS/智联 |
+| `APERO_J_FIRECRAWL_API_KEY` | unset | Optional Firecrawl scrape fallback for blocked CN aggregators |
+| `APERO_J_SEARCH_PROBE_QUERIES` | 2 | Max search queries per engine per run |
+| `APERO_J_SEARCH_PROBE_MAX` | 8 | Max search probe URLs per discovery run |
+
+Clear cached feed items without changing location: **Sources → Clear fetch cache**, or `POST /api/settings/cache`.
+
+**Last updated:** 2026-07-05

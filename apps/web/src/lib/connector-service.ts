@@ -1,5 +1,5 @@
 import type { SeekerProfile } from "@aperio-j/core";
-import { isChinaCityProfile, isCnRemoteFirstProfile } from "@aperio-j/probe";
+import { isChinaCityProfile, isCnLocalFirstProfile, isCnRemoteFirstProfile } from "@aperio-j/probe";
 import type { ConnectorId } from "@aperio-j/discovery/connectors/types";
 import { resolveConnectorsForProfile } from "@aperio-j/discovery/connectors/resolve-connectors";
 import { seedUrlMatchesCityProfile, prepareCnStreamFetchUrl } from "@aperio-j/discovery/cn-sources";
@@ -12,7 +12,7 @@ export function loadConnectorStreamConfigs(profile: SeekerProfile): StreamConfig
   const city = profile.constraints.primaryCity.trim();
   if (
     isChinaCityProfile(city, profile.constraints.acceptableCities) &&
-    profile.constraints.remotePreference === "onsite-only"
+    (profile.constraints.remotePreference === "onsite-only" || isCnLocalFirstProfile(profile))
   ) {
     return [];
   }
@@ -84,6 +84,7 @@ export function mergeStreamConfigsForProfile(
     profile.constraints.primaryCity,
     profile.constraints.acceptableCities,
     profile.constraints.remotePreference,
+    profile,
   );
   const cnCity =
     isChinaCityProfile(city, profile.constraints.acceptableCities) && !cnRemoteFirst;

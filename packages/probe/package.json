@@ -1,6 +1,6 @@
 {
   "name": "@aperio-j/probe",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
@@ -9,6 +9,14 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./signal-packs/resolve": {
+      "types": "./dist/signal-packs/resolve.d.ts",
+      "import": "./dist/signal-packs/resolve.js"
+    },
+    "./signal-packs/server": {
+      "types": "./dist/signal-packs/server.d.ts",
+      "import": "./dist/signal-packs/server.js"
     }
   },
   "scripts": {

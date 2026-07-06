@@ -27,6 +27,7 @@ export default async function InboxOpportunityPage({
   return (
     <InboxOpportunityDetailView
       item={result.item}
+      relatedItems={result.related}
       excluded={result.excluded}
       remoteOnly={remoteOnly}
     />

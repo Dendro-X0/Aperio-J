@@ -56,4 +56,45 @@ describe("parseListPageHtml", () => {
     assert.equal(items.length, 1);
     assert.match(items[0]!.title, /全栈/);
   });
+
+  it("accepts zhipin job detail links without visible anchor text", () => {
+    const html = `<!DOCTYPE html><body>
+      <a href="/job_detail/827e3e1519f05e420nd_39--FVZY.html"><span class="sr-only"></span></a>
+    </body></html>`;
+
+    const items = parseListPageHtml(html, "https://www.zhipin.com/shenzhen/", "test", 30, {
+      profileCities: ["深圳"],
+    });
+
+    assert.equal(items.length, 1);
+    assert.match(items[0]!.url, /job_detail/);
+  });
+
+  it("accepts zhaopin jobdetail links without 招聘 in title", () => {
+    const html = `<!DOCTYPE html><body>
+      <a href="https://www.zhaopin.com/jobdetail/CCL1500552770J40946316708.htm">资料文员</a>
+      <a href="https://www.zhaopin.com/citymap">切换城市</a>
+    </body></html>`;
+
+    const items = parseListPageHtml(html, "https://shenzhen.zhaopin.com/", "test", 30, {
+      profileCities: ["深圳"],
+    });
+
+    assert.equal(items.length, 1);
+    assert.match(items[0]!.title, /资料文员/);
+  });
+
+  it("accepts gov.cn announcement links on listing pages", () => {
+    const html = `<!DOCTYPE html><body>
+      <a href="/cn/xxgk/zfxxgj/tzgg/content/post_11522093.html">某电子厂普工岗位招聘公告</a>
+      <a href="/about.html">机构简介</a>
+    </body></html>`;
+
+    const items = parseListPageHtml(html, "https://www.sz.gov.cn/", "test", 30, {
+      profileCities: ["深圳"],
+    });
+
+    assert.equal(items.length, 1);
+    assert.match(items[0]!.url, /post_11522093/);
+  });
 });

@@ -6,6 +6,7 @@ import { discoverRssLinksFromHtml, fetchHtml } from "./rss-autodiscover.js";
 import { countIntentHits } from "./intent-expansion.js";
 import { executeSearchProbe } from "./search-probe.js";
 import { executeSeedPageCrawlProbe } from "./seed-page-crawl.js";
+import { createLightweightStreamCandidate } from "./probe-candidate.js";
 
 const DOMAIN_TIER_SCORE: Record<string, number> = {
   gov: 0.35,
@@ -132,6 +133,37 @@ export function resolveValidationTier(input: {
   return { tier: "candidate", confidence: candidateConfidence };
 }
 
+function fastRegistryProbeEnabled(): boolean {
+  return process.env.APERO_J_FAST_REGISTRY_PROBE !== "false";
+}
+
+function isFastRegistryProbe(probe: SourceProbe): boolean {
+  if (probe.kind !== "registry_lookup") return false;
+  const rationale = probe.rationale ?? "";
+  return (
+    rationale.includes("ProbePack") ||
+    rationale.includes("Cross-run discovery memory") ||
+    rationale.includes("registry-trusted")
+  );
+}
+
+function registryKindFromSeed(seed: string): StreamKind {
+  return seed.endsWith(".rss") || seed.includes("/feed") ? "rss" : "list_page";
+}
+
+function createRegistryProbeCandidate(probe: SourceProbe): StreamCandidate {
+  const tier = domainTierFromUrl(probe.seed);
+  const baseConfidence = tier === "gov" ? 0.58 : tier === "aggregator" ? 0.5 : 0.46;
+  return createLightweightStreamCandidate({
+    label: probe.label,
+    kind: registryKindFromSeed(probe.seed),
+    seedUrl: probe.seed,
+    discoveredVia: probe.id,
+    regionHint: probe.regionHint,
+    confidence: baseConfidence,
+  });
+}
+
 export interface ValidateStreamOptions {
   /** Skip network fetch — use supplied XML (tests). */
   fixtureXml?: string;
@@ -204,9 +236,12 @@ export async function executeProbe(probe: SourceProbe): Promise<StreamCandidate[
   const candidates: StreamCandidate[] = [];
 
   if (probe.kind === "registry_lookup") {
-    const kind: StreamKind = probe.seed.endsWith(".rss") || probe.seed.includes("/feed")
-      ? "rss"
-      : "list_page";
+    const kind = registryKindFromSeed(probe.seed);
+    if (fastRegistryProbeEnabled() && isFastRegistryProbe(probe)) {
+      candidates.push(createRegistryProbeCandidate(probe));
+      return candidates;
+    }
+
     const validated = await validateStreamCandidate({
       label: probe.label,
       kind,

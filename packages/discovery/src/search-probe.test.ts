@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 import {
   buildCitySearchQueries,
   extractUrlsFromSearchHtml,
+  extractUrlsFromSearxngJson,
   scoreDiscoveryUrl,
   selectStreamSeedsFromUrls,
 } from "./search-probe.js";
@@ -21,9 +22,9 @@ const BAIDU_FIXTURE = `
 describe("search-probe", () => {
   it("builds city-specific search queries", () => {
     const queries = buildCitySearchQueries("深圳市");
-    assert.equal(queries.length, 2);
+    assert.ok(queries.length >= 2);
     assert.ok(queries[0]?.includes("深圳"));
-    assert.ok(queries[0]?.includes("人力资源"));
+    assert.ok(queries.some((query) => query.includes("人力资源") || query.includes("人才网")));
   });
 
   it("extracts gov and job URLs from search HTML", () => {
@@ -51,6 +52,18 @@ describe("search-probe", () => {
     const govScore = scoreDiscoveryUrl("https://www.arbeitsagentur.de/jobsuche/", "Bonn", "global");
     const blogScore = scoreDiscoveryUrl("https://example.com/blog/hiring-news", "Bonn", "global");
     assert.ok(govScore > blogScore);
+  });
+
+  it("extracts URLs from SearXNG JSON", () => {
+    const json = JSON.stringify({
+      results: [
+        { url: "http://hrss.sz.gov.cn/gzryzk/index.html" },
+        { url: "https://beian.miit.gov.cn/" },
+      ],
+    });
+    const urls = extractUrlsFromSearxngJson(json);
+    assert.ok(urls.some((url) => url.includes("hrss.sz.gov.cn")));
+    assert.ok(!urls.some((url) => url.includes("beian.miit")));
   });
 
   it("flags gov domains for multi-hop follow-up crawl", () => {

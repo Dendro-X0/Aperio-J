@@ -5,6 +5,10 @@ import { MapPin, X } from "lucide-react";
 import { useI18n, useTranslations } from "@/i18n/provider";
 import {
   canonicalCityLabel,
+  citiesShareIdentity,
+  cityIdentityKey,
+  cityMatchTerms,
+  displayCityLabel,
   isRemoteCityLabel,
   matchCityLabelFromGeo,
   resolveCityDraftLabel,
@@ -41,12 +45,17 @@ export const CityTagsInput = forwardRef<
 
   const filteredSuggestions = useMemo(() => {
     const query = draft.trim().toLowerCase();
-    if (!query) return suggestions.filter((item) => !value.includes(item.label)).slice(0, 8);
-    return suggestions
+    const available = suggestions.filter(
+      (item) => !value.some((city) => citiesShareIdentity(city, item.label)),
+    );
+
+    if (!query) return available.slice(0, 8);
+
+    return available
       .filter(
         (item) =>
-          !value.includes(item.label) &&
-          item.label.toLowerCase().includes(query),
+          item.label.toLowerCase().includes(query) ||
+          cityMatchTerms(item.label).some((term) => term.includes(query)),
       )
       .slice(0, 8);
   }, [draft, suggestions, value]);
@@ -62,11 +71,13 @@ export const CityTagsInput = forwardRef<
     return resolveCityDraftLabel(trimmed, locale, suggestionLabels);
   }, [draft, locale, suggestionLabels]);
 
-  const canAddDraft = Boolean(draftLabel && !value.includes(draftLabel));
+  const canAddDraft = Boolean(
+    draftLabel && !value.some((city) => citiesShareIdentity(city, draftLabel)),
+  );
 
   function addCity(city: string) {
     const label = canonicalCityLabel(city, locale);
-    if (!label || value.includes(label)) return;
+    if (!label || value.some((existing) => citiesShareIdentity(existing, label))) return;
     onChange([...value, label]);
     setDraft("");
     setDetectError(null);
@@ -77,7 +88,7 @@ export const CityTagsInput = forwardRef<
     if (!trimmed) return value;
 
     const label = resolveCityDraftLabel(trimmed, locale, suggestionLabels);
-    if (!label || value.includes(label)) {
+    if (!label || value.some((city) => citiesShareIdentity(city, label))) {
       setDraft("");
       return value;
     }
@@ -96,7 +107,8 @@ export const CityTagsInput = forwardRef<
   );
 
   function removeCity(city: string) {
-    onChange(value.filter((item) => item !== city));
+    const key = cityIdentityKey(city);
+    onChange(value.filter((item) => cityIdentityKey(item) !== key));
   }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -162,13 +174,13 @@ export const CityTagsInput = forwardRef<
         )}
       >
         {value.map((city) => (
-          <Badge key={city} variant="secondary" className="gap-1 pr-1">
-            {city}
+          <Badge key={cityIdentityKey(city)} variant="secondary" className="gap-1 pr-1">
+            {displayCityLabel(city, locale)}
             <button
               type="button"
               onClick={() => removeCity(city)}
               className="rounded-sm p-0.5 hover:bg-muted"
-              aria-label={t("removeCity", { city })}
+              aria-label={t("removeCity", { city: displayCityLabel(city, locale) })}
             >
               <X className="h-3 w-3" />
             </button>

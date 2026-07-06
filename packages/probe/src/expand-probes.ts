@@ -2,14 +2,19 @@ import type { SeekerProfile, SourceProbe } from "@aperio-j/core";
 import {
   buildGenericCityStreams,
   buildInternationalCityStreams,
+  isCnLocalFirstProfile,
   isCnRemoteFirstProfile,
   REMOTE_REGISTRY_STREAMS,
   resolveProbePack,
 } from "./probe-packs.js";
+import {
+  flattenSignalPackStreams,
+  resolveSignalPacksForProfile,
+} from "./signal-packs/resolve.js";
 import { expandRegionalSearchProbes } from "./search-queries.js";
 
 const MAX_PROBES = 40;
-const HYBRID_REMOTE_PROBE_CAP = 2;
+const HYBRID_REMOTE_PROBE_CAP = 8;
 
 function remoteRegistryStreamsForProfile(
   profile: SeekerProfile,
@@ -87,7 +92,9 @@ export function expandSourceProbes(profile: SeekerProfile): SourceProbe[] {
     profile.constraints.primaryCity,
     profile.constraints.acceptableCities,
     profile.constraints.remotePreference,
+    profile,
   );
+  const cnLocalFirst = isCnLocalFirstProfile(profile);
 
   // CN dev remote-first: fixed international remote board list (Work Best-style).
   if (cnRemoteFirst) {
@@ -108,17 +115,30 @@ export function expandSourceProbes(profile: SeekerProfile): SourceProbe[] {
     );
   }
 
-  // 2. RSS autodiscover on pack seed pages
-  for (const pageUrl of pack.seedPages) {
-    probes.push({
-      id: probeId("autodiscover", pageUrl),
-      kind: "rss_autodiscover",
-      label: `RSS autodiscover: ${pageUrl}`,
-      seed: pageUrl,
-      regionHint,
+  // 1b. Remote boards before local registry (nomads / hybrid city profiles)
+  if (globalCity && allowRemoteBoards) {
+    appendRegistryStreams(
+      probes,
+      remoteRegistryStreamsForProfile(profile),
+      pack.id,
+      "remote",
       intentTerms,
-      rationale: `ProbePack ${pack.id} seed page for feed discovery`,
-    });
+    );
+  }
+
+  // 2. RSS autodiscover on pack seed pages (skip for CN local-first — search is faster)
+  if (!cnLocalFirst) {
+    for (const pageUrl of pack.seedPages) {
+      probes.push({
+        id: probeId("autodiscover", pageUrl),
+        kind: "rss_autodiscover",
+        label: `RSS autodiscover: ${pageUrl}`,
+        seed: pageUrl,
+        regionHint,
+        intentTerms,
+        rationale: `ProbePack ${pack.id} seed page for feed discovery`,
+      });
+    }
   }
 
   // 3. Registry lookup — fallback hints, not the primary discovery path
@@ -146,20 +166,15 @@ export function expandSourceProbes(profile: SeekerProfile): SourceProbe[] {
     }
   }
 
-  // 4. Remote RSS supplements — last, gated by work mode
-  if (chinaContext && allowRemoteBoards && !globalRemote) {
-    probes.push({
-      id: probeId("remote", "remote-boards"),
-      kind: "url_template",
-      label: "Remote job RSS template",
-      seed: "https://weworkremotely.com/categories/remote-programming-jobs.rss",
-      regionHint: "remote",
-      intentTerms,
-      rationale: "User accepts remote/hybrid — include remote board probe",
-    });
+  if (chinaContext && city) {
+    const signalPacks = resolveSignalPacksForProfile(profile);
+    for (const { packId, stream } of flattenSignalPackStreams(signalPacks)) {
+      appendRegistryStreams(probes, [stream], `signal-pack:${packId}`, regionHint, intentTerms);
+    }
   }
 
-  if (globalCity && allowRemoteBoards) {
+  // 4. Remote RSS supplements for CN hybrid profiles (not local-first factory)
+  if (chinaContext && allowRemoteBoards && !globalRemote && !cnLocalFirst) {
     appendRegistryStreams(
       probes,
       remoteRegistryStreamsForProfile(profile),

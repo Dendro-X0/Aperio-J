@@ -46,7 +46,7 @@ describe("expandSourceProbes", () => {
     const probes = expandSourceProbes(minimalProfile("深圳"));
     assert.ok(probes.length >= 6);
     assert.ok(probes.some((probe) => probe.kind === "registry_lookup"));
-    assert.ok(probes.some((probe) => probe.kind === "rss_autodiscover"));
+    assert.ok(!probes.some((probe) => probe.kind === "rss_autodiscover"));
     assert.ok(probes.some((probe) => probe.seed.includes("zhaopin.com")));
     assert.ok(probes.some((probe) => probe.seed.includes("zhipin.com")));
     assert.ok(!probes.some((probe) => probe.seed === "https://www.51job.com/"));
@@ -70,15 +70,28 @@ describe("expandSourceProbes", () => {
     assert.ok(probes.some((probe) => probe.seed.includes("baidu.com/s?")));
   });
 
-  it("adds remote probe when hybrid ok", () => {
+  it("uses remote boards only for CN hybrid tech profiles", () => {
     const profile = minimalProfile("深圳");
     profile.constraints.remotePreference = "hybrid-ok";
+    profile.intent.desiredRoles = ["后端开发"];
+    profile.intent.desiredIndustries = ["软件"];
     const summary = expandSourceProbesSummary(profile);
-    assert.equal(summary.packId, "zh-CN-GD-SZ");
     assert.ok(summary.probes.every((probe) => probe.regionHint === "remote"));
     assert.ok(summary.probes.some((probe) => probe.seed.includes("weworkremotely")));
     assert.ok(!summary.probes.some((probe) => probe.kind === "search_discovery"));
     assert.ok(!summary.probes.some((probe) => probe.seed.includes("zhipin.com")));
+  });
+
+  it("keeps local search probes for CN hybrid factory-worker profiles", () => {
+    const profile = minimalProfile("深圳");
+    profile.constraints.remotePreference = "hybrid-ok";
+    profile.intent.desiredRoles = ["普工"];
+    profile.intent.desiredIndustries = ["电子制造"];
+    const probes = expandSourceProbes(profile);
+    assert.equal(probes[0]?.kind, "search_discovery");
+    assert.ok(probes.some((probe) => probe.seed.includes("baidu.com/s?")));
+    assert.ok(probes.some((probe) => probe.seed.includes("zhipin.com")));
+    assert.ok(!probes.every((probe) => probe.regionHint === "remote"));
   });
 
   it("keeps local probes for CN onsite-only profiles", () => {
@@ -165,9 +178,11 @@ describe("expandSourceProbes", () => {
       probe.seed.includes("arbeitsagentur.de"),
     );
 
-    assert.ok(firstLocalRegistryIndex >= 0);
-    assert.ok(firstLocalRegistryIndex < firstRemoteIndex);
-    assert.ok(probes.filter((probe) => probe.regionHint === "remote").length <= 2);
+    assert.ok(firstRemoteIndex >= 0);
+    if (firstLocalRegistryIndex >= 0) {
+      assert.ok(firstRemoteIndex < firstLocalRegistryIndex);
+    }
+    assert.ok(probes.filter((probe) => probe.regionHint === "remote").length <= 8);
   });
 
   it("discovers unknown cities via search without preset registry hits", () => {

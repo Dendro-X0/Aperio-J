@@ -4,6 +4,11 @@ import { prisma } from "@aperio-j/db";
 import { runSourceDiscovery } from "@aperio-j/discovery/source-discovery";
 import { isDiscoveryAborted } from "@aperio-j/discovery/discovery-abort";
 import { prepareCnStreamFetchUrl, seedUrlMatchesCityProfile, isCnJobAggregatorUrl } from "@aperio-j/discovery/cn-sources";
+import {
+  flattenSignalPackStreams,
+  resolveSignalPacksForProfile,
+} from "@aperio-j/probe/signal-packs/resolve";
+import { loadCommunitySignalPacks } from "@aperio-j/probe/signal-packs/server";
 import { resolveProbePack, isChinaCityProfile, isCnRemoteFirstProfile, REMOTE_REGISTRY_STREAMS } from "@aperio-j/probe";
 import { isRemoteBoardUrl } from "@aperio-j/core";
 import {
@@ -17,11 +22,20 @@ import {
   type StreamSessionAuth,
 } from "@aperio-j/discovery/stream-auth";
 import { validateStreamCandidate } from "@aperio-j/discovery/validate-stream";
+import { parseOpmlFeeds } from "@aperio-j/discovery/opml-import";
+import { createLightweightStreamCandidate } from "@aperio-j/discovery/probe-candidate";
 import type { StreamConfig } from "@aperio-j/discovery/fetch-streams";
 import { resolveSourceIntakeType } from "./source-intake";
+import {
+  loadCnSessionCredentialSettings,
+  type CnSessionCredentialSettings,
+} from "./local-settings-store";
 import type { SourceDiscoveryProgressOptions } from "./engine-phases";
 
+loadCommunitySignalPacks();
+
 export const USER_CUSTOM_DISCOVERED_VIA = "user-custom";
+export const USER_OPML_DISCOVERED_VIA = "user-custom:opml";
 
 export const SOURCE_ERROR = {
   INVALID_URL_SCHEME: "SOURCE_INVALID_URL_SCHEME",
@@ -257,6 +271,30 @@ export async function sanitizeCnRegistryStreams(
   return disabled;
 }
 
+/** Disable international remote boards when profile uses local CN intake. */
+export async function sanitizeRemoteBoardRegistryStreams(seekerProfileId: string): Promise<number> {
+  const rows = await prisma.streamRegistryEntry.findMany({
+    where: { seekerProfileId, enabled: true },
+    select: { id: true, seedUrl: true, discoveredVia: true },
+  });
+
+  let disabled = 0;
+  for (const row of rows) {
+    if (isUserCustomStream(row.discoveredVia)) continue;
+    if (!isRemoteBoardUrl(row.seedUrl) && !row.discoveredVia.startsWith("cn-remote-trusted:")) {
+      continue;
+    }
+
+    await prisma.streamRegistryEntry.update({
+      where: { id: row.id },
+      data: { enabled: false, health: "dead" },
+    });
+    disabled += 1;
+  }
+
+  return disabled;
+}
+
 /** Disable local CN aggregator/gov streams when profile uses remote-first intake. */
 export async function sanitizeCnRemoteFirstRegistryStreams(seekerProfileId: string): Promise<number> {
   const rows = await prisma.streamRegistryEntry.findMany({
@@ -284,8 +322,8 @@ export async function sanitizeCnRemoteFirstRegistryStreams(seekerProfileId: stri
   return disabled;
 }
 
-/** Seed international remote RSS boards for CN remote-first profiles. */
-export async function ensureCnRemoteRegistryStreams(seekerProfileId: string): Promise<number> {
+/** Seed international remote RSS boards when profile accepts remote work. */
+export async function ensureRemoteRegistryStreams(seekerProfileId: string): Promise<number> {
   const existing = await prisma.streamRegistryEntry.findMany({
     where: { seekerProfileId, enabled: true },
     select: { seedUrl: true },
@@ -302,7 +340,7 @@ export async function ensureCnRemoteRegistryStreams(seekerProfileId: string): Pr
       label: stream.label,
       kind: stream.kind,
       seedUrl: stream.seedUrl,
-      discoveredVia: `cn-remote-trusted:${stream.id}`,
+      discoveredVia: `global-remote-trusted:${stream.id}`,
       regionHint: "remote",
       confidence: 0.72,
       sampleItemCount: 0,
@@ -318,11 +356,17 @@ export async function ensureCnRemoteRegistryStreams(seekerProfileId: string): Pr
   return added;
 }
 
+/** @deprecated Use ensureRemoteRegistryStreams */
+export async function ensureCnRemoteRegistryStreams(seekerProfileId: string): Promise<number> {
+  return ensureRemoteRegistryStreams(seekerProfileId);
+}
+
 /** Seed city-scoped CN aggregator/gov streams when registry lacks valid local sources. */
 export async function ensureCnCityRegistryStreams(
   seekerProfileId: string,
   city: string,
   acceptableCities: string[] = [],
+  profile?: SeekerProfile,
 ): Promise<number> {
   if (!city.trim() || !isChinaCityProfile(city, acceptableCities)) return 0;
 
@@ -331,35 +375,174 @@ export async function ensureCnCityRegistryStreams(
     where: { seekerProfileId, enabled: true },
     select: { seedUrl: true },
   });
-  const hasValidLocal = existing.some((row) => seedUrlMatchesCityProfile(row.seedUrl, city));
-  if (hasValidLocal) return 0;
+  const hasValidAggregator = existing.some(
+    (row) => isCnJobAggregatorUrl(row.seedUrl) && seedUrlMatchesCityProfile(row.seedUrl, city),
+  );
 
   let added = 0;
   const now = new Date().toISOString();
 
-  for (const stream of pack.registryStreams) {
-    const seedUrl = prepareCnStreamFetchUrl(stream.seedUrl, city);
-    if (!seedUrlMatchesCityProfile(seedUrl, city)) continue;
+  if (!hasValidAggregator) {
+    for (const stream of pack.registryStreams) {
+      if (stream.domainTier === "gov") continue;
+      const seedUrl = prepareCnStreamFetchUrl(stream.seedUrl, city);
+      if (!seedUrlMatchesCityProfile(seedUrl, city)) continue;
 
-    const candidate: StreamCandidate = {
-      id: `stream-${seedUrl}`,
-      label: stream.label,
-      kind: stream.kind,
-      seedUrl,
-      discoveredVia: `cn-city-trusted:${stream.id}`,
-      regionHint: city,
-      confidence: stream.domainTier === "gov" ? 0.62 : 0.55,
-      sampleItemCount: 0,
-      lastValidatedAt: now,
-      health: "unknown",
-      validationTier: "candidate",
-    };
+      const candidate: StreamCandidate = {
+        id: `stream-${seedUrl}`,
+        label: stream.label,
+        kind: stream.kind,
+        seedUrl,
+        discoveredVia: `cn-city-trusted:${stream.id}`,
+        regionHint: city,
+        confidence: stream.domainTier === "edu" ? 0.62 : 0.55,
+        sampleItemCount: 0,
+        lastValidatedAt: now,
+        health: "unknown",
+        validationTier: "candidate",
+      };
 
-    await upsertDiscoveredStream(seekerProfileId, candidate, true);
-    added += 1;
+      await upsertDiscoveredStream(seekerProfileId, candidate, true);
+      added += 1;
+    }
+  }
+
+  if (profile) {
+    const signalPacks = resolveSignalPacksForProfile(profile);
+    for (const { packId, stream } of flattenSignalPackStreams(signalPacks)) {
+      if (stream.domainTier === "gov") continue;
+      const seedUrl = prepareCnStreamFetchUrl(stream.seedUrl, city);
+      if (!seedUrlMatchesCityProfile(seedUrl, city)) continue;
+      if (existing.some((row) => row.seedUrl === seedUrl)) continue;
+
+      const candidate: StreamCandidate = {
+        id: `stream-${seedUrl}`,
+        label: stream.label,
+        kind: stream.kind,
+        seedUrl,
+        discoveredVia: `signal-pack:${packId}:${stream.id}`,
+        regionHint: city,
+        confidence: 0.58,
+        sampleItemCount: 0,
+        lastValidatedAt: now,
+        health: "unknown",
+        validationTier: "candidate",
+      };
+
+      await upsertDiscoveredStream(seekerProfileId, candidate, true);
+      added += 1;
+    }
   }
 
   return added;
+}
+
+export async function sanitizeCnGovNoiseStreams(
+  seekerProfileId: string,
+): Promise<number> {
+  const rows = await prisma.streamRegistryEntry.findMany({
+    where: { seekerProfileId, enabled: true },
+    select: { id: true, seedUrl: true },
+  });
+
+  const deadPath = /jyzx\.sz\.gov|sz\.gov\.cn\/cn\/hrss|gkmlpt|m\.51job\.com/i;
+  const govByHost = new Map<string, string[]>();
+  let disabled = 0;
+
+  for (const row of rows) {
+    if (deadPath.test(row.seedUrl)) {
+      await prisma.streamRegistryEntry.update({
+        where: { id: row.id },
+        data: { enabled: false, health: "dead" },
+      });
+      disabled += 1;
+      continue;
+    }
+
+    if (!/\.gov\.cn/i.test(row.seedUrl)) continue;
+    let host = "";
+    try {
+      host = new URL(row.seedUrl).hostname;
+    } catch {
+      continue;
+    }
+    const bucket = govByHost.get(host) ?? [];
+    bucket.push(row.id);
+    govByHost.set(host, bucket);
+  }
+
+  for (const ids of govByHost.values()) {
+    for (const id of ids.slice(1)) {
+      await prisma.streamRegistryEntry.update({
+        where: { id },
+        data: { enabled: false, health: "stale" },
+      });
+      disabled += 1;
+    }
+  }
+
+  return disabled;
+}
+
+/** Gov portals rarely carry factory listings — disable for blue-collar local-first profiles. */
+export async function sanitizeCnGovStreamsForFactoryProfile(
+  seekerProfileId: string,
+): Promise<number> {
+  const rows = await prisma.streamRegistryEntry.findMany({
+    where: { seekerProfileId, enabled: true },
+    select: { id: true, seedUrl: true, discoveredVia: true },
+  });
+
+  let disabled = 0;
+  for (const row of rows) {
+    if (isUserCustomStream(row.discoveredVia)) continue;
+    if (!/\.gov\.cn/i.test(row.seedUrl)) continue;
+
+    await prisma.streamRegistryEntry.update({
+      where: { id: row.id },
+      data: { enabled: false, health: "dead" },
+    });
+    disabled += 1;
+  }
+
+  return disabled;
+}
+
+/** Disable redundant Memory: streams when a registry stream already covers the same host. */
+export async function sanitizeMemoryDuplicateStreams(seekerProfileId: string): Promise<number> {
+  const rows = await prisma.streamRegistryEntry.findMany({
+    where: { seekerProfileId, enabled: true },
+    select: { id: true, label: true, seedUrl: true, discoveredVia: true },
+  });
+
+  const hostsWithRegistry = new Set<string>();
+  for (const row of rows) {
+    if (row.label.startsWith("Memory:")) continue;
+    try {
+      hostsWithRegistry.add(new URL(row.seedUrl).hostname.toLowerCase());
+    } catch {
+      // skip
+    }
+  }
+
+  let disabled = 0;
+  for (const row of rows) {
+    if (!row.label.startsWith("Memory:") && !row.discoveredVia.startsWith("memory")) continue;
+    let host = "";
+    try {
+      host = new URL(row.seedUrl).hostname.toLowerCase();
+    } catch {
+      continue;
+    }
+    if (!hostsWithRegistry.has(host)) continue;
+    await prisma.streamRegistryEntry.update({
+      where: { id: row.id },
+      data: { enabled: false, health: "stale" },
+    });
+    disabled += 1;
+  }
+
+  return disabled;
 }
 
 export async function discoverAndPersistStreams(
@@ -396,24 +579,49 @@ export async function discoverAndPersistStreams(
   return manifest;
 }
 
+function sessionAuthForStreamUrl(
+  url: string,
+  rowAuth: StreamSessionAuth | undefined,
+  cnSessions?: CnSessionCredentialSettings,
+): StreamSessionAuth | undefined {
+  if (rowAuth) return rowAuth;
+  if (!cnSessions) return undefined;
+
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    if (host.includes("zhipin.com") && cnSessions.zhipinCookie) {
+      return { mode: "cookie", secret: cnSessions.zhipinCookie };
+    }
+    if (host.includes("zhaopin.com") && cnSessions.zhaopinCookie) {
+      return { mode: "cookie", secret: cnSessions.zhaopinCookie };
+    }
+    if (host.includes("58.com") && cnSessions.cookie58) {
+      return { mode: "cookie", secret: cnSessions.cookie58 };
+    }
+  } catch {
+    return undefined;
+  }
+
+  return undefined;
+}
+
 export async function loadEnabledStreamConfigs(seekerProfileId: string): Promise<StreamConfig[]> {
   const rows = await prisma.streamRegistryEntry.findMany({
     where: {
       seekerProfileId,
-      OR: [
-        { enabled: true },
-        { validationTier: "candidate", health: { not: "dead" } },
-      ],
+      enabled: true,
     },
     orderBy: [{ learningWeight: "desc" }, { confidence: "desc" }],
   });
+
+  const cnSessions = await loadCnSessionCredentialSettings(seekerProfileId);
 
   return rows.map((row) => ({
     id: row.id,
     label: row.label,
     url: row.seedUrl,
     kind: row.kind as StreamKind,
-    sessionAuth: sessionAuthFromRow(row),
+    sessionAuth: sessionAuthForStreamUrl(row.seedUrl, sessionAuthFromRow(row), cnSessions),
     regionHint: row.regionHint,
   }));
 }
@@ -580,6 +788,70 @@ export async function removeCustomStream(seekerProfileId: string, streamId: stri
   return prisma.streamRegistryEntry.delete({ where: { id: streamId } });
 }
 
+const OPML_IMPORT_LIMIT = 50;
+
+export async function importOpmlStreams(
+  profile: SeekerProfile,
+  opmlText: string,
+): Promise<{ imported: number; skipped: number; errors: string[] }> {
+  const feeds = parseOpmlFeeds(opmlText, OPML_IMPORT_LIMIT);
+  let imported = 0;
+  let skipped = 0;
+  const errors: string[] = [];
+  const regionHint = profile.constraints.primaryCity;
+
+  for (const feed of feeds) {
+    let seedUrl: string;
+    try {
+      seedUrl = normalizeStreamUrl(feed.feedUrl);
+    } catch {
+      skipped += 1;
+      errors.push(feed.feedUrl);
+      continue;
+    }
+
+    const candidate = createLightweightStreamCandidate({
+      label: feed.title.trim() || seedUrl,
+      kind: "rss",
+      seedUrl,
+      discoveredVia: USER_OPML_DISCOVERED_VIA,
+      regionHint,
+      confidence: 0.55,
+    });
+
+    try {
+      await prisma.streamRegistryEntry.upsert({
+        where: {
+          seekerProfileId_seedUrl: {
+            seekerProfileId: profile.id,
+            seedUrl,
+          },
+        },
+        create: {
+          ...mapCandidateToRow(profile.id, candidate, true),
+          learningWeight: 1.25,
+        },
+        update: {
+          label: candidate.label,
+          kind: candidate.kind,
+          discoveredVia: USER_OPML_DISCOVERED_VIA,
+          regionHint: candidate.regionHint,
+          confidence: candidate.confidence,
+          enabled: true,
+          health: "unknown",
+          learningWeight: 1.25,
+        },
+      });
+      imported += 1;
+    } catch {
+      skipped += 1;
+      errors.push(seedUrl);
+    }
+  }
+
+  return { imported, skipped, errors };
+}
+
 export async function updateStreamSettings(
   seekerProfileId: string,
   streamId: string,
@@ -605,7 +877,12 @@ export async function updateStreamSettings(
 
   if (typeof input.enabled === "boolean") {
     data.enabled = input.enabled;
-    if (!input.enabled && !isUserCustomStream(existing.discoveredVia)) {
+    if (input.enabled) {
+      data.userBlocked = false;
+      if (existing.learningWeight === 0) {
+        data.learningWeight = 1;
+      }
+    } else if (!isUserCustomStream(existing.discoveredVia)) {
       data.userBlocked = true;
       data.learningWeight = 0;
     }
@@ -642,6 +919,31 @@ export async function updateStreamSettings(
   }
 
   return updated;
+}
+
+export async function enableStreamsByIds(
+  seekerProfileId: string,
+  streamIds: string[],
+): Promise<number> {
+  const ids = [...new Set(streamIds.filter(Boolean))];
+  if (ids.length === 0) return 0;
+
+  const result = await prisma.streamRegistryEntry.updateMany({
+    where: { seekerProfileId, id: { in: ids } },
+    data: {
+      enabled: true,
+      userBlocked: false,
+    },
+  });
+
+  if (result.count > 0) {
+    await prisma.streamRegistryEntry.updateMany({
+      where: { seekerProfileId, id: { in: ids }, learningWeight: 0 },
+      data: { learningWeight: 1 },
+    });
+  }
+
+  return result.count;
 }
 
 /** @deprecated Use updateStreamSettings */

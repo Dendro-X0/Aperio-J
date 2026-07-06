@@ -1,0 +1,58 @@
+{
+  "meta": {
+    "locale": "es",
+    "version": "1"
+  },
+  "listSeparator": ", ",
+  "sentenceSeparator": "; ",
+  "explanationSuffix": ".",
+  "cautionSeparator": "; ",
+  "common": {
+    "remoteLocation": "Remoto"
+  },
+  "redFlags": {
+    "deposit": "Depósito / fianza",
+    "training-fee": "Cuota de formación",
+    "medical-fee": "Examen médico (a cargo del candidato)",
+    "id-collection": "Recopilación inusual de documentos",
+    "pay-to-apply": "Pago para postular",
+    "contract-trap": "Trampa contractual",
+    "labor-broker": "Agencia de empleo / intermediario",
+    "high-salary-lure": "Oferta de alto salario directo",
+    "advance-pay": "Anticipo / pago diario sospechoso",
+    "off-platform": "Contacto fuera de plataforma",
+    "vague-employer": "Empleador poco claro",
+    "illegal-overtime": "Indicio de horas extra excesivas"
+  },
+  "matcher": {
+    "exclusion": {
+      "locationOutOfRange": "La ubicación está fuera de tu rango aceptable",
+      "employmentTypeMismatch": "El tipo de empleo no coincide (tiempo completo / parcial)",
+      "avoidRoleCategory": "Coincide con un tipo de rol que excluiste",
+      "avoidPhrase": "Coincide con palabra clave excluida: {phrase}",
+      "productionLine": "Roles de línea de producción / fábrica excluidos",
+      "sales": "Roles de ventas excluidos",
+      "foodService": "Roles de restauración excluidos",
+      "agencyFiltered": "Publicación de agencia / intermediario filtrada",
+      "irrelevantListing": "La oferta no coincide con tus roles (p. ej. docente, sector público, portal)",
+      "redFlags": "Señales de riesgo: {flags}",
+      "notInterested": "Marcaste esto como no interesado"
+    },
+    "notRecommended": "No recomendado: {reason}.",
+    "explanation": {
+      "intentMatch": "Coincidencia de intención: {hits}",
+      "capabilityMatch": "Experiencia relacionada: {hits}",
+      "taxonomyMatch": "Coincidencia de categoría: {hits}",
+      "location": "Ubicación: {location}",
+      "posterDirect": "Publicación del empleador directo",
+      "posterAgency": "Señales de agencia / intermediario",
+      "cautions": "Precaución: {items}",
+      "fallback": "Coincidencia parcial con tu intención — revisa manualmente."
+    },
+    "caution": {
+      "unknownPoster": "Contratación directa poco clara",
+      "sourceAgencyScam": "Esta fuente fue marcada como agencia sospechosa",
+      "dismissedCategory": "Similar a un tipo de rol que descartaste"
+    }
+  }
+}

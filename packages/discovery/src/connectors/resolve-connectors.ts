@@ -1,5 +1,5 @@
 import type { SeekerProfile } from "@aperio-j/core";
-import { isChinaCityProfile } from "@aperio-j/probe";
+import { isChinaCityProfile, isCnLocalFirstProfile } from "@aperio-j/probe";
 import {
   isConnectorEnabled,
   listConnectorDefinitions,
@@ -11,10 +11,11 @@ const GLOBAL_REMOTE_CONNECTORS = new Set(["remotive", "remoteok", "arbeitnow", "
 
 function shouldSkipConnector(connectorId: string, profile: SeekerProfile): boolean {
   if (!GLOBAL_REMOTE_CONNECTORS.has(connectorId)) return false;
-  if (profile.constraints.remotePreference !== "onsite-only") return false;
   const city = profile.constraints.primaryCity.trim();
   if (!city) return false;
-  return isChinaCityProfile(city, profile.constraints.acceptableCities);
+  if (!isChinaCityProfile(city, profile.constraints.acceptableCities)) return false;
+  if (profile.constraints.remotePreference === "onsite-only") return true;
+  return isCnLocalFirstProfile(profile);
 }
 
 export function resolveConnectorsForProfile(profile: SeekerProfile): ConnectorStreamConfig[] {

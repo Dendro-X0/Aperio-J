@@ -1,8 +1,9 @@
 import type { SeekerProfile } from "@aperio-j/core";
+import { cityIdentityKey } from "@aperio-j/core";
 
 function normalizeCityList(cities: string[]): string[] {
   return cities
-    .map((city) => city.trim().replace(/市$/u, "").toLowerCase())
+    .map((city) => cityIdentityKey(city))
     .filter(Boolean)
     .sort();
 }

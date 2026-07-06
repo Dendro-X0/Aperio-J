@@ -1,5 +1,6 @@
 import type { EngineLocale, RemotePreference } from "@aperio-j/core";
-import { createEngineTranslator, resolveEngineLocale } from "@aperio-j/core";
+import { cityMatchTerms, createEngineTranslator, displayCityLabel, resolveEngineLocale } from "@aperio-j/core";
+import { isChinaCityProfile } from "@aperio-j/probe";
 
 export const REMOTE_LOCATION_PATTERN = /(?:remote|远程|在家办公|居家办公|线上办公|work from home)/i;
 
@@ -22,7 +23,7 @@ const COMPACT_CITY_DISTRICT =
   /([\u4e00-\u9fff]{2,4}[\u4e00-\u9fff]{2,4}(?:区|县|镇|街道|新区)?)/g;
 
 const COMPACT_NOISE =
-  /招聘|工作|岗位|公司|要求|经验|负责|管理|操作|检验|测试|老化|包装|组装|管理员|员|工程师/;
+  /招聘|工作|岗位|公司|要求|经验|负责|管理|操作|检验|测试|老化|包装|组装|管理员|员|工程师|普工|电子厂|过于频繁|访问|配送|骑手/;
 
 function firstValidCompactLocation(text: string): string | null {
   for (const match of text.matchAll(COMPACT_CITY_DISTRICT)) {
@@ -94,7 +95,8 @@ export function isBroadRemoteLocation(text: string): boolean {
 }
 
 function profileHasCjkCity(cities: string[]): boolean {
-  return cities.some((city) => /[\u4e00-\u9fff]/.test(city));
+  if (cities.length === 0) return false;
+  return isChinaCityProfile(cities[0]!, cities.slice(1));
 }
 
 function isForeignCountryForProfile(locationText: string, cities: string[]): boolean {
@@ -103,7 +105,9 @@ function isForeignCountryForProfile(locationText: string, cities: string[]): boo
   return FOREIGN_COUNTRY_LOCATION.test(locationText);
 }
 
-const VAGUE_LOCATION = /^(?:不限|全国|面议|就近|各地|省内|周边城市?)$/;
+const VAGUE_LOCATION = /^(?:不限|全国|面议|就近|各地|省内|周边城市?|证码校验|验证码|访问过于频繁)$/;
+
+const INVALID_LOCATION_FRAGMENT = /证码|验证码|校验|过于频繁|访问限制/;
 
 export function normalizeCityKey(city: string): string {
   return city
@@ -118,18 +122,20 @@ function escapeRegExp(value: string): string {
 
 function extractFromCityHint(text: string, cityHints: string[]): string | null {
   for (const hint of cityHints) {
-    const key = normalizeCityKey(hint);
-    if (!key || key.length < 2) continue;
+    for (const term of cityMatchTerms(hint)) {
+      const key = normalizeCityKey(term);
+      if (!key || key.length < 2) continue;
 
-    const districtRe = new RegExp(
-      `${escapeRegExp(key)}(?:市|省)?([\\u4e00-\\u9fff]{2,8}(?:区|县|镇|街道|新区))?`,
-      "i",
-    );
-    const match = text.match(districtRe);
-    if (match?.[0]) return match[0].trim();
+      const districtRe = new RegExp(
+        `${escapeRegExp(key)}(?:市|省)?([\\u4e00-\\u9fff]{2,8}(?:区|县|镇|街道|新区))?`,
+        "i",
+      );
+      const match = text.match(districtRe);
+      if (match?.[0]) return match[0].trim();
 
-    if (text.toLowerCase().includes(key)) {
-      return hint.trim();
+      if (text.toLowerCase().includes(key)) {
+        return displayCityLabel(hint, "zh-CN");
+      }
     }
   }
   return null;
@@ -155,47 +161,116 @@ export function corpusClaimsRemoteWork(text: string): boolean {
   return EXPLICIT_REMOTE_PATTERN.test(text);
 }
 
+function sanitizeExtractedLocation(value: string | null): string | null {
+  if (!value?.trim()) return null;
+  const trimmed = value.trim();
+  if (VAGUE_LOCATION.test(trimmed)) return null;
+  if (INVALID_LOCATION_FRAGMENT.test(trimmed)) return null;
+  return trimmed;
+}
+
 /** Extract a human-readable location string from listing text. */
 export function extractLocationText(text: string, cityHints: string[] = []): string | null {
   const labelMatch = text.match(LOCATION_LABEL);
   if (labelMatch?.[1]) {
-    const labeled = labelMatch[1].trim();
-    if (!VAGUE_LOCATION.test(labeled)) return labeled;
+    const labeled = sanitizeExtractedLocation(labelMatch[1].trim());
+    if (labeled) return labeled;
   }
 
   const englishLabel = extractEnglishLocationLabel(text);
-  if (englishLabel) return englishLabel;
+  if (englishLabel) {
+    const labeled = sanitizeExtractedLocation(englishLabel);
+    if (labeled) return labeled;
+  }
 
   const fromHints = extractFromCityHint(text, cityHints);
-  if (fromHints) return fromHints;
+  if (fromHints) {
+    const labeled = sanitizeExtractedLocation(fromHints);
+    if (labeled) return labeled;
+  }
 
   const provinceCity = text.match(PROVINCE_CITY);
-  if (provinceCity?.[1]) return provinceCity[1].trim();
+  if (provinceCity?.[1]) {
+    const labeled = sanitizeExtractedLocation(provinceCity[1].trim());
+    if (labeled) return labeled;
+  }
 
   const cityMatches = [...text.matchAll(CITY_WITH_SUFFIX)];
   if (cityMatches.length > 0) {
-    return cityMatches[0]![0].trim();
+    const labeled = sanitizeExtractedLocation(cityMatches[0]![0].trim());
+    if (labeled) return labeled;
   }
 
   const special = extractSpecialRegion(text);
-  if (special) return special;
+  if (special) {
+    const labeled = sanitizeExtractedLocation(special);
+    if (labeled) return labeled;
+  }
 
   const compact = firstValidCompactLocation(text);
-  if (compact) return compact;
+  if (compact) {
+    const labeled = sanitizeExtractedLocation(compact);
+    if (labeled) return labeled;
+  }
 
   if (corpusClaimsRemoteWork(text)) return "远程";
+
+  if (cityHints.length > 0) {
+    const hint = cityHints.map((value) => value.trim()).find(Boolean);
+    if (hint) return displayCityLabel(hint, "zh-CN");
+  }
+
+  return null;
+}
+
+const URL_HOST_CITY: Array<{ pattern: RegExp; city: string }> = [
+  { pattern: /^sz\.58\.com$/i, city: "深圳" },
+  { pattern: /^shenzhen\./i, city: "深圳" },
+  { pattern: /^shenzhen\.zhaopin\.com$/i, city: "深圳" },
+];
+
+/** Infer profile city from city-scoped board URLs when listing text omits location. */
+export function inferCityHintFromListingUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.toLowerCase();
+    const path = parsed.pathname.toLowerCase();
+
+    for (const rule of URL_HOST_CITY) {
+      if (rule.pattern.test(host)) return rule.city;
+    }
+
+    if (/zhipin\.com$/i.test(host) && /\/shenzhen(?:\/|$)/i.test(path)) return "深圳";
+    if (/51job\.com$/i.test(host) && /\/jobs\/shenzhen(?:\/|$)/i.test(path)) return "深圳";
+
+    const zhaopinSub = host.match(/^([a-z0-9-]+)\.zhaopin\.com$/i);
+    if (zhaopinSub?.[1] && !["www", "m", "api"].includes(zhaopinSub[1])) {
+      const slug = zhaopinSub[1];
+      if (slug === "shenzhen") return "深圳";
+    }
+  } catch {
+    return null;
+  }
 
   return null;
 }
 
 export function corpusMatchesCity(corpus: string, cities: string[]): boolean {
   const lower = corpus.toLowerCase();
+  const terms = new Set<string>();
 
-  return cities.some((city) => {
-    const key = normalizeCityKey(city);
-    if (!key || key.length < 2) return false;
-    return lower.includes(key) || lower.includes(`${key}市`) || lower.includes(`${key}省`);
-  });
+  for (const city of cities) {
+    for (const term of cityMatchTerms(city)) {
+      if (!term || term.length < 2) continue;
+      terms.add(term);
+      if (/[\u4e00-\u9fff]/.test(term)) {
+        terms.add(`${term}市`);
+        terms.add(`${term}省`);
+      }
+    }
+  }
+
+  return [...terms].some((key) => lower.includes(key));
 }
 
 export function locationMatchesProfile(

@@ -21,8 +21,9 @@ import {
 } from "@/components/inbox/use-inbox-filters";
 import { EngineActivityPanel } from "@/components/engine/engine-activity-panel";
 import { FetchErrorLine } from "@/components/inbox/fetch-error-line";
-import type { MatchPipelinePhase } from "@/lib/engine-phases";
-import { readEngineStream } from "@/lib/engine-phases";
+import type { MatchRunInboxPayload } from "@/lib/match-run-client";
+import { getMatchRunState } from "@/lib/match-run-client";
+import { useMatchRun } from "@/components/match/match-run-provider";
 import {
   InboxPagination,
   INBOX_PAGE_SIZE,
@@ -36,6 +37,7 @@ export interface InboxProfileSummary {
   city: string;
   roles: string[];
   industries: string[];
+  remoteOnly: boolean;
 }
 
 export interface InboxMarketplaceViewProps {
@@ -54,6 +56,7 @@ export interface InboxMarketplaceViewProps {
   needsRediscover?: boolean;
   cnCaptureFirst?: boolean;
   cnRemoteFirst?: boolean;
+  remoteFirst?: boolean;
 }
 
 export function InboxMarketplaceView({
@@ -72,6 +75,7 @@ export function InboxMarketplaceView({
   needsRediscover = false,
   cnCaptureFirst = false,
   cnRemoteFirst = false,
+  remoteFirst = false,
 }: InboxMarketplaceViewProps) {
   const { dateLocale } = useI18n();
   const { t } = useTranslations("inbox");
@@ -91,17 +95,25 @@ export function InboxMarketplaceView({
     usedFixtureFallback,
     cnCaptureFirst,
     cnRemoteFirst,
+    remoteFirst,
   });
-  const [refreshing, setRefreshing] = useState(false);
-  const [refreshPhase, setRefreshPhase] = useState<MatchPipelinePhase>("preparing");
-  const [refreshPhaseDetail, setRefreshPhaseDetail] = useState<string | undefined>();
+  const matchRun = useMatchRun();
+  const [refreshing, setRefreshing] = useState(matchRun.isRunning);
+  const [refreshPhase, setRefreshPhase] = useState(matchRun.phase);
+  const [refreshPhaseDetail, setRefreshPhaseDetail] = useState(matchRun.phaseDetail);
   const [captureUrl, setCaptureUrl] = useState("");
   const [capturing, setCapturing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const searchParams = useSearchParams();
   const discoverStarted = useRef(false);
-  const refreshAbortRef = useRef<AbortController | null>(null);
+  const appliedResultAt = useRef<string | null>(null);
+
+  useEffect(() => {
+    setRefreshing(matchRun.isRunning);
+    setRefreshPhase(matchRun.phase);
+    setRefreshPhaseDetail(matchRun.phaseDetail);
+  }, [matchRun.isRunning, matchRun.phase, matchRun.phaseDetail]);
 
   const {
     filters,
@@ -135,20 +147,7 @@ export function InboxMarketplaceView({
     }
   }, [page, totalPages]);
 
-  function applyInboxPayload(payload: {
-    items: InboxItem[];
-    excludedItems?: InboxItem[];
-    ranAt: string;
-    opportunityCount: number;
-    matchedCount: number;
-    excludedCount?: number;
-    fetchErrors: string[];
-    sourceDiscoveryErrors?: string[];
-    streamCount?: number;
-    usedFixtureFallback?: boolean;
-    cnCaptureFirst?: boolean;
-    cnRemoteFirst?: boolean;
-  }) {
+  function applyInboxPayload(payload: MatchRunInboxPayload) {
     setItems(payload.items);
     setExcludedItems(payload.excludedItems ?? []);
     setMeta({
@@ -162,61 +161,41 @@ export function InboxMarketplaceView({
       usedFixtureFallback: payload.usedFixtureFallback ?? false,
       cnCaptureFirst: payload.cnCaptureFirst ?? cnCaptureFirst,
       cnRemoteFirst: payload.cnRemoteFirst ?? cnRemoteFirst,
+      remoteFirst: payload.remoteFirst ?? remoteFirst,
     });
   }
 
-  async function refresh() {
-    refreshAbortRef.current?.abort();
-    const controller = new AbortController();
-    refreshAbortRef.current = controller;
+  useEffect(() => {
+    if (matchRun.status !== "completed" || !matchRun.result || !matchRun.completedAt) return;
+    if (appliedResultAt.current === matchRun.completedAt) return;
+    appliedResultAt.current = matchRun.completedAt;
+    applyInboxPayload(matchRun.result);
+  }, [matchRun.status, matchRun.result, matchRun.completedAt, cnCaptureFirst, cnRemoteFirst, remoteFirst]);
 
-    setRefreshing(true);
-    setRefreshPhase("preparing");
-    setRefreshPhaseDetail(undefined);
+  async function refresh() {
+    if (matchRun.isRunning) return;
+
     setError(null);
 
     try {
-      const payload = await readEngineStream<{
-        items: InboxItem[];
-        excludedItems?: InboxItem[];
-        ranAt: string;
-        opportunityCount: number;
-        matchedCount: number;
-        excludedCount?: number;
-        fetchErrors: string[];
-        sourceDiscoveryErrors?: string[];
-        streamCount?: number;
-        usedFixtureFallback?: boolean;
-        cnCaptureFirst?: boolean;
-        cnRemoteFirst?: boolean;
-      }>(
-        await fetch("/api/match/run?stream=1", {
-          method: "POST",
-          signal: controller.signal,
-        }),
-        (phase, detail) => {
-          setRefreshPhase(phase as MatchPipelinePhase);
-          setRefreshPhaseDetail(detail);
-        },
-        { signal: controller.signal },
-      );
+      const payload = await matchRun.start();
+      appliedResultAt.current = getMatchRunState().completedAt ?? new Date().toISOString();
       applyInboxPayload(payload);
     } catch (refreshError) {
       if (refreshError instanceof DOMException && refreshError.name === "AbortError") {
         setError(t("refreshCancelled"));
         return;
       }
-      setError(refreshError instanceof Error ? refreshError.message : t("errors.refreshFailed"));
-    } finally {
-      if (refreshAbortRef.current === controller) {
-        refreshAbortRef.current = null;
+      if (matchRun.error) {
+        setError(matchRun.error);
+        return;
       }
-      setRefreshing(false);
+      setError(refreshError instanceof Error ? refreshError.message : t("errors.refreshFailed"));
     }
   }
 
   function cancelRefresh() {
-    refreshAbortRef.current?.abort();
+    matchRun.cancel();
   }
 
   useEffect(() => {
@@ -256,7 +235,7 @@ export function InboxMarketplaceView({
     }
   }
 
-  const remoteOnly = profileSummary.city === "—";
+  const remoteOnly = profileSummary.remoteOnly;
 
   return (
     <div className="space-y-6">
@@ -267,8 +246,8 @@ export function InboxMarketplaceView({
             {t("cancelRefresh")}
           </Button>
         ) : (
-          <Button className="shrink-0" onClick={refresh} disabled={!discoveryReady}>
-            {t("refresh")}
+          <Button className="shrink-0" onClick={refresh} disabled={!discoveryReady || matchRun.isRunning}>
+            {matchRun.isRunning ? t("refreshing") : t("refresh")}
           </Button>
         )}
       </div>
@@ -388,10 +367,10 @@ export function InboxMarketplaceView({
         </Card>
       )}
 
-      {meta.cnRemoteFirst && items.length === 0 && discoveryReady && (
+      {(meta.remoteFirst || meta.cnRemoteFirst) && items.length === 0 && discoveryReady && (
         <Card className="border-primary/30 bg-primary/5">
           <CardContent className="py-4 text-sm text-muted-foreground">
-            {t("empty.cnRemoteHint")}
+            {t("empty.remoteHint")}
           </CardContent>
         </Card>
       )}
@@ -432,6 +411,7 @@ export function InboxMarketplaceView({
           <InboxEmptyState
             cnCaptureFirst={meta.cnCaptureFirst}
             cnRemoteFirst={meta.cnRemoteFirst}
+            remoteFirst={meta.remoteFirst}
           />
         ) : (
           <PageEmpty

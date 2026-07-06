@@ -53,7 +53,10 @@ export async function POST(request: Request) {
       skip?: boolean;
     };
 
-    const existingId = body.profileId ?? (await getProfileIdFromCookies()) ?? undefined;
+    let existingId = body.profileId ?? (await getProfileIdFromCookies()) ?? undefined;
+    if (existingId && !(await loadProfileRecord(existingId))) {
+      existingId = undefined;
+    }
     const profileId = existingId ?? crypto.randomUUID();
 
     if (body.skip) {

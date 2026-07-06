@@ -4,6 +4,7 @@ import {
   corpusMatchesCity,
   corpusClaimsRemoteWork,
   extractLocationText,
+  inferCityHintFromListingUrl,
   locationMatchesProfile,
 } from "./location.js";
 
@@ -25,6 +26,11 @@ describe("extractLocationText", () => {
   it("uses profile city hints when generic patterns miss", () => {
     const text = "我们在宁波鄞州园区招聘质检";
     assert.match(extractLocationText(text, ["宁波"]) ?? "", /宁波/);
+  });
+
+  it("falls back to city hint for city-scoped boards without explicit city text", () => {
+    const text = "电子厂300一天岗位轻松手机可带普工";
+    assert.equal(extractLocationText(text, ["深圳"]), "深圳");
   });
 
   it("prefers headquarters over incidental remote mentions", () => {
@@ -93,6 +99,16 @@ describe("locationMatchesProfile", () => {
     assert.equal(locationMatchesProfile(shenzhenProfile, null, "Senior engineer role"), true);
   });
 
+  it("matches Shenzhen listings when profile stores English city label", () => {
+    const englishProfile = {
+      primaryCity: "Shenzhen",
+      acceptableCities: [] as string[],
+      remotePreference: "hybrid-ok" as const,
+    };
+    assert.equal(locationMatchesProfile(englishProfile, "深圳市南山区", ""), true);
+    assert.equal(locationMatchesProfile(englishProfile, null, "深圳龙岗招聘普工"), true);
+  });
+
   it("matches Shenzhen listings", () => {
     assert.equal(locationMatchesProfile(shenzhenProfile, "深圳市南山区", ""), true);
     assert.equal(locationMatchesProfile(shenzhenProfile, null, "深圳龙岗招聘普工"), true);
@@ -128,9 +144,27 @@ describe("locationMatchesProfile", () => {
   });
 });
 
+describe("inferCityHintFromListingUrl", () => {
+  it("maps city-scoped board URLs to profile cities", () => {
+    assert.equal(
+      inferCityHintFromListingUrl(
+        "https://sz.58.com/sou/jh_%E6%B7%B1%E5%9C%B3%E7%94%B5%E5%AD%90%E5%8E%82%E6%99%AE%E5%B7%A5/",
+      ),
+      "深圳",
+    );
+    assert.equal(inferCityHintFromListingUrl("https://www.zhipin.com/shenzhen/"), "深圳");
+    assert.equal(inferCityHintFromListingUrl("https://shenzhen.zhaopin.com/"), "深圳");
+  });
+});
+
 describe("corpusMatchesCity", () => {
   it("matches city without 市 suffix", () => {
     assert.equal(corpusMatchesCity("工作地点：杭州滨江", ["杭州"]), true);
+  });
+
+  it("matches Chinese corpus when profile stores English city label", () => {
+    assert.equal(corpusMatchesCity("深圳龙岗招聘普工", ["Shenzhen"]), true);
+    assert.equal(corpusMatchesCity("Berlin startup hiring onsite", ["柏林"]), true);
   });
 
   it("does not treat remote-only corpus as a city match", () => {

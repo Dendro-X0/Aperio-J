@@ -5,9 +5,24 @@ Locale-keyed **signal source seeds** — the engine validates these at runtime; 
 ## Layout
 
 ```
-packages/probe/src/probe-packs.ts   — built-in CN packs (code)
-probe-packs/                      — future OSS community JSON (Phase 4)
+packages/probe/src/probe-packs.ts        — built-in city probe packs (code)
+packages/probe/src/signal-packs/        — built-in city × role packs (code)
+probe-packs/                              — community JSON signal packs (optional)
 ```
+
+## Signal packs (city × role)
+
+Beyond city probe packs, **signal packs** add sources when both city and occupation match — e.g. 深圳 + 普工 → 58同城·深圳, 深圳人才网.
+
+| Pack ID | City | Role keywords (sample) |
+|---------|------|-------------------------|
+| `zh-CN-shenzhen-factory` | 深圳 | 普工, 产线, 质检, 工厂, 电子厂 |
+| `zh-CN-shenzhen-warehouse` | 深圳 | 仓储, 仓管, 物料 |
+| `zh-CN-dongguan-factory` | 东莞 | 普工, 工厂, 制造 |
+| `zh-CN-guangzhou-factory` | 广州 | 普工, 工厂, 制造 |
+| `zh-CN-huizhou-factory` | 惠州 | 普工, 电子厂 |
+
+Community contributions: drop JSON in [`probe-packs/`](../probe-packs/) or set `APERO_J_SIGNAL_PACKS_DIR`. See [probe-packs/README.md](../probe-packs/README.md).
 
 ## Built-in packs
 
@@ -39,6 +54,7 @@ Configure via environment:
 - `APERO_J_SEARCH_PROBE=false` — disable search discovery entirely
 - `APERO_J_SEARCH_PROBE_QUERIES=2` — queries per engine (default 2)
 - `APERO_J_SEARCH_PROBE_MAX=4` — max search probes per discovery run (default 4)
+- `APERO_J_SIGNAL_PACKS_DIR` — optional directory of community city×role JSON packs
 
 Future: `eastern-europe` sphere (Yandex) can extend `SEARCH_SPHERE_ENGINES` without changing the Profile UI.
 

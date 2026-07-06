@@ -72,19 +72,20 @@ describe("trustlistedLocalRegistryCandidates", () => {
 });
 
 describe("selectEnabledStreamCandidates", () => {
-  it("prioritizes local sources for hybrid city profiles", () => {
+  it("prioritizes remote boards for hybrid city profiles", () => {
     const local = candidate("https://www.arbeitsagentur.de/jobsuche/suche?wo=Berlin", 0.58);
     const remoteA = candidate("https://remoteok.com/remote-jobs.rss", 0.8);
     const remoteB = candidate("https://remotive.com/remote-jobs/feed", 0.75);
 
     const enabled = selectEnabledStreamCandidates(
-      [remoteA, remoteB, local],
+      [local, remoteA, remoteB],
       berlinProfile("hybrid-ok"),
       5,
     );
 
     assert.ok(enabled.some((row) => row.seedUrl.includes("arbeitsagentur.de")));
-    assert.ok(enabled.filter((row) => /remoteok|remotive/i.test(row.seedUrl)).length <= 3);
+    assert.ok(/remoteok|remotive/i.test(enabled[0]!.seedUrl));
+    assert.ok(enabled.filter((row) => /remoteok|remotive/i.test(row.seedUrl)).length <= 8);
   });
 
   it("omits remote boards for onsite-only city profiles", () => {

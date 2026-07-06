@@ -1,8 +1,8 @@
 # aperio-j — start here
 
-General-purpose **employment opportunity engine**: discover signals from public feeds, match them to a seeker's profile and intent, rank with explainable scores. No ads, no pay-to-rank.
+**Remote-first job discovery** for tech professionals, freelancers, and digital nomads: aggregate public remote feeds, match to your profile and intent, rank with explainable scores. No ads, no pay-to-rank. Optional city tags add hybrid local sources.
 
-Forked conceptually from [Aperio](../aperio/docs/vision.md) (freelance/OSS clue engine), but profile intake and matching target **full-time / part-time employment** across industries.
+Forked conceptually from [Aperio](../aperio/docs/vision.md) (freelance/OSS clue engine), but profile intake and matching target **employment** (full-time, contract, part-time).
 
 ## Read order
 
@@ -11,9 +11,11 @@ Forked conceptually from [Aperio](../aperio/docs/vision.md) (freelance/OSS clue 
 | 1 | [docs/vision.md](./docs/vision.md) | Product boundary vs Indeed / Aperio |
 | 2 | [docs/onboarding-questionnaire.md](./docs/onboarding-questionnaire.md) | New-user questionnaire → `SeekerProfile` |
 | 3 | [docs/discovery-and-matching.md](./docs/discovery-and-matching.md) | Fetch → parse → match pipeline |
-| 4 | [docs/source-discovery-design.md](./docs/source-discovery-design.md) | **Auto source discovery** (Phase 2 proposal) |
+| 4 | [docs/probe-packs.md](./docs/probe-packs.md) | Remote boards + city probe packs |
 | 5 | [docs/roadmap.md](./docs/roadmap.md) | Phased delivery |
-| 6 | [docs/desktop-mobile.md](./docs/desktop-mobile.md) | Tauri v2 desktop + mobile shells, self-signing |
+| 6 | [docs/desktop-mobile.md](./docs/desktop-mobile.md) | Tauri v2 desktop + mobile shells |
+| 7 | [CHANGELOG.md](./CHANGELOG.md) | Release history |
+| 8 | [docs/release.md](./docs/release.md) | Pre-release checklist |
 
 ## Repo layout
 

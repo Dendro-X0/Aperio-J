@@ -1,12 +1,17 @@
 import type { SourceProbe, StreamCandidate } from "@aperio-j/core";
-import { buildCitySearchQueries, resolveSearchSphere, type SearchSphere } from "@aperio-j/probe";
-import { discoverFollowUpCandidates, isTrustedCrawlDomain } from "./seed-page-crawl.js";
+import { cityMatchTerms } from "@aperio-j/core";
+import { buildCitySearchQueries, resolveSearchSphere, resolveSearxngBaseUrl, type SearchSphere } from "@aperio-j/probe";
 import { fetchHtml } from "./rss-autodiscover.js";
 import { parseRssXml } from "./rss-fetch.js";
-import { validateStreamCandidate } from "./validate-stream.js";
-import { isNationalAggregatorRootUrl, seedUrlMatchesCityProfile } from "./cn-sources.js";
+import { createLightweightStreamCandidate } from "./probe-candidate.js";
+import {
+  isCnGovIndexOnlyUrl,
+  isCnSingleJobDetailUrl,
+  isNationalAggregatorRootUrl,
+  seedUrlMatchesCityProfile,
+} from "./cn-sources.js";
 
-const DEFAULT_SEEDS_PER_QUERY = 4;
+const DEFAULT_SEEDS_PER_QUERY = 3;
 
 export interface SearchProbeOptions {
   maxSeedsPerQuery?: number;
@@ -34,6 +39,27 @@ function cleanRawUrl(raw: string): string | null {
   } catch {
     return null;
   }
+}
+
+/** Extract outbound URLs from a SearXNG JSON search response. */
+export function extractUrlsFromSearxngJson(json: string): string[] {
+  try {
+    const data = JSON.parse(json) as { results?: Array<{ url?: string }> };
+    const found = new Set<string>();
+    for (const row of data.results ?? []) {
+      if (!row.url) continue;
+      const cleaned = cleanRawUrl(row.url);
+      if (cleaned) found.add(cleaned);
+    }
+    return [...found];
+  } catch {
+    return [];
+  }
+}
+
+function isSearxngProbeSeed(seed: string): boolean {
+  const base = resolveSearxngBaseUrl();
+  return base ? seed.startsWith(base) : false;
 }
 
 /** Extract outbound URLs embedded in search-engine result HTML or RSS. */
@@ -103,6 +129,15 @@ export function toStreamSeedUrl(url: string): string {
     const path = parsed.pathname;
 
     if (parsed.hostname.endsWith(".gov.cn") || parsed.hostname.includes("mohrss.gov.cn")) {
+      if (isCnSingleJobDetailUrl(url)) {
+        if (parsed.hostname.includes("mohrss.gov.cn")) {
+          return "https://job.mohrss.gov.cn/cjobs/jobinfolist/cb21/";
+        }
+        const segments = path.split("/").filter(Boolean);
+        if (segments.length >= 2) {
+          return `${parsed.origin}/${segments.slice(0, 2).join("/")}/`;
+        }
+      }
       if (/tzgg|zpxx|招聘|gzry|job|rsj|hrss|index|gkml|xxgk|cjobs/i.test(path)) {
         return `${parsed.origin}${path}`;
       }
@@ -136,11 +171,16 @@ export function scoreDiscoveryUrl(url: string, city: string, sphere?: SearchSphe
   if (resolved === "cn") {
     if (lower.includes(".gov.cn") || lower.includes("mohrss.gov.cn")) score += 40;
     if (/hrss|rsj|rlzy|mohrss|公共招聘|job\.mohrss/i.test(lower)) score += 30;
-    if (cityNorm && lower.includes(cityNorm)) score += 15;
+    const terms = city.trim() ? cityMatchTerms(city) : [];
+    if (terms.some((term) => term.length >= 2 && lower.includes(term))) score += 18;
+    else if (cityNorm && lower.includes(cityNorm)) score += 15;
     if (/tzgg|zpxx|招聘|gzry|job|career|index|list|sou|cjobs/i.test(lower)) score += 20;
-    if (/zhaopin|51job|zhipin|lagou|liepin|58\.com/i.test(lower)) score += 10;
+    if (/zhaopin|51job|zhipin|lagou|liepin|58\.com/i.test(lower)) score += 12;
+    if (/事业单位|中小学教师|公职|招考简章|中学教师|赴外招聘/i.test(lower)) score -= 28;
     if (isNationalAggregatorRootUrl(url)) score -= 60;
-    if (/post_|content\/|showdw|\.pdf|mpost_/i.test(lower)) score -= 15;
+    if (/post_|content\/|showdw|\.pdf|mpost_|htmls\/cb21dwPages/i.test(lower)) score -= 25;
+    if (/m\.51job\.com/i.test(lower)) score -= 15;
+    if (isCnGovIndexOnlyUrl(url)) score -= 20;
     if (/zzb\.|epaper|news\./i.test(lower)) score -= 10;
     return score;
   }
@@ -186,6 +226,8 @@ export function selectStreamSeedsFromUrls(
   for (const { seed } of ranked) {
     if (city && !seedUrlMatchesCityProfile(seed, city)) continue;
     if (isNationalAggregatorRootUrl(seed)) continue;
+    if (isCnSingleJobDetailUrl(seed)) continue;
+    if (isCnGovIndexOnlyUrl(seed)) continue;
 
     let key = seed;
     try {
@@ -208,49 +250,61 @@ export function isSearchProbeEnabled(): boolean {
   return searchProbeEnabled();
 }
 
+export async function discoverStreamSeedsFromSearchBody(
+  body: string,
+  city: string,
+  options: SearchProbeOptions & { searxng?: boolean } = {},
+): Promise<string[]> {
+  const limit = options.maxSeedsPerQuery ?? DEFAULT_SEEDS_PER_QUERY;
+  const urls = options.searxng ? extractUrlsFromSearxngJson(body) : extractUrlsFromSearchHtml(body);
+  return selectStreamSeedsFromUrls(urls, city, limit);
+}
+
 export async function discoverStreamSeedsFromSearchHtml(
   html: string,
   city: string,
   options: SearchProbeOptions = {},
 ): Promise<string[]> {
-  const limit = options.maxSeedsPerQuery ?? DEFAULT_SEEDS_PER_QUERY;
-  const urls = extractUrlsFromSearchHtml(html);
-  return selectStreamSeedsFromUrls(urls, city, limit);
+  return discoverStreamSeedsFromSearchBody(html, city, options);
 }
 
 export async function executeSearchProbe(probe: SourceProbe): Promise<StreamCandidate[]> {
   if (!searchProbeEnabled()) return [];
 
-  const html = await fetchHtml(probe.seed, { search: true });
+  const searxng = isSearxngProbeSeed(probe.seed);
+  const body = await fetchHtml(probe.seed, {
+    search: true,
+    locale: searxng ? undefined : "zh-CN",
+  });
   const city = probe.regionHint === "remote" ? "" : probe.regionHint;
-  const seeds = await discoverStreamSeedsFromSearchHtml(html, city);
+  const seeds = await discoverStreamSeedsFromSearchBody(body, city, { searxng });
   const candidates: StreamCandidate[] = [];
   const seen = new Set<string>();
 
-  const push = (candidate: StreamCandidate | null) => {
-    if (!candidate || seen.has(candidate.seedUrl)) return;
-    seen.add(candidate.seedUrl);
-    candidates.push(candidate);
-  };
-
   for (const seedUrl of seeds) {
-    push(
-      await validateStreamCandidate({
-        label: `Search hit: ${seedUrl}`,
+    if (seen.has(seedUrl)) continue;
+    seen.add(seedUrl);
+
+    const score = scoreDiscoveryUrl(seedUrl, city);
+    const confidence = Math.min(0.42 + score / 120, 0.88);
+    const host = (() => {
+      try {
+        return new URL(seedUrl).hostname.replace(/^www\./i, "");
+      } catch {
+        return seedUrl;
+      }
+    })();
+
+    candidates.push(
+      createLightweightStreamCandidate({
+        label: `Search hit: ${host}`,
         kind: "list_page",
         seedUrl,
         discoveredVia: probe.id,
         regionHint: probe.regionHint,
-        intentTerms: probe.intentTerms,
+        confidence,
       }),
     );
-
-    if (isTrustedCrawlDomain(seedUrl)) {
-      const followUps = await discoverFollowUpCandidates(seedUrl, probe);
-      for (const candidate of followUps) {
-        push(candidate);
-      }
-    }
   }
 
   return candidates;

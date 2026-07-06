@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/shell/app-shell";
+import { profileCities } from "@/lib/profile-location-display";
 import {
   getProfileIdFromCookies,
   loadProfileRecord,
@@ -21,7 +22,7 @@ export default async function MainAppLayout({ children }: { children: React.Reac
   const profile = record ? parseSeekerProfile(record) : null;
   const profileSummary = profile
     ? {
-        city: profile.constraints.primaryCity,
+        city: profileCities(profile).join(" · "),
         industries: profile.intent.desiredIndustries.filter(Boolean),
         roles: profile.intent.desiredRoles,
       }

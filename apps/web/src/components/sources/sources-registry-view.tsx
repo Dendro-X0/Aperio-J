@@ -2,8 +2,9 @@
 
 import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, MoreHorizontal, Plus, Radio } from "lucide-react";
+import { ChevronDown, FileUp, MoreHorizontal, Plus, Radio, Trash2 } from "lucide-react";
 import { useI18n, useTranslations } from "@/i18n/provider";
+import { profileLocationLabelFromCityField } from "@/lib/profile-location-display";
 import { StreamHealthBadge } from "@/components/sources/stream-health-badge";
 import { SessionAuthFields, type SessionAuthMode } from "@/components/sources/session-auth-fields";
 import { SourcesTableSkeleton } from "@/components/sources/sources-table-skeleton";
@@ -41,6 +42,7 @@ import {
 } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Toggle } from "@/components/ui/toggle";
 import { PageEmpty } from "@/components/ui/page-empty";
@@ -86,7 +88,7 @@ export function SourcesRegistryView({
   lastDiscoveryStats,
   profileSummary,
 }: SourcesRegistryProps) {
-  const { dateLocale, listSeparator } = useI18n();
+  const { dateLocale, listSeparator, locale } = useI18n();
   const { t } = useTranslations("sources");
   const { t: tCommon } = useTranslations("common");
   const { t: tEnums } = useTranslations("enums");
@@ -100,6 +102,10 @@ export function SourcesRegistryView({
   const [discoverPhaseDetail, setDiscoverPhaseDetail] = useState<string | undefined>();
   const [adding, setAdding] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [opmlDialogOpen, setOpmlDialogOpen] = useState(false);
+  const [opmlText, setOpmlText] = useState("");
+  const [importingOpml, setImportingOpml] = useState(false);
+  const [clearingCache, setClearingCache] = useState(false);
   const [customUrl, setCustomUrl] = useState("");
   const [customLabel, setCustomLabel] = useState("");
   const [customAuthMode, setCustomAuthMode] = useState<"none" | "cookie" | "bearer">("none");
@@ -111,6 +117,7 @@ export function SourcesRegistryView({
   const [editAuthSecret, setEditAuthSecret] = useState("");
   const [savingAuth, setSavingAuth] = useState(false);
   const [revalidatingId, setRevalidatingId] = useState<string | null>(null);
+  const [enablingAll, setEnablingAll] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [discoveryNote, setDiscoveryNote] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>(() =>
@@ -118,7 +125,7 @@ export function SourcesRegistryView({
   );
   const discoverAbortRef = useRef<AbortController | null>(null);
 
-  const profileLine = `${profileSummary.city} · ${tCommon("intent")} ${profileSummary.roles.join(listSeparator)}`;
+  const profileLine = `${profileLocationLabelFromCityField(profileSummary.city, locale)}${tCommon("separator")}${tCommon("intent")} ${profileSummary.roles.join(listSeparator)}`;
   const enabledCount = streams.filter((row) => row.enabled).length;
   const healthyCount = streams.filter((row) => row.health === "healthy").length;
   const remoteCount = streams.filter((row) => row.workCategory === "remote").length;
@@ -130,6 +137,10 @@ export function SourcesRegistryView({
   }, [streams, categoryFilter]);
 
   const filteredEnabledCount = filteredStreams.filter((row) => row.enabled).length;
+  const enableAllTargets = useMemo(
+    () => filteredStreams.filter((row) => !row.ephemeral && !row.enabled),
+    [filteredStreams],
+  );
 
   const lastDiscoveryLabel = lastDiscoveryAt
     ? new Date(lastDiscoveryAt).toLocaleString(dateLocale)
@@ -191,6 +202,110 @@ export function SourcesRegistryView({
     setStreams((prev) =>
       prev.map((row) => (row.id === stream.id ? { ...row, enabled: next } : row)),
     );
+  }
+
+  async function enableAllFiltered() {
+    if (enableAllTargets.length === 0) return;
+
+    setEnablingAll(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/sources/enable-all", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: enableAllTargets.map((row) => row.id) }),
+      });
+      const payload = (await response.json()) as {
+        count?: number;
+        streams?: StreamRow[];
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(payload.error ?? t("errors.updateFailed"));
+      }
+
+      if (payload.streams) {
+        setStreams(payload.streams);
+      } else {
+        const enabledIds = new Set(enableAllTargets.map((row) => row.id));
+        setStreams((prev) =>
+          prev.map((row) => (enabledIds.has(row.id) ? { ...row, enabled: true } : row)),
+        );
+      }
+
+      setDiscoveryNote(
+        t("enableAll.success", { count: payload.count ?? enableAllTargets.length }),
+      );
+    } catch (enableError) {
+      setError(enableError instanceof Error ? enableError.message : t("errors.updateFailed"));
+    } finally {
+      setEnablingAll(false);
+    }
+  }
+
+  async function importOpmlSources() {
+    if (!opmlText.trim()) {
+      setError(t("errors.opmlRequired"));
+      return;
+    }
+
+    setImportingOpml(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/sources/opml", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ opml: opmlText }),
+      });
+      const payload = (await response.json()) as {
+        imported?: number;
+        skipped?: number;
+        error?: string;
+      };
+      if (!response.ok) {
+        throw new Error(payload.error ?? t("errors.importOpmlFailed"));
+      }
+
+      const refresh = await fetch("/api/sources");
+      if (refresh.ok) {
+        const body = (await refresh.json()) as { streams?: StreamRow[] };
+        if (body.streams) setStreams(body.streams);
+      }
+
+      setOpmlText("");
+      setOpmlDialogOpen(false);
+      setDiscoveryNote(
+        t("importOpml.successNote", {
+          imported: payload.imported ?? 0,
+          skipped: payload.skipped ?? 0,
+        }),
+      );
+    } catch (importError) {
+      setError(importError instanceof Error ? importError.message : t("errors.importOpmlFailed"));
+    } finally {
+      setImportingOpml(false);
+    }
+  }
+
+  async function clearFetchCache() {
+    setClearingCache(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/settings/cache", { method: "POST" });
+      const payload = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        throw new Error(payload.error ?? t("errors.clearCacheFailed"));
+      }
+      setDiscoveryNote(t("clearCache.successNote"));
+    } catch (cacheError) {
+      setError(cacheError instanceof Error ? cacheError.message : t("errors.clearCacheFailed"));
+    } finally {
+      setClearingCache(false);
+    }
   }
 
   async function addCustomSource() {
@@ -387,6 +502,18 @@ export function SourcesRegistryView({
             <Plus className="h-4 w-4" />
             {t("addCustom.open")}
           </Button>
+          <Button variant="outline" onClick={() => setOpmlDialogOpen(true)}>
+            <FileUp className="h-4 w-4" />
+            {t("importOpml.open")}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={clearFetchCache}
+            disabled={clearingCache}
+          >
+            <Trash2 className="h-4 w-4" />
+            {clearingCache ? t("clearCache.clearing") : t("clearCache.open")}
+          </Button>
           {discovering ? (
             <Button variant="outline" onClick={cancelDiscovery}>
               {t("cancelDiscovery")}
@@ -504,7 +631,7 @@ export function SourcesRegistryView({
         </Card>
       ) : (
         <Card className="py-0">
-          <div className="flex items-center justify-between border-b px-4 py-2 text-xs text-muted-foreground">
+          <div className="flex items-center justify-between gap-3 border-b px-4 py-2 text-xs text-muted-foreground">
             <span>
               {categoryFilter === "all"
                 ? t("stats.enabled")
@@ -512,9 +639,23 @@ export function SourcesRegistryView({
                   ? t("category.remote")
                   : t("category.onsite")}
             </span>
-            <span className="tabular-nums">
-              {filteredEnabledCount}/{filteredStreams.length} {t("table.enabled").toLowerCase()}
-            </span>
+            <div className="flex items-center gap-2">
+              {enableAllTargets.length > 0 && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 px-2 text-xs"
+                  disabled={enablingAll}
+                  onClick={enableAllFiltered}
+                >
+                  {enablingAll ? t("enableAll.busy") : t("enableAll.button")}
+                </Button>
+              )}
+              <span className="tabular-nums">
+                {filteredEnabledCount}/{filteredStreams.length} {t("table.enabled").toLowerCase()}
+              </span>
+            </div>
           </div>
           <Table>
             <TableHeader>
@@ -712,8 +853,35 @@ export function SourcesRegistryView({
         </DialogContent>
       </Dialog>
 
+      <Dialog open={opmlDialogOpen} onOpenChange={setOpmlDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{t("importOpml.title")}</DialogTitle>
+            <DialogDescription>{t("importOpml.description")}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label htmlFor="opmlText">{t("importOpml.opmlLabel")}</Label>
+            <Textarea
+              id="opmlText"
+              value={opmlText}
+              onChange={(e) => setOpmlText(e.target.value)}
+              placeholder={t("importOpml.opmlPlaceholder")}
+              rows={10}
+              className="font-mono text-xs"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpmlDialogOpen(false)}>
+              {tProfile("cancel")}
+            </Button>
+            <Button onClick={importOpmlSources} disabled={importingOpml || !opmlText.trim()}>
+              {importingOpml ? t("importOpml.submitting") : t("importOpml.submit")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog
-        open={editStream !== null}
         onOpenChange={(open) => {
           if (!open) setEditStream(null);
         }}

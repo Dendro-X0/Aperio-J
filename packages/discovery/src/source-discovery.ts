@@ -1,6 +1,6 @@
 import type { SeekerProfile, SourceDiscoveryManifest, StreamCandidate } from "@aperio-j/core";
 import { isRemoteBoardUrl } from "@aperio-j/core";
-import { expandSourceProbes } from "@aperio-j/probe";
+import { expandSourceProbes, isCnLocalFirstProfile } from "@aperio-j/probe";
 import { executeProbe, rankStreamCandidates } from "./validate-stream.js";
 import {
   mergeTrustlistedLocalCandidates,
@@ -76,6 +76,59 @@ function adjustConfidenceForProfile(
   return { ...candidate, confidence: Math.min(confidence, 0.95) };
 }
 
+function discoveryProbeConcurrency(): number {
+  return Math.max(1, Number(process.env.APERO_J_DISCOVERY_PROBE_CONCURRENCY ?? 5));
+}
+
+function orderProbesForProfile(probes: import("@aperio-j/core").SourceProbe[], profile: SeekerProfile) {
+  if (!isCnLocalFirstProfile(profile)) return probes;
+
+  const search = probes.filter((probe) => probe.kind === "search_discovery");
+  const registry = probes.filter((probe) => probe.kind === "registry_lookup");
+  const rest = probes.filter(
+    (probe) => probe.kind !== "search_discovery" && probe.kind !== "registry_lookup",
+  );
+  return [...search, ...registry, ...rest];
+}
+
+async function executeProbesConcurrent(
+  probes: import("@aperio-j/core").SourceProbe[],
+  blocked: ReadonlySet<string>,
+  signal?: AbortSignal,
+): Promise<{ candidates: StreamCandidate[]; errors: string[] }> {
+  const concurrency = discoveryProbeConcurrency();
+  const candidates: StreamCandidate[] = [];
+  const errors: string[] = [];
+
+  for (let offset = 0; offset < probes.length; offset += concurrency) {
+    throwIfAborted(signal);
+    const batch = probes.slice(offset, offset + concurrency);
+    const results = await Promise.allSettled(batch.map((probe) => executeProbe(probe)));
+
+    for (let index = 0; index < results.length; index++) {
+      const result = results[index]!;
+      const probe = batch[index]!;
+      if (result.status === "fulfilled") {
+        candidates.push(...filterBlockedCandidates(result.value, blocked));
+      } else {
+        errors.push(
+          `${probe.label}: ${result.reason instanceof Error ? result.reason.message : String(result.reason)}`,
+        );
+      }
+    }
+  }
+
+  return { candidates, errors };
+}
+
+function dropIntlAggregatorsForCnLocal(
+  candidates: StreamCandidate[],
+  profile: SeekerProfile,
+): StreamCandidate[] {
+  if (!isCnLocalFirstProfile(profile)) return candidates;
+  return candidates.filter((candidate) => !/linkedin\.com|indeed\.com/i.test(candidate.seedUrl));
+}
+
 export async function runSourceDiscovery(
   profile: SeekerProfile,
   options: RunSourceDiscoveryOptions = {},
@@ -92,22 +145,16 @@ export async function runSourceDiscovery(
     ? buildGapFocusedProbes(profile, options.gap, blocked)
     : expandSourceProbes(profile).filter((probe) => !isBlockedDomain(probe.seed, blocked));
 
-  const probes = mergeProbesWithMemory(memoryProbes, baseProbes).slice(0, maxProbes);
+  const probes = orderProbesForProfile(
+    mergeProbesWithMemory(memoryProbes, baseProbes, profile).slice(0, maxProbes),
+    profile,
+  );
 
-  const errors: string[] = [];
-  const allCandidates: StreamCandidate[] = [];
-
-  for (const probe of probes) {
-    throwIfAborted(options.signal);
-    try {
-      const batch = await executeProbe(probe);
-      allCandidates.push(...filterBlockedCandidates(batch, blocked));
-    } catch (error) {
-      errors.push(
-        `${probe.label}: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
-  }
+  const { candidates: allCandidates, errors } = await executeProbesConcurrent(
+    probes,
+    blocked,
+    options.signal,
+  );
 
   const adjusted = filterBlockedCandidates(
     allCandidates.map((candidate) => adjustConfidenceForProfile(candidate, profile)),
@@ -120,6 +167,9 @@ export async function runSourceDiscovery(
     blocked,
   );
   let { enabled, deferred } = partitionStreamCandidates(adjustedTrusted, profile, maxStreams);
+
+  enabled = dropIntlAggregatorsForCnLocal(enabled, profile);
+  deferred = dropIntlAggregatorsForCnLocal(deferred, profile);
 
   if (city) {
     enabled = filterCnStreamCandidates(enabled, city);

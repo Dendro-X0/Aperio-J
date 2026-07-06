@@ -3,7 +3,9 @@ import { describe, it } from "node:test";
 import {
   filterCnListPageItems,
   isCnCityHubListing,
+  isCnGovIndexOnlyUrl,
   isCnNonJobGovNotice,
+  isCnSingleJobDetailUrl,
   isNationalAggregatorRootUrl,
   resolveCnCityListingUrl,
   seedUrlMatchesCityProfile,
@@ -62,6 +64,24 @@ describe("cn-sources", () => {
 
     assert.equal(filtered.length, 1);
     assert.match(filtered[0]!.title, /深圳/);
+  });
+
+  it("flags gov index-only URLs", () => {
+    assert.equal(isCnGovIndexOnlyUrl("http://hrss.sz.gov.cn/gkmlpt/index"), true);
+    assert.equal(isCnGovIndexOnlyUrl("http://hrss.sz.gov.cn/tzgg/"), false);
+  });
+
+  it("detects single job detail URLs", () => {
+    assert.equal(
+      isCnSingleJobDetailUrl(
+        "http://job.mohrss.gov.cn/cjobs/htmls/cb21dwPages/37137771.html",
+      ),
+      true,
+    );
+    assert.equal(
+      isCnSingleJobDetailUrl("https://www.zhaopin.com/jobdetail/CCL1500552770J40946316708.htm"),
+      true,
+    );
   });
 
   it("rewrites national aggregator roots to city listing URLs", () => {

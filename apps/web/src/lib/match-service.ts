@@ -1,22 +1,31 @@
-import type { EngineLocale, MatchResult, Opportunity, SeekerProfile } from "@aperio-j/core";
+import type { EngineLocale, MatchResult, Opportunity, RawFeedItem, SeekerProfile } from "@aperio-j/core";
 import { resolveEngineLocale } from "@aperio-j/core";
 import { prisma } from "@aperio-j/db";
 import { dedupeOpportunities } from "@aperio-j/discovery/dedupe-opportunities";
 import { extractSourceSite } from "@aperio-j/discovery/contact-extract";
-import { fetchAllStreams, type StreamConfig } from "@aperio-j/discovery/fetch-streams";
+import { fetchAllStreamsWithCache } from "./fetch-streams-cached";
+import type { StreamConfig } from "@aperio-j/discovery/fetch-streams";
+import { filterCnFeedItemsForProfile } from "@aperio-j/discovery/cn-feed-quality";
+import { filterRemoteTechFeedItemsForProfile } from "@aperio-j/discovery/remote-tech-feed-quality";
 import { shouldRunInitialScrapeDiscoveryForProfile, shouldRunScrapeDiscoveryForProfile } from "@aperio-j/discovery/discovery-fallback";
 import { throwIfAborted } from "@aperio-j/discovery/discovery-abort";
-import { isChinaCityProfile, isCnRemoteFirstProfile } from "@aperio-j/probe";
+import { isChinaCityProfile, isCnLocalFirstOccupation, isCnRemoteFirstProfile, isRemoteFirstProfile, isRemoteTechProfile } from "@aperio-j/probe";
 import { localizeOpportunity, parseOpportunities } from "@aperio-j/discovery/parse-opportunity";
 import { FIXTURE_FEED_ITEMS, partitionOpportunityMatches } from "@aperio-j/matcher";
+import { findRelatedInboxItems } from "@/lib/related-inbox-items";
 import {
   countEnabledStreams,
   discoverAndPersistStreams,
   listStreamRegistry,
   loadEnabledStreamConfigs,
   sanitizeCnRegistryStreams,
+  sanitizeCnGovNoiseStreams,
+  sanitizeCnGovStreamsForFactoryProfile,
+  sanitizeMemoryDuplicateStreams,
   sanitizeCnRemoteFirstRegistryStreams,
+  sanitizeRemoteBoardRegistryStreams,
   ensureCnCityRegistryStreams,
+  ensureRemoteRegistryStreams,
   ensureCnRemoteRegistryStreams,
 } from "./source-registry";
 import { applyStreamFetchResults, countHealthyStreams } from "./stream-health";
@@ -246,6 +255,7 @@ export interface InboxPayload {
   usedFixtureFallback: boolean;
   cnCaptureFirst?: boolean;
   cnRemoteFirst?: boolean;
+  remoteFirst?: boolean;
 }
 
 export async function upsertOpportunities(opportunities: Opportunity[]) {
@@ -323,6 +333,7 @@ export async function runMatchPipeline(
     profile.constraints.primaryCity,
     profile.constraints.acceptableCities,
     profile.constraints.remotePreference,
+    profile,
   );
   const cnCaptureFirst =
     isChinaCityProfile(
@@ -332,13 +343,22 @@ export async function runMatchPipeline(
 
   if (cnRemoteFirst) {
     await sanitizeCnRemoteFirstRegistryStreams(profile.id);
-    await ensureCnRemoteRegistryStreams(profile.id);
+  }
+  if (cnRemoteFirst || isRemoteFirstProfile(profile)) {
+    await ensureRemoteRegistryStreams(profile.id);
   } else if (cnCaptureFirst) {
+    await sanitizeRemoteBoardRegistryStreams(profile.id);
     await sanitizeCnRegistryStreams(profile.id, profile.constraints.primaryCity);
+    await sanitizeCnGovNoiseStreams(profile.id);
+    if (isCnLocalFirstOccupation(profile)) {
+      await sanitizeCnGovStreamsForFactoryProfile(profile.id);
+    }
+    await sanitizeMemoryDuplicateStreams(profile.id);
     await ensureCnCityRegistryStreams(
       profile.id,
       profile.constraints.primaryCity,
       profile.constraints.acceptableCities,
+      profile,
     );
   }
 
@@ -350,17 +370,24 @@ export async function runMatchPipeline(
   const registryStreamIds = new Set(registryConfigs.map((row) => row.id));
   const feedback = await loadMatchFeedbackContext(profile.id);
 
-  let rssItems: Awaited<ReturnType<typeof fetchAllStreams>>["items"] = [];
+  let rssItems: RawFeedItem[] = [];
   let fetchErrors: string[] = [];
+  let usedFeedCache = false;
   let usedFixtureFallback = false;
 
   if (streamConfigs.length > 0) {
     emit?.("scanning_feeds", String(streamConfigs.length));
     const fetched = await withProfileConnectorCredentials(profile.id, () =>
-      fetchAllStreams(streamConfigs),
+      fetchAllStreamsWithCache(profile.id, streamConfigs),
     );
     rssItems = fetched.items;
     fetchErrors = fetched.errors;
+    usedFeedCache = fetched.cacheSummary.cacheHits > 0;
+    if (fetched.cacheSummary.cacheHits > 0) {
+      fetchErrors.push(
+        `feed-cache: reused ${fetched.cacheSummary.cacheHits} stream(s) (site may be rate-limiting live fetch)`,
+      );
+    }
 
     const registryResults = fetched.results.filter((row) => registryStreamIds.has(row.streamId));
     if (registryResults.length > 0) {
@@ -390,10 +417,11 @@ export async function runMatchPipeline(
       if (retryConfigs.length > 0) {
         emit?.("scanning_feeds", String(retryConfigs.length));
         const retry = await withProfileConnectorCredentials(profile.id, () =>
-          fetchAllStreams(retryConfigs),
+          fetchAllStreamsWithCache(profile.id, retryConfigs),
         );
         rssItems = retry.items;
         fetchErrors.push(...retry.errors);
+        usedFeedCache = usedFeedCache || retry.cacheSummary.cacheHits > 0;
         const retryRegistryResults = retry.results.filter((row) =>
           retryRegistryIds.has(row.streamId),
         );
@@ -412,6 +440,12 @@ export async function runMatchPipeline(
   if (rssItems.length === 0 && allowFixtures) {
     rssItems = [...FIXTURE_FEED_ITEMS];
     usedFixtureFallback = true;
+  }
+
+  if (cnCaptureFirst) {
+    rssItems = filterCnFeedItemsForProfile(rssItems, profile);
+  } else if (isRemoteTechProfile(profile)) {
+    rssItems = filterRemoteTechFeedItemsForProfile(rssItems, profile);
   }
 
   emit?.("parsing_listings", String(rssItems.length));
@@ -491,6 +525,7 @@ export async function runMatchPipeline(
     usedFixtureFallback,
     cnCaptureFirst,
     cnRemoteFirst,
+    remoteFirst: isRemoteFirstProfile(profile),
   };
 }
 
@@ -540,6 +575,7 @@ export async function loadLatestInbox(
       profile.constraints.primaryCity,
       profile.constraints.acceptableCities,
       profile.constraints.remotePreference,
+      profile,
     ),
     cnCaptureFirst:
       isChinaCityProfile(
@@ -550,7 +586,9 @@ export async function loadLatestInbox(
         profile.constraints.primaryCity,
         profile.constraints.acceptableCities,
         profile.constraints.remotePreference,
+        profile,
       ),
+    remoteFirst: isRemoteFirstProfile(profile),
   };
 }
 
@@ -558,13 +596,14 @@ export async function loadInboxItem(
   profile: SeekerProfile,
   opportunityId: string,
   localeInput?: string,
-): Promise<{ item: InboxItem; excluded: boolean } | null> {
+): Promise<{ item: InboxItem; excluded: boolean; related: InboxItem[] } | null> {
   const inbox = await loadLatestInbox(profile, localeInput);
   const allItems = [...inbox.items, ...inbox.excludedItems];
   const item = allItems.find((row) => row.opportunity.id === opportunityId);
   if (!item) return null;
   const excluded = inbox.excludedItems.some((row) => row.opportunity.id === opportunityId);
-  return { item, excluded };
+  const related = findRelatedInboxItems(item, inbox.items, { limit: 6 });
+  return { item, excluded, related };
 }
 
 export async function refreshSourceDiscovery(profile: SeekerProfile) {

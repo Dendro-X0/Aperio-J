@@ -9,6 +9,9 @@ export const LOCAL_SETTING_KEYS = {
   franceTravailClientId: "connector.francetravail.clientId",
   franceTravailClientSecret: "connector.francetravail.clientSecret",
   worknetAuthKey: "connector.worknet.authKey",
+  cnZhipinCookie: "cnSession.zhipin.com",
+  cnZhaopinCookie: "cnSession.zhaopin.com",
+  cn58Cookie: "cnSession.58.com",
 } as const;
 
 export interface AdzunaCredentialSettings {
@@ -38,6 +41,16 @@ export interface FranceTravailCredentialSettings {
 export interface WorknetCredentialSettings {
   configured: boolean;
   hasAuthKey: boolean;
+}
+
+export interface CnSessionCredentialSettings {
+  zhipinCookie: string;
+  zhaopinCookie: string;
+  cookie58: string;
+  configured: boolean;
+  hasZhipinCookie: boolean;
+  hasZhaopinCookie: boolean;
+  has58Cookie: boolean;
 }
 
 export interface ConnectorCredentialSettings {
@@ -229,6 +242,75 @@ export async function saveConnectorCredentialSettings(
   }
 
   return loadConnectorCredentialSettings(profileId);
+}
+
+export async function loadCnSessionCredentialSettings(
+  profileId: string,
+): Promise<CnSessionCredentialSettings> {
+  const byKey = await loadSettingMap(profileId);
+  const zhipinCookie = byKey.get(LOCAL_SETTING_KEYS.cnZhipinCookie)?.trim() ?? "";
+  const zhaopinCookie = byKey.get(LOCAL_SETTING_KEYS.cnZhaopinCookie)?.trim() ?? "";
+  const cookie58 = byKey.get(LOCAL_SETTING_KEYS.cn58Cookie)?.trim() ?? "";
+
+  return {
+    zhipinCookie,
+    zhaopinCookie,
+    cookie58,
+    configured: Boolean(zhipinCookie || zhaopinCookie || cookie58),
+    hasZhipinCookie: Boolean(zhipinCookie),
+    hasZhaopinCookie: Boolean(zhaopinCookie),
+    has58Cookie: Boolean(cookie58),
+  };
+}
+
+export async function saveCnSessionCredentialSettings(
+  profileId: string,
+  input: {
+    zhipinCookie?: string | null;
+    zhaopinCookie?: string | null;
+    cookie58?: string | null;
+  },
+): Promise<CnSessionCredentialSettings> {
+  const current = await loadCnSessionCredentialSettings(profileId);
+
+  const nextZhipin =
+    input.zhipinCookie === null
+      ? ""
+      : input.zhipinCookie !== undefined
+        ? input.zhipinCookie.trim()
+        : current.zhipinCookie;
+  const nextZhaopin =
+    input.zhaopinCookie === null
+      ? ""
+      : input.zhaopinCookie !== undefined
+        ? input.zhaopinCookie.trim()
+        : current.zhaopinCookie;
+  const next58 =
+    input.cookie58 === null
+      ? ""
+      : input.cookie58 !== undefined
+        ? input.cookie58.trim()
+        : current.cookie58;
+
+  await upsertLocalSetting(profileId, LOCAL_SETTING_KEYS.cnZhipinCookie, nextZhipin);
+  await upsertLocalSetting(profileId, LOCAL_SETTING_KEYS.cnZhaopinCookie, nextZhaopin);
+  await upsertLocalSetting(profileId, LOCAL_SETTING_KEYS.cn58Cookie, next58);
+
+  return loadCnSessionCredentialSettings(profileId);
+}
+
+export function publicCnSessionCredentialSettings(
+  settings: CnSessionCredentialSettings,
+): CnSessionCredentialSettings {
+  return {
+    zhipinCookie: "",
+    zhaopinCookie: "",
+    cookie58: "",
+    configured: settings.configured,
+    hasZhipinCookie: settings.hasZhipinCookie,
+    hasZhaopinCookie: settings.hasZhaopinCookie,
+    has58Cookie: settings.has58Cookie,
+  };
 }
 
 type ConnectorEnvSnapshot = Record<string, string | undefined>;

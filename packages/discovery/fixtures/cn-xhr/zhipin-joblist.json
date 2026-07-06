@@ -1,0 +1,24 @@
+{
+  "code": 0,
+  "message": "Success",
+  "zpData": {
+    "jobList": [
+      {
+        "jobName": "电子厂普工",
+        "encryptJobId": "abc123encrypt",
+        "securityId": "sec-001",
+        "brandName": "深圳某电子有限公司",
+        "cityName": "深圳",
+        "salaryDesc": "6-8K"
+      },
+      {
+        "jobName": "质检员",
+        "encryptJobId": "def456encrypt",
+        "securityId": "sec-002",
+        "brandName": "华南制造",
+        "cityName": "深圳",
+        "salaryDesc": "7-9K"
+      }
+    ]
+  }
+}

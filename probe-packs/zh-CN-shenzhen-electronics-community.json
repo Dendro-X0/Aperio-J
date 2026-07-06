@@ -1,0 +1,8 @@
+{
+  "id": "zh-CN-shenzhen-electronics-community",
+  "locale": "zh-CN",
+  "citySlugs": ["shenzhen"],
+  "cityLabels": ["深圳", "深圳市"],
+  "roleKeywords": ["SMT", "贴片", "DIP", "波峰焊", "电子制造"],
+  "streams": []
+}

@@ -1,38 +1,41 @@
-import { cookies } from "next/headers";
 import type { SeekerProfile } from "@aperio-j/core";
+import { profileCities } from "@/lib/profile-location-display";
 import { getServerLocale } from "@/i18n/server";
 import {
-  PROFILE_COOKIE,
   getProfileIdFromCookies,
   loadProfileRecord,
   parseSeekerProfile,
 } from "@/lib/profile-store";
 import { isDiscoveryReadyProfile } from "@/lib/profile-readiness";
 import { loadInboxItem, loadLatestInbox } from "@/lib/match-service";
-import { loadConnectorCredentialSettings } from "@/lib/local-settings-store";
+import {
+  loadConnectorCredentialSettings,
+  loadCnSessionCredentialSettings,
+  publicCnSessionCredentialSettings,
+} from "@/lib/local-settings-store";
 import { listSourcesForProfile } from "@/lib/sources-page-data";
 import { getLatestSourceDiscoverySummary } from "@/lib/source-registry";
-import { isChinaCityProfile, isCnRemoteFirstProfile } from "@aperio-j/probe";
+import { isChinaCityProfile, isCnRemoteFirstProfile, isRemoteFirstProfile } from "@aperio-j/probe";
 
 export async function loadSettingsPageData() {
   const cookieProfileId = await getProfileIdFromCookies();
   const record = cookieProfileId ? await loadProfileRecord(cookieProfileId) : null;
 
-  if (cookieProfileId && !record) {
-    const jar = await cookies();
-    jar.delete(PROFILE_COOKIE);
-  }
-
   const profileId = record?.id;
   const profile = record ? parseSeekerProfile(record) : null;
   const connectorSettings =
     profileId != null ? await loadConnectorCredentialSettings(profileId) : null;
+  const cnSessionSettings =
+    profileId != null
+      ? publicCnSessionCredentialSettings(await loadCnSessionCredentialSettings(profileId))
+      : null;
 
   return {
     profileId,
     profile,
     isFirstSetup: !record?.onboardingComplete,
     connectorSettings,
+    cnSessionSettings,
   };
 }
 
@@ -68,6 +71,7 @@ export function isCnCaptureFirstProfile(profile: SeekerProfile): boolean {
       profile.constraints.primaryCity,
       profile.constraints.acceptableCities,
       profile.constraints.remotePreference,
+      profile,
     )
   );
 }
@@ -77,7 +81,12 @@ export function isCnRemoteFirstProfileForPage(profile: SeekerProfile): boolean {
     profile.constraints.primaryCity,
     profile.constraints.acceptableCities,
     profile.constraints.remotePreference,
+    profile,
   );
+}
+
+export function isRemoteFirstProfileForPage(profile: SeekerProfile): boolean {
+  return isRemoteFirstProfile(profile);
 }
 
 export async function loadSourcesPageData() {
@@ -132,10 +141,7 @@ export async function loadInboxOpportunityPageData(opportunityId: string) {
 }
 
 export function inboxProfileSummary(profile: SeekerProfile) {
-  const cities = [
-    profile.constraints.primaryCity,
-    ...profile.constraints.acceptableCities,
-  ].filter(Boolean);
+  const cities = profileCities(profile);
 
   const industries = profile.intent.desiredIndustries
     .map((value) => value.trim())
@@ -149,7 +155,8 @@ export function inboxProfileSummary(profile: SeekerProfile) {
   }
 
   return {
-    city: cities.join(" · ") || "—",
+    city: cities.join(" · "),
+    remoteOnly: cities.length === 0,
     roles: profile.intent.desiredRoles,
     industries: [...new Set(industries)],
   };

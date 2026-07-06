@@ -1,5 +1,6 @@
 import type { RawFeedItem } from "@aperio-j/core";
 import { resolveCitySlug } from "@aperio-j/probe";
+import { isCnLowValueListing } from "./cn-feed-quality.js";
 
 export const CN_NATIONAL_AGGREGATOR_HOSTS =
   /(?:^|\.)51job\.com|lagou\.com|liepin\.com|zhipin\.com|(?:^|\.)zhaopin\.com$/i;
@@ -83,7 +84,7 @@ const GOV_NON_JOB_TITLE =
   /(?:补贴|培训项目|认定名单|实施方案|办事指南|政策解读|专项资金|以旧换新|消费季)/;
 
 const CN_JOB_DETAIL_PATH =
-  /(?:job\.(?:htm|html)|\/zhaopin\/|\/job\/|\/jobs\/|mpost|post_|position|geek\/|html\/jobs|search\?|\/p\d+\.htm|\d+\.html|\/jobdetail|\/xxgk\/|\/content\/|\/tzgg\/|\/zpxx\/)/i;
+  /(?:job\.(?:htm|html)|job_detail|\/zhaopin\/|\/job\/|\/jobs\/|mpost|post_|position|geek\/|html\/jobs|search\?|\/p\d+\.htm|\d+\.html|\/jobdetail|\/xxgk\/|\/content\/|\/tzgg\/|\/zpxx\/)/i;
 
 export function isLikelyCnJobDetailUrl(url: string): boolean {
   if (CN_JOB_DETAIL_PATH.test(url)) return true;
@@ -128,6 +129,7 @@ export function filterCnListPageItems(
   return items.filter((item) => {
     if (isCnCityHubListing(item.title, cities)) return false;
     if (isCnNonJobGovNotice(item.title)) return false;
+    if (isCnLowValueListing(item.title, item.url)) return false;
 
     try {
       const host = new URL(item.url).hostname.toLowerCase();
@@ -154,7 +156,35 @@ export function filterCnStreamCandidates<T extends { seedUrl: string }>(
 export function isJsHeavyCnAggregatorUrl(url: string): boolean {
   try {
     const host = new URL(url).hostname.toLowerCase();
-    return /(?:^|\.)zhipin\.com|51job\.com|lagou\.com|liepin\.com$/i.test(host);
+    return /(?:^|\.)zhipin\.com|51job\.com|lagou\.com|liepin\.com|zhaopin\.com$/i.test(host);
+  } catch {
+    return false;
+  }
+}
+
+export function isGovCnHost(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.toLowerCase();
+    return host.endsWith(".gov.cn") || host.includes("mohrss.gov.cn");
+  } catch {
+    return false;
+  }
+}
+
+/** Single job detail pages should not be used as stream seeds. */
+export function isCnSingleJobDetailUrl(url: string): boolean {
+  return /(?:showdw\?id=|jobdetail\/|\/jobdetail\/|htmls\/cb21dwPages|\/p\d+\.htm(?:\?|$))/i.test(
+    url,
+  );
+}
+
+/** Navigation/index pages that rarely contain job rows. */
+export function isCnGovIndexOnlyUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    if (!isGovCnHost(url)) return false;
+    const path = parsed.pathname.replace(/\/+$/, "") || "/";
+    return /\/gkmlpt(?:\/index)?$/i.test(path) || path === "/gkmlpt";
   } catch {
     return false;
   }
@@ -195,7 +225,7 @@ export function prepareCnStreamFetchUrl(url: string, city: string): string {
 
 export function shouldSuppressCnFetchError(url: string, itemCount: number, error?: string): boolean {
   if (itemCount > 0) return false;
-  if (!isJsHeavyCnAggregatorUrl(url)) return false;
+  if (!isJsHeavyCnAggregatorUrl(url) && !isGovCnHost(url)) return false;
   if (error && !/^0 items$/i.test(error.trim()) && !/no listings returned/i.test(error)) {
     return false;
   }

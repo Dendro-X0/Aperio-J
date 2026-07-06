@@ -6,6 +6,7 @@ const BROWSER_USER_AGENT =
 const IDLE_CLOSE_MS = 45_000;
 
 type PlaywrightBrowser = import("playwright").Browser;
+type PlaywrightPage = import("playwright").Page;
 
 let sharedBrowser: PlaywrightBrowser | null = null;
 let sharedBrowserUsedAt = 0;
@@ -27,18 +28,21 @@ function isAutomatedTestRun(): boolean {
   );
 }
 
-/** True when plain HTTP HTML looks like an empty SPA shell for a CN board. */
+/** True when plain HTTP HTML looks like an empty SPA shell for a CN board or gov portal. */
 export function needsPlaywrightRender(
   html: string,
   url: string,
   parsedItemCount = 0,
 ): boolean {
-  if (!isJsHeavyCnAggregatorUrl(url)) return false;
-  if (parsedItemCount >= 2) return false;
-  if (/job_detail|\/geek\/job|\/jobs\//i.test(html)) return false;
-  if (html.length < 2500) return true;
-  if (/__NEXT_DATA__|__INITIAL_STATE__|id="app"|id="root"/i.test(html)) return true;
-  return parsedItemCount === 0;
+  if (isJsHeavyCnAggregatorUrl(url)) {
+    if (parsedItemCount >= 2) return false;
+    if (/job_detail|jobdetail|\/geek\/job|\/jobs\//i.test(html)) return false;
+    if (html.length < 2500) return true;
+    if (/__NEXT_DATA__|__INITIAL_STATE__|id="app"|id="root"/i.test(html)) return true;
+    return parsedItemCount === 0;
+  }
+
+  return false;
 }
 
 function scheduleIdleBrowserClose(): void {
@@ -79,14 +83,52 @@ export async function closeSharedBrowser(): Promise<void> {
   sharedBrowser = null;
 }
 
-const ZHIPIN_JOB_SELECTORS = [
+const CN_JOB_SELECTORS = [
   'a[href*="job_detail"]',
+  'a[href*="jobdetail"]',
   'a[href*="/geek/job"]',
+  'a[href*="51job.com"]',
   ".job-list-box",
   ".job-card-wrapper",
+  ".positionlist",
+  ".news-list a",
+  ".list-text a",
+  "ul.list li a",
 ];
 
-export async function fetchHtmlWithPlaywright(url: string): Promise<string | null> {
+function parseCookieHeader(cookieHeader: string, url: string): Array<{
+  name: string;
+  value: string;
+  domain: string;
+  path: string;
+}> {
+  let hostname = "localhost";
+  try {
+    hostname = new URL(url).hostname;
+  } catch {
+    // keep default
+  }
+
+  return cookieHeader
+    .split(";")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => {
+      const eq = part.indexOf("=");
+      if (eq <= 0) return null;
+      const name = part.slice(0, eq).trim();
+      const value = part.slice(eq + 1).trim();
+      if (!name || !value) return null;
+      return { name, value, domain: hostname, path: "/" };
+    })
+    .filter((row): row is { name: string; value: string; domain: string; path: string } => row != null);
+}
+
+export async function withCnPlaywrightPage<T>(
+  url: string,
+  fn: (page: PlaywrightPage) => Promise<T>,
+  options?: { cookieHeader?: string },
+): Promise<T | null> {
   if (!isCnPlaywrightEnabled()) return null;
 
   try {
@@ -100,22 +142,38 @@ export async function fetchHtmlWithPlaywright(url: string): Promise<string | nul
     });
 
     try {
-      const page = await context.newPage();
-      await page.goto(url, {
-        waitUntil: "domcontentloaded",
-        timeout: 30_000,
-      });
-
-      for (const selector of ZHIPIN_JOB_SELECTORS) {
-        await page.waitForSelector(selector, { timeout: 8_000 }).catch(() => undefined);
+      if (options?.cookieHeader?.trim()) {
+        const cookies = parseCookieHeader(options.cookieHeader.trim(), url);
+        if (cookies.length > 0) {
+          await context.addCookies(cookies);
+        }
       }
 
-      await page.waitForTimeout(1_500);
-      return await page.content();
+      const page = await context.newPage();
+      return await fn(page);
     } finally {
       await context.close().catch(() => undefined);
     }
   } catch {
     return null;
   }
+}
+
+export async function fetchHtmlWithPlaywright(url: string): Promise<string | null> {
+  if (!isCnPlaywrightEnabled()) return null;
+
+  return withCnPlaywrightPage(url, async (page) => {
+    await page.goto(url, {
+      waitUntil: "domcontentloaded",
+      timeout: 15_000,
+    });
+
+    for (const selector of CN_JOB_SELECTORS) {
+      const found = await page.waitForSelector(selector, { timeout: 2_500 }).catch(() => null);
+      if (found) break;
+    }
+
+    await page.waitForTimeout(800);
+    return page.content();
+  });
 }

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Briefcase, ChevronLeft, ChevronRight, Radio, Settings2 } from "lucide-react";
 import { AperioLogo } from "@/components/brand/aperio-logo";
 import { cn } from "@/lib/utils";
+import { profileLocationLabelFromCityField } from "@/lib/profile-location-display";
 import { useI18n, useTranslations } from "@/i18n/provider";
 import {
   Sheet,
@@ -162,9 +163,10 @@ export function AppSidebar({
 }
 
 export function useProfileChipLabel(profileSummary?: { city: string; roles: string[] }) {
-  const { listSeparator } = useI18n();
+  const { locale, listSeparator } = useI18n();
   const { t: tCommon } = useTranslations("common");
 
   if (!profileSummary) return null;
-  return `${profileSummary.city}${tCommon("separator")}${profileSummary.roles.join(listSeparator)}`;
+  const city = profileLocationLabelFromCityField(profileSummary.city, locale);
+  return `${city}${tCommon("separator")}${profileSummary.roles.join(listSeparator)}`;
 }

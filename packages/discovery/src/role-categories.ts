@@ -5,8 +5,134 @@ export interface RoleRule {
   patterns: RegExp[];
 }
 
+export const TECH_ROLE_CATEGORIES: RoleCategory[] = [
+  "frontend-dev",
+  "backend-dev",
+  "fullstack-dev",
+  "devops",
+  "mobile-dev",
+  "game-dev",
+  "data-ml",
+  "qa-automation",
+  "product-design",
+];
+
 /** Rule-based role classification — auditable, no LLM. */
 export const ROLE_RULES: RoleRule[] = [
+  {
+    category: "frontend-dev",
+    patterns: [
+      /前端/,
+      /front[- ]?end/i,
+      /\bfrontend\b/i,
+      /react\s+developer/i,
+      /vue\s+developer/i,
+      /angular\s+developer/i,
+      /web\s+developer/i,
+      /ui\s+developer/i,
+      /javascript\s+developer/i,
+    ],
+  },
+  {
+    category: "backend-dev",
+    patterns: [
+      /后端/,
+      /back[- ]?end/i,
+      /\bbackend\b/i,
+      /server[- ]side/i,
+      /api\s+developer/i,
+      /java\s+developer/i,
+      /python\s+developer/i,
+      /golang\s+developer/i,
+      /node\.?js\s+developer/i,
+      /php\s+developer/i,
+      /\.net\s+developer/i,
+    ],
+  },
+  {
+    category: "fullstack-dev",
+    patterns: [/全栈/, /full[- ]?stack/i, /\bfullstack\b/i],
+  },
+  {
+    category: "devops",
+    patterns: [
+      /\bdevops\b/i,
+      /\bsre\b/i,
+      /site\s+reliability/i,
+      /platform\s+engineer/i,
+      /infrastructure\s+engineer/i,
+      /cloud\s+engineer/i,
+      /kubernetes/i,
+      /terraform/i,
+      /运维工程师/,
+      /系统运维/,
+    ],
+  },
+  {
+    category: "mobile-dev",
+    patterns: [
+      /移动开发/,
+      /mobile\s+developer/i,
+      /ios\s+developer/i,
+      /android\s+developer/i,
+      /flutter\s+developer/i,
+      /react\s+native/i,
+      /swift\s+developer/i,
+      /kotlin\s+developer/i,
+    ],
+  },
+  {
+    category: "game-dev",
+    patterns: [
+      /游戏开发/,
+      /游戏程序/,
+      /game\s+developer/i,
+      /game\s+engineer/i,
+      /\bunity\b/i,
+      /\bunreal\b/i,
+    ],
+  },
+  {
+    category: "data-ml",
+    patterns: [
+      /数据科学/,
+      /数据工程/,
+      /data\s+scientist/i,
+      /data\s+engineer/i,
+      /machine\s+learning/i,
+      /\bmlops\b/i,
+      /ai\s+engineer/i,
+      /deep\s+learning/i,
+      /算法工程师/,
+      /数据分析师/,
+    ],
+  },
+  {
+    category: "qa-automation",
+    patterns: [
+      /测试工程师/,
+      /\bqa\s+engineer/i,
+      /\bsdet\b/i,
+      /test\s+automation/i,
+      /quality\s+assurance\s+engineer/i,
+      /software\s+tester/i,
+      /automation\s+engineer/i,
+    ],
+  },
+  {
+    category: "product-design",
+    patterns: [
+      /产品经理/,
+      /product\s+manager/i,
+      /product\s+owner/i,
+      /ux\s+designer/i,
+      /ui\s+designer/i,
+      /product\s+designer/i,
+      /交互设计/,
+      /视觉设计/,
+      /user\s+experience\s+designer/i,
+    ],
+  },
   {
     category: "production-line",
     patterns: [
@@ -27,10 +153,9 @@ export const ROLE_RULES: RoleRule[] = [
       /质检/,
       /品检/,
       /iqc|oqc|fqc/i,
-      /qc\b/i,
+      /\bqc\b/i,
       /quality (?:control|inspect)/i,
       /检验员/,
-      /测试员/,
     ],
   },
   {
@@ -64,6 +189,9 @@ export const ROLE_RULES: RoleRule[] = [
       /后勤/,
       /office admin/i,
       /coordinator/i,
+      /administrative assistant/i,
+      /executive assistant/i,
+      /virtual assistant/i,
     ],
   },
   {

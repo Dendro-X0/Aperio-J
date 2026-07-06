@@ -405,6 +405,7 @@
       "id": "subSector:frontend-dev",
       "kind": "subSector",
       "parentId": "industry:it-software",
+      "roleCategory": "frontend-dev",
       "labels": { "zh-CN": "前端开发", "en": "Front-end development" },
       "matchTerms": [
         "前端",
@@ -423,6 +424,7 @@
       "id": "subSector:backend-dev",
       "kind": "subSector",
       "parentId": "industry:it-software",
+      "roleCategory": "backend-dev",
       "labels": { "zh-CN": "后端开发", "en": "Back-end development" },
       "matchTerms": [
         "后端",
@@ -442,6 +444,7 @@
       "id": "subSector:fullstack-dev",
       "kind": "subSector",
       "parentId": "industry:it-software",
+      "roleCategory": "fullstack-dev",
       "labels": { "zh-CN": "全栈开发", "en": "Full-stack development" },
       "matchTerms": ["全栈", "full-stack", "fullstack", "full stack"]
     },
@@ -449,6 +452,7 @@
       "id": "subSector:devops",
       "kind": "subSector",
       "parentId": "industry:it-software",
+      "roleCategory": "devops",
       "labels": { "zh-CN": "DevOps / 运维", "en": "DevOps" },
       "matchTerms": [
         "devops",
@@ -468,6 +472,7 @@
       "id": "subSector:mobile-dev",
       "kind": "subSector",
       "parentId": "industry:it-software",
+      "roleCategory": "mobile-dev",
       "labels": { "zh-CN": "移动开发", "en": "Mobile development" },
       "matchTerms": [
         "移动开发",
@@ -484,6 +489,7 @@
       "id": "subSector:game-dev",
       "kind": "subSector",
       "parentId": "industry:it-software",
+      "roleCategory": "game-dev",
       "labels": { "zh-CN": "游戏开发", "en": "Game development" },
       "matchTerms": [
         "游戏开发",
@@ -499,6 +505,7 @@
       "id": "subSector:data-ml",
       "kind": "subSector",
       "parentId": "industry:it-software",
+      "roleCategory": "data-ml",
       "labels": { "zh-CN": "数据 / 机器学习", "en": "Data & ML" },
       "matchTerms": [
         "数据科学",
@@ -515,6 +522,7 @@
       "id": "subSector:qa-automation",
       "kind": "subSector",
       "parentId": "industry:it-software",
+      "roleCategory": "qa-automation",
       "labels": { "zh-CN": "测试 / 自动化", "en": "QA & automation" },
       "matchTerms": [
         "测试工程师",
@@ -524,6 +532,24 @@
         "quality assurance engineer",
         "software tester",
         "automation engineer"
+      ]
+    },
+    {
+      "id": "subSector:product-design",
+      "kind": "subSector",
+      "parentId": "industry:it-software",
+      "roleCategory": "product-design",
+      "labels": { "zh-CN": "产品 / 设计", "en": "Product & design" },
+      "matchTerms": [
+        "产品经理",
+        "product manager",
+        "product designer",
+        "ux designer",
+        "ui designer",
+        "交互设计",
+        "视觉设计",
+        "figma",
+        "user research"
       ]
     }
   ]

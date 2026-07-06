@@ -143,22 +143,24 @@ export function InboxJobCard({
 export function InboxEmptyState({
   cnCaptureFirst = false,
   cnRemoteFirst = false,
+  remoteFirst = false,
 }: {
   cnCaptureFirst?: boolean;
   cnRemoteFirst?: boolean;
+  remoteFirst?: boolean;
 }) {
   const { t } = useTranslations("inbox");
   const { t: tMarket } = useTranslations("inbox.marketplace");
 
-  const title = cnRemoteFirst
-    ? t("empty.cnRemoteTitle")
-    : cnCaptureFirst
-      ? t("empty.cnTitle")
+  const title = cnCaptureFirst
+    ? t("empty.cnTitle")
+    : cnRemoteFirst || remoteFirst
+      ? t("empty.remoteTitle")
       : t("empty.title");
-  const description = cnRemoteFirst
-    ? t("empty.cnRemoteDescription")
-    : cnCaptureFirst
-      ? t("empty.cnDescription")
+  const description = cnCaptureFirst
+    ? t("empty.cnDescription")
+    : cnRemoteFirst || remoteFirst
+      ? t("empty.remoteDescription")
       : t("empty.description");
 
   return (

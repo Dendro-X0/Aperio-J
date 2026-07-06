@@ -3,8 +3,8 @@ import type { Messages } from "./zh-CN";
 export const messages: Messages = {
   app: {
     name: "Aperio-J",
-    tagline: "Opportunity engine · Algorithmic matching, no ads",
-    description: "Profile-driven job discovery and matching",
+    tagline: "Remote job discovery · Profile matching, no ads",
+    description: "Profile-driven remote and tech job matching for freelancers and digital nomads",
   },
   nav: {
     inbox: "Matches",
@@ -41,6 +41,13 @@ export const messages: Messages = {
     windowMaximize: "Maximize window",
     windowRestore: "Restore window",
     windowClose: "Close window",
+    matchRun: {
+      viewInbox: "View matches",
+      cancel: "Cancel",
+      dismiss: "Dismiss",
+      completed: "Match refresh complete — {matched} / {total} opportunities",
+      cancelled: "Match refresh cancelled",
+    },
   },
   locale: {
     label: "Language",
@@ -186,6 +193,7 @@ export const messages: Messages = {
       actionsPanel: "Your feedback",
       noCategories: "No category tags detected",
       descriptionUnavailable: "Full listing text was not captured — open the original post.",
+      relatedJobs: "Related jobs",
       explanation: {
         taxonomyMatch: "Category match: {hits}",
         intentMatch: "Intent match: {hits}",
@@ -211,8 +219,14 @@ export const messages: Messages = {
       collapseFiltered: "Hide filtered ({count})",
     },
     empty: {
-      title: "No matches yet",
-      description: "Relax exclusions, paste a job link, or refresh to scan sources again.",
+      title: "No remote matches yet",
+      description:
+        "Set your skills in Profile, optionally add city tags for hybrid local sources, then refresh to scan remote boards (We Work Remotely, Remote OK, Remotive, and more).",
+      remoteTitle: "Scanning remote job boards",
+      remoteDescription:
+        "Remote-first mode is on. Refresh matches to pull from We Work Remotely, Remote OK, Remotive, Himalayas, and similar feeds. Add city tags in Profile to mix in local sources, or paste any job URL to capture a listing.",
+      remoteHint:
+        "Remote-first mode is on — click Refresh matches to scan international remote boards. Add city tags in Profile for hybrid local sources, or paste a job URL above.",
       cnTitle: "Mainland China boards need pasted job links",
       cnDescription:
         "BOSS Zhipin, 51job, and Lagou do not expose international-style RSS/API feeds. Copy a job link from WeChat or the app and paste it above to capture and match. Local gov and talent-site scans still run in the background.",
@@ -276,6 +290,17 @@ export const messages: Messages = {
       "equipment-maintenance": "Equipment maintenance",
       "production-line": "Production line",
       sales: "Sales",
+      "frontend-dev": "Front-end",
+      "backend-dev": "Back-end",
+      "fullstack-dev": "Full-stack",
+      devops: "DevOps",
+      "mobile-dev": "Mobile",
+      "game-dev": "Game dev",
+      "data-ml": "Data / ML",
+      "qa-automation": "QA",
+      "product-design": "Product / UX",
+      "food-service": "Food service",
+      "general-labor": "General labor",
       other: "Other",
     },
   },
@@ -316,6 +341,11 @@ export const messages: Messages = {
       onsiteHint: "Full-time & part-time local boards",
       emptyFiltered: "No sources in this category — try re-discovering or add a custom URL.",
     },
+    enableAll: {
+      button: "Enable all",
+      busy: "Enabling…",
+      success: "Enabled {count} sources",
+    },
     actions: {
       openUrl: "Open URL",
       remove: "Remove source",
@@ -333,6 +363,22 @@ export const messages: Messages = {
       submit: "Add source",
       submitting: "Validating…",
       successNote: "Custom source added — refresh matches to fetch",
+    },
+    importOpml: {
+      open: "Import OPML",
+      title: "Bulk import RSS (OPML)",
+      description:
+        "Paste an OPML subscription list (local feeds, WeChat RSS bridges, etc.). Each xmlUrl becomes an RSS source — up to 50 feeds.",
+      opmlLabel: "OPML content",
+      opmlPlaceholder: "<?xml version=\"1.0\"?>…",
+      submit: "Import sources",
+      submitting: "Importing…",
+      successNote: "Imported {imported} sources ({skipped} skipped)",
+    },
+    clearCache: {
+      open: "Clear fetch cache",
+      clearing: "Clearing…",
+      successNote: "Stream fetch cache cleared — next match will re-fetch",
     },
     sessionAuth: {
       title: "Session auth (advanced)",
@@ -382,24 +428,27 @@ export const messages: Messages = {
     },
     errors: {
       urlRequired: "URL is required",
+      opmlRequired: "OPML content is required",
       updateFailed: "Update failed",
       addFailed: "Add failed",
       deleteFailed: "Delete failed",
       discoverFailed: "Re-discovery failed",
+      importOpmlFailed: "OPML import failed",
+      clearCacheFailed: "Failed to clear cache",
     },
   },
   profile: {
     title: "Profile settings",
     firstSetupTitle: "Welcome — let's set you up",
     firstSetupDescription:
-      "Tell us where you work, your portfolio (industry & occupation), and job preferences. You can skip and finish later — matching needs industry and occupation at minimum.",
+      "Tell us your skills, remote work preference, and optional home city. Remote boards are scanned by default; add cities to mix in local sources.",
     setupRedirect: {
       title: "Complete your profile to see matches",
       description:
         "Matched opportunities need industry and occupation at minimum. Finish the steps below, then open Inbox from the sidebar.",
     },
     description:
-      "Set your location, skills, and job preferences. Aperio-J finds sources and ranks matches from your profile — no imports required.",
+      "Set your skills, remote preference, and optional cities. Aperio-J scans remote tech boards by default and ranks matches from your profile — no keyword roulette.",
     setupSteps: {
       location: "Location — cities & remote",
       employment: "Employment — work types",
@@ -413,8 +462,8 @@ export const messages: Messages = {
     },
     remotePreference: {
       label: "Work arrangement",
-      sectionDesc: "How much remote work you want when matching local roles.",
-      hint: "Choose one arrangement. This applies when you have city tags set.",
+      sectionDesc: "Remote is the default. Add city tags below to also scan local boards (hybrid).",
+      hint: "Remote-only suits freelancers and nomads. Hybrid adds local sources when you set cities.",
       "remote-only": "Remote only",
       "hybrid-ok": "Hybrid OK",
       "onsite-only": "On-site only",
@@ -428,7 +477,7 @@ export const messages: Messages = {
       customCity: "Add \"{city}\"",
       customCityHint: "Not in the list? Press Enter or tap Add to use your city as-is.",
       remoteDefaultHint:
-        "No city set — matching runs in remote mode. Type a city and press Enter or Save to enable local discovery.",
+        "No city set — remote boards are scanned by default. Add a city tag to also discover local sources (hybrid mode).",
       detectFromIp: "Detect city from IP",
       detecting: "Detecting…",
       detectFailed: "Could not detect city from your IP",
@@ -460,27 +509,78 @@ export const messages: Messages = {
         other: "Other",
       },
     },
-    occupation: "Occupation *",
+    occupation: "Current role *",
     occupationHint: "Add one or more roles you hold or are targeting.",
+    occupationCurrentHint:
+      "What you do today or did most recently. We infer transferable skills from this — separate from desired roles below.",
+    currentRoleSuggestions: "Common roles",
     background: "Experience summary",
     backgroundFieldDesc: "Optional. Past roles, tools, and skills — helps explain matches beyond your tags.",
     backgroundPlaceholder:
       "What you've done and what you know. e.g. 3 years phone assembly; QC, ESD; display burn-in testing",
-    desiredRoles: "Desired roles",
-    desiredRolesHint: "Pick from suggestions or type your own — used for matching and source discovery.",
-    desiredRolesPlaceholder: "QC, warehouse, office admin",
+    desiredRoles: "Roles to explore",
+    desiredRolesHint: "New directions you want to try — can differ from your current role. Used for matching and discovery.",
+    desiredRolesPlaceholder: "QC, warehouse, materials, office admin",
+    intentVsCurrentHint:
+      "Current role is where you are now; list new directions here. e.g. production worker → QC or warehouse.",
+    targetRoleSuggestions: "Suggested transitions",
+    roleSuggestionsLabel: "Suggestions",
+    avoidPhraseSuggestions: "Common exclusions",
+    employmentFlexHint: "For more flexible hours, also enable part-time.",
+    presets: {
+      title: "Quick intent templates",
+      description: "Fill industry, targets, and exclusions for common scenarios — you can still edit everything.",
+      "remote-developer": {
+        title: "Remote software engineer",
+        description: "Remote-only; backend, full-stack, DevOps targets from international tech boards.",
+      },
+      "remote-frontend": {
+        title: "Remote frontend",
+        description: "React, Vue, and web UI roles from remote tech boards.",
+      },
+      "remote-backend": {
+        title: "Remote backend",
+        description: "API, distributed systems, Go/Node backend roles — remote-first.",
+      },
+      "devops-platform": {
+        title: "DevOps / SRE / Platform",
+        description: "Kubernetes, CI/CD, infrastructure, and platform engineering.",
+      },
+      "product-ux": {
+        title: "Product & UX",
+        description: "Product manager, UX/UI, and B2B SaaS design roles.",
+      },
+      "data-ml": {
+        title: "Data & ML",
+        description: "Data engineering, analytics, machine learning, and MLOps.",
+      },
+      "digital-nomad": {
+        title: "Digital nomad / freelancer",
+        description: "Remote-only; contract-friendly roles across dev, design, and async-friendly teams.",
+      },
+      "factory-upgrade": {
+        title: "Easier role off the line",
+        description: "Line worker → QC, warehouse, materials; excludes line work, night shifts, and delivery gigs.",
+      },
+      "flexible-hours": {
+        title: "More flexible schedule",
+        description: "Full-time + part-time; favors warehouse/materials-style roles with flexible hours.",
+      },
+    },
     tags: {
       placeholder: "Type to search…",
       addPlaceholder: "Add another…",
       removeTag: "Remove {tag}",
       industryPlaceholder: "Search industries…",
       rolePlaceholder: "e.g. Full-stack development",
+      currentRolePlaceholder: "e.g. Production line",
       rolesPlaceholder: "Frontend, backend, DevOps…",
     },
     avoidRoles: "Roles to avoid",
-    avoidRolesPlaceholder: "sales, production line, agency, deposit",
+    avoidRolesPlaceholder: "production line, night shift, deposit, delivery rider",
     excludeProductionLine: "Exclude production-line roles",
     excludeSales: "Exclude sales / promotion roles",
+    excludeFoodService: "Exclude food service / waiter roles",
     exclusionTogglesTitle: "Quick filters",
     exclusionTogglesDesc: "Hide common role categories you never want to see.",
     trustNote:
@@ -549,8 +649,8 @@ export const messages: Messages = {
     sectionDesc: {
       location: "Optional. Leave empty for remote-only matching, or add city tags for local roles.",
       employment: "Choose acceptable employment types for matching.",
-      background: "Industry and occupation are required for discovery. Experience summary is optional but improves match explanations.",
-      intent: "Roles you want to explore, comma-separated.",
+      background: "Industry and current role are required for discovery. A plain-language summary helps explain matches.",
+      intent: "New roles you want to explore — can differ from your current occupation.",
       exclusions: "Roles and phrases you want to avoid.",
       connectors: "Optional API keys stored only in your local SQLite database on this device.",
       trust: "Adjust how strictly listings are filtered for risk, agencies, and direct hire.",
@@ -655,6 +755,23 @@ export const messages: Messages = {
       saveFailed: "Could not save credentials",
       clearKeys: "Clear Adzuna keys",
     },
+    cnSession: {
+      title: "CN job board cookies (optional)",
+      description:
+        "After logging into BOSS Zhipin, Zhaopin, or 58 in your browser, paste the Cookie header from devtools. Stored locally and applied to enabled streams on those hosts.",
+      warning: "Use only your own account; heavy fetching may still trigger captchas.",
+      zhipinLabel: "BOSS Zhipin cookie",
+      zhaopinLabel: "Zhaopin cookie",
+      cookie58Label: "58.com cookie",
+      cookiePlaceholder: "session=…; token=…",
+      secretKeepHint: "Leave blank to keep saved cookie",
+      configuredNote: "At least one site cookie is saved.",
+      save: "Save cookies",
+      saving: "Saving…",
+      saved: "Cookies saved.",
+      saveFailed: "Save failed",
+      clear: "Clear all cookies",
+    },
   },
   api: {
     authRequired: "Complete profile setup first",
@@ -667,6 +784,7 @@ export const messages: Messages = {
     enabledMustBeBoolean: "enabled must be a boolean",
     streamNotFound: "Source not found",
     urlRequired: "URL is required",
+    opmlRequired: "OPML content is required",
     invalidRequest: "Invalid request",
     addFailed: "Add failed",
     deleteFailed: "Delete failed",

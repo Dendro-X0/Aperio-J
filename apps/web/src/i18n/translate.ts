@@ -3,7 +3,7 @@ import type { Messages } from "./messages/zh-CN";
 export type Locale = "zh-CN" | "en" | "es";
 
 export const LOCALE_COOKIE = "aperio_j_locale";
-export const DEFAULT_LOCALE: Locale = "zh-CN";
+export const DEFAULT_LOCALE: Locale = "en";
 export const SUPPORTED_LOCALES: Locale[] = ["zh-CN", "en", "es"];
 
 export type TranslationParams = Record<string, string | number>;

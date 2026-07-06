@@ -1,0 +1,15 @@
+{
+  "code": 200,
+  "data": {
+    "list": [
+      {
+        "name": "普工操作员",
+        "number": "CC987654321",
+        "companyName": "深圳智联测试厂",
+        "cityName": "深圳",
+        "salary": "6-8千/月",
+        "positionURL": "https://shenzhen.zhaopin.com/jobdetail/CC987654321.htm"
+      }
+    ]
+  }
+}

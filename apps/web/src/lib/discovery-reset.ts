@@ -1,5 +1,6 @@
 import { prisma } from "@aperio-j/db";
 import { clearDiscoveryMemory } from "./discovery-memory-service";
+import { clearStreamFeedCache } from "./stream-feed-cache";
 import { clearAutoDiscoveredStreams, isUserCustomStream, listStreamRegistry } from "./source-registry";
 
 /**
@@ -18,6 +19,7 @@ export async function resetDiscoveryForLocationChange(seekerProfileId: string): 
 
   await clearAutoDiscoveredStreams(seekerProfileId);
   await clearDiscoveryMemory(seekerProfileId);
+  await clearStreamFeedCache(seekerProfileId);
 
   const removedOpportunities = autoStreamIds.length
     ? (

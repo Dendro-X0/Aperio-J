@@ -31,4 +31,16 @@ describe("parseOpportunity", () => {
     assert.ok(opp.redFlags.length >= 1);
     assert.ok((opp.trustWarnings ?? []).length >= 1);
   });
+
+  it("classifies remote backend engineer listings", () => {
+    const opp = parseOpportunity({
+      title: "Senior Backend Engineer (Remote)",
+      body: "Python FastAPI PostgreSQL EU timezone",
+      url: "https://example.com/backend",
+      sourceId: "remotive",
+      fetchedAt: "2026-07-05T00:00:00Z",
+    });
+
+    assert.ok(opp.roleCategories.includes("backend-dev"));
+  });
 });

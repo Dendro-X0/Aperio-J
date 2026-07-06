@@ -9,11 +9,12 @@
  * Eastern Europe (Yandex) and other niches can extend this table later.
  */
 
+import { displayCityLabel } from "@aperio-j/core";
 import { isChinaCityProfile, isJapanCityProfile } from "./probe-packs.js";
 
 export type SearchSphere = "cn" | "jp" | "global" | "none";
 
-export type SearchEngineId = "baidu" | "bing" | "google";
+export type SearchEngineId = "baidu" | "bing" | "google" | "searxng";
 
 export const SEARCH_SPHERE_ENGINES: Record<Exclude<SearchSphere, "none">, SearchEngineId[]> = {
   cn: ["baidu", "bing"],
@@ -44,8 +45,21 @@ function dedupeQueries(queries: string[]): string[] {
   return out;
 }
 
-function pickRoleTerms(city: string, intentTerms: string[]): string[] {
-  const cityNorm = city.trim().replace(/市$/u, "").toLowerCase();
+function localizedSearchCityLabel(city: string, sphere: SearchSphere): string {
+  const trimmed = city.trim();
+  if (!trimmed) return "";
+
+  if (sphere === "cn") {
+    return displayCityLabel(trimmed, "zh-CN").replace(/市$/u, "");
+  }
+  if (sphere === "jp") {
+    return displayCityLabel(trimmed, "zh-CN").replace(/市$/u, "") || trimmed.replace(/市$/u, "");
+  }
+  return displayCityLabel(trimmed, "en").replace(/市$/u, "") || trimmed.replace(/市$/u, "");
+}
+
+function pickRoleTerms(city: string, sphere: SearchSphere, intentTerms: string[]): string[] {
+  const cityNorm = localizedSearchCityLabel(city, sphere).toLowerCase();
   return dedupeQueries(
     intentTerms
       .map((term) => term.trim())
@@ -55,8 +69,8 @@ function pickRoleTerms(city: string, intentTerms: string[]): string[] {
 }
 
 function buildIntentSearchQueries(city: string, sphere: SearchSphere, intentTerms: string[]): string[] {
-  const label = city.trim().replace(/市$/u, "");
-  const roles = pickRoleTerms(city, intentTerms);
+  const label = localizedSearchCityLabel(city, sphere);
+  const roles = pickRoleTerms(city, sphere, intentTerms);
   const queries: string[] = [];
 
   for (const role of roles) {
@@ -83,19 +97,31 @@ export function buildRegionalSearchQueries(
   sphere: SearchSphere,
   intentTerms: string[] = [],
 ): string[] {
-  const label = city.trim().replace(/市$/u, "");
+  const label = localizedSearchCityLabel(city, sphere);
   if (!label || sphere === "none") return [];
 
   const intent = buildIntentSearchQueries(city, sphere, intentTerms);
 
   if (sphere === "cn") {
-    return mergeBaseAndIntentQueries(
-      [
-        `${label} 人力资源和社会保障局 招聘`,
-        `${label} 人社 官网 招聘信息`,
-      ],
-      intent,
+    const roleHeavy = intentTerms.some((term) =>
+      /普工|产线|质检|工厂|技工|仓储|制造|操作工|装配/i.test(term),
     );
+    const base = roleHeavy
+      ? [
+          `${label} 普工 招聘 电子厂`,
+          `${label} 工厂 普工 招聘`,
+          `${label} 制造 招聘 51job`,
+          `${label} 智联 普工 招聘`,
+        ]
+      : [
+          `${label} 人力资源和社会保障局 招聘`,
+          `${label} 人社 官网 招聘信息`,
+          `${label} 人才网 招聘`,
+        ];
+    if (roleHeavy) {
+      base.push(`${label} 人才网 招聘`);
+    }
+    return mergeBaseAndIntentQueries(base, intent);
   }
 
   if (sphere === "jp") {
@@ -121,6 +147,19 @@ export function buildRegionalSearchQueries(
   );
 }
 
+/** Optional self-hosted SearXNG instance — set APERO_J_SEARXNG_URL to enable. */
+export function resolveSearxngBaseUrl(): string | null {
+  const raw = process.env.APERO_J_SEARXNG_URL?.trim();
+  if (!raw) return null;
+  try {
+    const parsed = new URL(raw);
+    if (!/^https?:$/i.test(parsed.protocol)) return null;
+    return parsed.origin;
+  } catch {
+    return null;
+  }
+}
+
 export function buildSearchEngineUrl(engine: SearchEngineId, query: string): string {
   switch (engine) {
     case "baidu": {
@@ -134,6 +173,18 @@ export function buildSearchEngineUrl(engine: SearchEngineId, query: string): str
     case "google": {
       const params = new URLSearchParams({ q: query });
       return `https://www.google.com/search?${params.toString()}`;
+    }
+    case "searxng": {
+      const base = resolveSearxngBaseUrl();
+      if (!base) {
+        throw new Error("APERO_J_SEARXNG_URL is not configured");
+      }
+      const params = new URLSearchParams({
+        q: query,
+        format: "json",
+        language: "zh-CN",
+      });
+      return `${base}/search?${params.toString()}`;
     }
   }
 }

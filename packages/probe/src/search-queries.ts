@@ -7,6 +7,7 @@ import {
   maxSearchProbesPerRun,
   maxSearchQueriesPerEngine,
   resolveSearchSphere,
+  resolveSearxngBaseUrl,
   SEARCH_SPHERE_ENGINES,
 } from "./search-region.js";
 
@@ -14,6 +15,7 @@ export {
   buildRegionalSearchQueries,
   buildSearchEngineUrl,
   resolveSearchSphere,
+  resolveSearxngBaseUrl,
   SEARCH_SPHERE_ENGINES,
   type SearchEngineId,
   type SearchSphere,
@@ -50,10 +52,12 @@ export function expandRegionalSearchProbes(
     maxSearchQueriesPerEngine(),
   );
   const engines = SEARCH_SPHERE_ENGINES[sphere];
+  const searxngBase = resolveSearxngBaseUrl();
+  const engineList = searxngBase ? (["searxng", ...engines] as const) : engines;
   const probes: SourceProbe[] = [];
   const cap = maxSearchProbesPerRun();
 
-  for (const engine of engines) {
+  for (const engine of engineList) {
     for (const query of queries) {
       if (probes.length >= cap) break;
 

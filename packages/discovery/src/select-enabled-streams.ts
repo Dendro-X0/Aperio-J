@@ -1,7 +1,14 @@
 import type { SeekerProfile, StreamCandidate } from "@aperio-j/core";
 import { isRemoteBoardUrl } from "@aperio-j/core";
-import { buildInternationalCityStreams } from "@aperio-j/probe";
+import {
+  buildGenericCityStreams,
+  buildInternationalCityStreams,
+  isChinaCityProfile,
+  isCnLocalFirstProfile,
+  resolveProbePack,
+} from "@aperio-j/probe";
 import { rankStreamCandidates } from "./validate-stream.js";
+import { isCnJobAggregatorUrl, isGovCnHost } from "./cn-sources.js";
 
 function streamId(seedUrl: string): string {
   let hash = 0;
@@ -17,9 +24,21 @@ export function trustlistedLocalRegistryCandidates(
   regionHint: string,
 ): StreamCandidate[] {
   const now = new Date().toISOString();
+  const trimmedCity = city.trim();
+  if (!trimmedCity) return [];
 
-  return buildInternationalCityStreams(city)
+  const streams = isChinaCityProfile(trimmedCity)
+    ? [
+        ...resolveProbePack(trimmedCity).registryStreams.filter(
+          (stream) => !isRemoteBoardUrl(stream.seedUrl),
+        ),
+        ...buildGenericCityStreams(trimmedCity),
+      ]
+    : buildInternationalCityStreams(trimmedCity);
+
+  return streams
     .filter((stream) => !isRemoteBoardUrl(stream.seedUrl))
+    .filter((stream) => !isChinaCityProfile(trimmedCity) || !/linkedin\.com|indeed\.com/i.test(stream.seedUrl))
     .map((stream) => ({
       id: streamId(stream.seedUrl),
       label: stream.label,
@@ -27,7 +46,7 @@ export function trustlistedLocalRegistryCandidates(
       seedUrl: stream.seedUrl,
       discoveredVia: `registry-trusted:${stream.id}`,
       regionHint,
-      confidence: stream.domainTier === "gov" ? 0.58 : 0.48,
+      confidence: stream.domainTier === "gov" ? 0.48 : stream.domainTier === "aggregator" ? 0.64 : 0.52,
       sampleItemCount: 0,
       lastValidatedAt: now,
       health: "unknown" as const,
@@ -84,13 +103,30 @@ export function selectDeferredStreamCandidates(
   return selectStreamCandidatesByTier(deferredPool, profile, limit, "candidate");
 }
 
+function orderCandidatesForProfile(
+  candidates: StreamCandidate[],
+  profile: SeekerProfile,
+): StreamCandidate[] {
+  if (!isCnLocalFirstProfile(profile)) return candidates;
+
+  const aggregators = candidates.filter((row) => isCnJobAggregatorUrl(row.seedUrl));
+  const gov = candidates.filter((row) => isGovCnHost(row.seedUrl));
+  const other = candidates.filter(
+    (row) => !isCnJobAggregatorUrl(row.seedUrl) && !isGovCnHost(row.seedUrl),
+  );
+  return [...aggregators, ...other, ...gov];
+}
+
 function selectStreamCandidatesByTier(
   candidates: StreamCandidate[],
   profile: SeekerProfile,
   limit: number,
   tier: StreamCandidate["validationTier"],
 ): StreamCandidate[] {
-  const ranked = rankStreamCandidates(candidates.filter((candidate) => candidate.validationTier === tier));
+  const ranked = orderCandidatesForProfile(
+    rankStreamCandidates(candidates.filter((candidate) => candidate.validationTier === tier)),
+    profile,
+  );
   const city = profile.constraints.primaryCity.trim();
   const preference = profile.constraints.remotePreference;
 
@@ -104,30 +140,54 @@ function selectStreamCandidatesByTier(
   }
 
   const remoteCap =
-    preference === "remote-only" ? limit : preference === "hybrid-ok" ? Math.min(3, limit) : 0;
+    preference === "remote-only"
+      ? limit
+      : preference === "hybrid-ok"
+        ? Math.min(8, limit)
+        : 0;
+  const govCap = isCnLocalFirstProfile(profile) ? 2 : limit;
 
   const selected: StreamCandidate[] = [];
-  for (const candidate of local) {
-    if (selected.length >= limit) break;
+  const selectedUrls = new Set<string>();
+
+  const pushCandidate = (candidate: StreamCandidate): void => {
+    if (selectedUrls.has(candidate.seedUrl)) return;
+    selectedUrls.add(candidate.seedUrl);
     selected.push(candidate);
-    if (selected.filter((row) => !isRemoteBoardUrl(row.seedUrl)).length >= limit - remoteCap) {
-      break;
-    }
-  }
+  };
 
   if (remoteCap > 0) {
     for (const candidate of remote) {
-      if (selected.length >= limit) break;
       if (selected.filter((row) => isRemoteBoardUrl(row.seedUrl)).length >= remoteCap) break;
-      selected.push(candidate);
+      if (selected.length >= limit) break;
+      pushCandidate(candidate);
     }
+  }
+
+  let govSelected = 0;
+  for (const candidate of local) {
+    if (selected.length >= limit) break;
+    if (isGovCnHost(candidate.seedUrl)) {
+      if (govSelected >= govCap) continue;
+      govSelected += 1;
+    }
+    const localCap = preference === "remote-only" ? 0 : limit - remoteCap;
+    if (
+      localCap > 0 &&
+      selected.filter((row) => !isRemoteBoardUrl(row.seedUrl)).length >= localCap
+    ) {
+      break;
+    }
+    if (preference === "remote-only") continue;
+    pushCandidate(candidate);
   }
 
   for (const candidate of ranked) {
     if (selected.length >= limit) break;
-    if (selected.some((row) => row.seedUrl === candidate.seedUrl)) continue;
+    if (selectedUrls.has(candidate.seedUrl)) continue;
     if (remoteCap === 0 && isRemoteBoardUrl(candidate.seedUrl)) continue;
-    selected.push(candidate);
+    if (preference === "remote-only" && !isRemoteBoardUrl(candidate.seedUrl)) continue;
+    pushCandidate(candidate);
   }
 
   return rankStreamCandidates(selected).slice(0, limit);

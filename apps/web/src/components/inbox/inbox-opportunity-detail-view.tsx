@@ -26,6 +26,7 @@ import {
 } from "@/components/inbox/inbox-detail-panels";
 import type { Locale } from "@/i18n/translate";
 import { matchScoreTier, matchScoreTierLabelKey } from "@/lib/match-score";
+import { RelatedJobsSection } from "@/components/inbox/related-jobs-section";
 import { cn } from "@/lib/utils";
 
 function mergeTaxonomyRefs(...groups: TaxonomyRef[][]): TaxonomyRef[] {
@@ -77,10 +78,12 @@ function TaxonomySection({
 
 export function InboxOpportunityDetailView({
   item,
+  relatedItems = [],
   excluded = false,
   remoteOnly = false,
 }: {
   item: InboxItem;
+  relatedItems?: InboxItem[];
   excluded?: boolean;
   remoteOnly?: boolean;
 }) {
@@ -341,6 +344,12 @@ export function InboxOpportunityDetailView({
           )}
         </div>
       </div>
+
+      <RelatedJobsSection
+        items={relatedItems}
+        title={t("relatedJobs")}
+        remoteOnly={remoteOnly}
+      />
     </div>
   );
 }

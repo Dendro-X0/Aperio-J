@@ -30,7 +30,15 @@ describe("cn-playwright-fetch", () => {
     );
   });
 
-  it("does not escalate for gov portals", () => {
+  it("escalates empty SPA shells for aggregators", () => {
+    const shell = `<!DOCTYPE html><html><body><div id="root"></div><script>window.__INITIAL_STATE__={}</script></body></html>`;
+    assert.equal(
+      needsPlaywrightRender(shell, "https://www.zhipin.com/shenzhen/", 0),
+      true,
+    );
+  });
+
+  it("does not escalate gov portals to playwright", () => {
     assert.equal(
       needsPlaywrightRender("<html></html>", "https://hrss.sz.gov.cn/tzgg/", 0),
       false,

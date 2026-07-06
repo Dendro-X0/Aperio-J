@@ -19,7 +19,24 @@ const ROLE_ALIASES: Record<string, string[]> = {
     "Data science",
     "Machine learning",
   ],
-  "zh-CN": ["前端", "后端", "全栈", "运维", "移动开发", "测试", "数据", "机器学习"],
+  "zh-CN": [
+    "前端",
+    "后端",
+    "全栈",
+    "运维",
+    "移动开发",
+    "测试",
+    "数据",
+    "机器学习",
+    "质检",
+    "仓储",
+    "物料",
+    "普工",
+    "产线",
+    "文员",
+    "仓管",
+    "操作工",
+  ],
 };
 
 export function roleSuggestionsForIndustry(industryLabel: string, locale: string): string[] {

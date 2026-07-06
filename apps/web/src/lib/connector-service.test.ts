@@ -53,11 +53,22 @@ describe("connector-service", () => {
     assert.ok(!connectors.some((row) => row.connectorId === "remotive"));
   });
 
-  it("includes Remotive for hybrid Chinese city profiles", () => {
+  it("includes Remotive for hybrid Chinese city tech profiles", () => {
     const profile = minimalProfile("hybrid-ok");
     profile.constraints.primaryCity = "深圳";
+    profile.intent.desiredRoles = ["后端开发"];
+    profile.intent.desiredIndustries = ["软件"];
     const connectors = loadConnectorStreamConfigs(profile);
     assert.ok(connectors.some((row) => row.connectorId === "remotive"));
+  });
+
+  it("returns no API connectors for Chinese hybrid factory-worker profiles", () => {
+    const profile = minimalProfile("hybrid-ok");
+    profile.constraints.primaryCity = "深圳";
+    profile.intent.desiredRoles = ["普工"];
+    profile.intent.desiredIndustries = ["电子制造"];
+    const connectors = loadConnectorStreamConfigs(profile);
+    assert.equal(connectors.length, 0);
   });
 
   it("returns no API connectors for Chinese onsite-only profiles", () => {

@@ -1,5 +1,7 @@
 /** Locale-keyed probe pack — community-extensible registry. */
 
+import type { SeekerProfile } from "@aperio-j/core";
+
 export interface RegistryStreamDef {
   id: string;
   label: string;
@@ -227,38 +229,17 @@ export const PROBE_PACKS: ProbePack[] = [
     registryStreams: [
       ...cityAggregators("深圳", "shenzhen"),
       {
-        id: "sz-szhr",
-        label: "深圳人才网",
-        seedUrl: "https://www.szhr.com.cn/",
-        kind: "list_page",
-        domainTier: "gov",
-      },
-      {
         id: "sz-gov-hrss-portal",
         label: "深圳人社·通知公告",
         seedUrl: "https://hrss.sz.gov.cn/tzgg/",
         kind: "list_page",
         domainTier: "gov",
       },
-      {
-        id: "sz-gov-hrss",
-        label: "深圳市政府·人社",
-        seedUrl: "https://www.sz.gov.cn/cn/hrss/tzgg/",
-        kind: "list_page",
-        domainTier: "gov",
-      },
-      {
-        id: "sz-jyzx",
-        label: "深圳市公共就业服务中心",
-        seedUrl: "https://jyzx.sz.gov.cn/",
-        kind: "list_page",
-        domainTier: "gov",
-      },
     ],
     seedPages: [
-      "https://hrss.sz.gov.cn/",
-      "https://www.sz.gov.cn/cn/hrss/",
       "https://shenzhen.zhaopin.com/",
+      "https://www.zhipin.com/shenzhen/",
+      "https://www.51job.com/jobs/shenzhen/",
     ],
   },
   {
@@ -628,14 +609,84 @@ export function resolveCitySlug(city: string): string | null {
 
 const FALLBACK_PACK_IDS = new Set(["zh-CN-generic", "global-remote", "global-city"]);
 
+const CN_TECH_INTENT =
+  /\b(developer|engineer|programmer|devops|full[- ]?stack|software|frontend|backend|sre|data\s+scientist)\b|开发工程师|程序员|软件工程师|运维工程师|算法工程师|全栈|后端开发|前端开发/i;
+
+const CN_LOCAL_OCCUPATION =
+  /产线|普工|流水线|组装|操作工|质检|iqc|oqc|fqc|仓储|仓管|物料|设备维护|机修|杂工|服务员|后厨|factory\s*worker|warehouse|production\s*line|quality\s*(control|inspector)|general\s*labor|assembler|machine\s*operator/i;
+
+const CN_MANUFACTURING_INDUSTRY = /制造|电子制造|工厂|制造业|manufacturing|assembly|电子/i;
+
+const CN_TECH_INDUSTRY = /软件|互联网|\bit\b|software|saas|developer|程序员/i;
+
+function profileIntentCorpus(profile: Pick<SeekerProfile, "intent" | "artifacts">): string {
+  return [
+    ...profile.intent.desiredRoles,
+    ...profile.intent.desiredIndustries,
+    ...profile.artifacts.map((artifact) => artifact.title),
+    ...profile.artifacts.map((artifact) => artifact.industry),
+    ...profile.artifacts.map((artifact) => artifact.duties),
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+/** Blue-collar / manufacturing profiles should use local search + onsite boards, not dev remote feeds. */
+export function isCnLocalFirstOccupation(
+  profile: Pick<SeekerProfile, "intent" | "artifacts">,
+): boolean {
+  const corpus = profileIntentCorpus(profile);
+  if (!corpus.trim()) return false;
+
+  if (CN_LOCAL_OCCUPATION.test(corpus)) return true;
+  if (CN_TECH_INTENT.test(corpus) && !CN_MANUFACTURING_INDUSTRY.test(corpus)) return false;
+  if (CN_MANUFACTURING_INDUSTRY.test(corpus) && !CN_TECH_INDUSTRY.test(corpus)) return true;
+  return false;
+}
+
+/** CN city profile that should run local search → scan → match (not international remote boards). */
+export function isCnLocalFirstProfile(profile: SeekerProfile): boolean {
+  if (!isChinaCityProfile(profile.constraints.primaryCity, profile.constraints.acceptableCities)) {
+    return false;
+  }
+  if (profile.constraints.remotePreference === "onsite-only") return true;
+  return isCnLocalFirstOccupation(profile);
+}
+
 /** CN city profile that accepts remote/hybrid — Work Best-style intake (remote boards first). */
 export function isCnRemoteFirstProfile(
   primaryCity: string,
   acceptableCities: string[] = [],
   remotePreference: "remote-only" | "hybrid-ok" | "onsite-only" = "hybrid-ok",
+  profile?: Pick<SeekerProfile, "intent" | "artifacts" | "constraints">,
 ): boolean {
   if (remotePreference === "onsite-only") return false;
-  return isChinaCityProfile(primaryCity, acceptableCities);
+  if (!isChinaCityProfile(primaryCity, acceptableCities)) return false;
+  if (profile) {
+    const fullProfile = profile as SeekerProfile;
+    if (isCnLocalFirstProfile(fullProfile)) return false;
+  }
+  return true;
+}
+
+/** Remote boards are the primary intake path (freelancers, nomads, global tech). */
+export function isRemoteFirstProfile(profile: SeekerProfile): boolean {
+  if (profile.constraints.remotePreference === "onsite-only") return false;
+  if (profile.constraints.remotePreference === "remote-only") return true;
+  if (isCnLocalFirstProfile(profile)) return false;
+  return true;
+}
+
+const REMOTE_TECH_INTENT =
+  /\b(developer|engineer|programmer|devops|full[- ]?stack|software|frontend|backend|sre|platform engineer|data engineer|machine learning|product manager|ux designer|ui designer|qa engineer|sdet)\b|开发工程师|程序员|软件工程师|前端开发|后端开发|全栈|运维工程师|数据工程师|算法工程师|产品经理|测试工程师/i;
+
+/** Profile targets remote tech roles (engineering, product, data). */
+export function isRemoteTechProfile(profile: SeekerProfile): boolean {
+  if (profile.constraints.remotePreference === "onsite-only") return false;
+  if (isCnLocalFirstProfile(profile)) return false;
+  const corpus = profileIntentCorpus(profile);
+  if (!corpus.trim()) return false;
+  return REMOTE_TECH_INTENT.test(corpus) || CN_TECH_INDUSTRY.test(corpus);
 }
 
 export function isChinaCityProfile(primaryCity: string, acceptableCities: string[] = []): boolean {

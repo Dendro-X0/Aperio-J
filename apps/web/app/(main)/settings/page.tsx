@@ -6,7 +6,8 @@ import { ProfileDashboard } from "@/components/profile/profile-dashboard";
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
-  const { profileId, profile, isFirstSetup, connectorSettings } = await loadSettingsPageData();
+  const { profileId, profile, isFirstSetup, connectorSettings, cnSessionSettings } =
+    await loadSettingsPageData();
   const initialForm = profile ? settingsFormFromProfile(profile) : undefined;
 
   return (
@@ -16,6 +17,7 @@ export default async function SettingsPage() {
         profileId={profileId}
         isFirstSetup={isFirstSetup}
         initialConnectorSettings={connectorSettings}
+        initialCnSessionSettings={cnSessionSettings}
       />
     </Suspense>
   );

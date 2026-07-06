@@ -83,18 +83,18 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: latest
-          name: 最新安装包 Latest installers
+          name: Latest installers
           prerelease: true
           make_latest: true
           body: |
-            自动 CI 构建的正式安装包（每次推送到 main 更新）。
+            Rolling CI build — updated on every push to `main`.
 
-            | 平台 | 文件 | 说明 |
-            |------|------|------|
-            | Windows | `Aperio-J-windows-setup.exe` | NSIS 安装程序 |
-            | Android | `Aperio-J-android.apk` | 自签名 release APK，需开启「允许安装未知来源」 |
+            | Platform | File | Notes |
+            |----------|------|-------|
+            | Windows | `Aperio-J-windows-setup.exe` | NSIS installer |
+            | Android | `Aperio-J-android.apk` | Self-signed release APK — enable “Install unknown apps” on device |
 
-            Android 使用仓库内 OSS 上传密钥签名，无需应用市场或备案即可侧载安装。
+            Android builds use the repo upload key for sideloading without an app store.
           files: |
             release/Aperio-J-windows-setup.exe
             release/Aperio-J-android.apk

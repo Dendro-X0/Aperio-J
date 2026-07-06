@@ -1,8 +1,8 @@
 export const messages = {
   app: {
     name: "Aperio-J",
-    tagline: "机会引擎 · 算法匹配，无广告",
-    description: "基于 Profile 的就业机会发现与匹配",
+    tagline: "远程求职 · Profile 匹配，无广告",
+    description: "面向自由职业者与数字游民的远程/技术岗位发现与匹配",
   },
   nav: {
     inbox: "匹配",
@@ -39,6 +39,13 @@ export const messages = {
     windowMaximize: "最大化窗口",
     windowRestore: "还原窗口",
     windowClose: "关闭窗口",
+    matchRun: {
+      viewInbox: "查看匹配",
+      cancel: "取消",
+      dismiss: "关闭",
+      completed: "匹配完成 — {matched} / {total} 条机会",
+      cancelled: "已取消匹配刷新",
+    },
   },
   locale: {
     label: "语言",
@@ -183,6 +190,7 @@ export const messages = {
       actionsPanel: "你的反馈",
       noCategories: "暂无分类标签",
       descriptionUnavailable: "正文未抓取到完整描述，请查看原文链接。",
+      relatedJobs: "相关职位",
       explanation: {
         taxonomyMatch: "分类匹配：{hits}",
         intentMatch: "匹配意向：{hits}",
@@ -208,8 +216,14 @@ export const messages = {
       collapseFiltered: "收起已过滤 ({count})",
     },
     empty: {
-      title: "暂无匹配结果",
-      description: "尝试放宽排除条件、粘贴职位链接，或点击「刷新匹配」重新扫描信号源。",
+      title: "暂无远程匹配",
+      description:
+        "先在 Profile 填写技能与意向，可选添加城市标签以混合本地信号源，然后点击「刷新匹配」扫描远程招聘板（We Work Remotely、Remote OK、Remotive 等）。",
+      remoteTitle: "正在扫描远程招聘板",
+      remoteDescription:
+        "已启用远程优先：点击「刷新匹配」从 We Work Remotely、Remote OK、Remotive、Himalayas 等源拉取岗位。可在 Profile 添加城市以混合本地源，或粘贴任意职位链接进行捕获。",
+      remoteHint:
+        "已启用远程优先：点击「刷新匹配」扫描国际远程招聘板。可在 Profile 添加城市标签以混合本地源，或在上方粘贴职位链接。",
       cnTitle: "中国大陆招聘平台需手动粘贴职位链接",
       cnDescription:
         "BOSS直聘、前程无忧、拉勾等平台没有国际互联网上常见的 RSS/API 接口，无法用自动扫描替代。请从微信或 App 复制职位链接，粘贴到上方「粘贴职位链接」进行捕获与匹配。深圳人社、本地人才网和政府站的扫描仍会自动进行。",
@@ -272,6 +286,17 @@ export const messages = {
       "equipment-maintenance": "设备维护",
       "production-line": "普工/产线",
       sales: "销售",
+      "frontend-dev": "前端开发",
+      "backend-dev": "后端开发",
+      "fullstack-dev": "全栈开发",
+      devops: "DevOps / 运维",
+      "mobile-dev": "移动开发",
+      "game-dev": "游戏开发",
+      "data-ml": "数据 / 机器学习",
+      "qa-automation": "测试 / 自动化",
+      "product-design": "产品 / 设计",
+      "food-service": "餐饮",
+      "general-labor": "通用劳务",
       other: "其他",
     },
   },
@@ -312,6 +337,11 @@ export const messages = {
       onsiteHint: "全职与兼职本地招聘板",
       emptyFiltered: "该类别下暂无信号源 — 可重新发现或添加自定义 URL。",
     },
+    enableAll: {
+      button: "全部启用",
+      busy: "启用中…",
+      success: "已启用 {count} 个信号源",
+    },
     actions: {
       openUrl: "打开链接",
       remove: "删除信号源",
@@ -329,6 +359,22 @@ export const messages = {
       submit: "添加信号源",
       submitting: "验证并添加中…",
       successNote: "已添加自定义信号源，可在「匹配」页刷新抓取",
+    },
+    importOpml: {
+      open: "导入 OPML",
+      title: "批量导入 RSS（OPML）",
+      description:
+        "粘贴 OPML 订阅列表（如本地公众号/RSS 合集）。每个 xmlUrl 会注册为 RSS 信号源，最多 50 条。",
+      opmlLabel: "OPML 内容",
+      opmlPlaceholder: "<?xml version=\"1.0\"?>…",
+      submit: "导入信号源",
+      submitting: "导入中…",
+      successNote: "已导入 {imported} 个信号源（跳过 {skipped} 个）",
+    },
+    clearCache: {
+      open: "清除抓取缓存",
+      clearing: "清除中…",
+      successNote: "已清除本机信号源抓取缓存，下次匹配将重新抓取",
     },
     sessionAuth: {
       title: "会话认证（高级）",
@@ -377,22 +423,26 @@ export const messages = {
     },
     errors: {
       urlRequired: "请填写 URL",
+      opmlRequired: "请粘贴 OPML 内容",
       updateFailed: "更新失败",
       addFailed: "添加失败",
       deleteFailed: "删除失败",
       discoverFailed: "重新发现失败",
+      importOpmlFailed: "OPML 导入失败",
+      clearCacheFailed: "清除缓存失败",
     },
   },
   profile: {
     title: "Profile 设置",
     firstSetupTitle: "欢迎 — 开始设置",
     firstSetupDescription:
-      "填写工作城市、作品集（行业与职业）和求职偏好。可稍后再填 — 但匹配至少需要行业和职业。",
+      "填写技能、远程偏好与可选的主城市。默认扫描国际远程招聘板；添加城市后可混合本地信号源。",
     setupRedirect: {
       title: "请先完成 Profile 才能查看匹配",
       description: "匹配至少需要填写行业与职业。完成下方步骤后，从侧栏进入「匹配机会」。",
     },
-    description: "填写城市、技能与求职偏好。Aperio-J 会根据你的 Profile 发现信号源并匹配职位，无需导入外部账号。",
+    description:
+      "填写技能、远程偏好与可选城市。Aperio-J 默认扫描远程技术招聘板，并根据 Profile 算法匹配——不是关键词碰运气。",
     setupSteps: {
       location: "定位 — 城市与远程",
       employment: "工作形态 — 全职/兼职等",
@@ -406,8 +456,8 @@ export const messages = {
     },
     remotePreference: {
       label: "工作方式",
-      sectionDesc: "设置城市后，选择可接受的远程/到岗程度。",
-      hint: "请选择一种方式，仅在已添加城市标签时生效。",
+      sectionDesc: "默认以远程为主。下方添加城市标签后，可同时扫描本地招聘源（混合模式）。",
+      hint: "仅远程适合自由职业者与数字游民；添加城市后可开启混合办公匹配。",
       "remote-only": "仅远程",
       "hybrid-ok": "可混合办公",
       "onsite-only": "仅到岗",
@@ -420,7 +470,7 @@ export const messages = {
       cityHint: "第一个标签为主城市，可添加周边城市。可从建议中选择，也可直接输入任意城市。",
       customCity: "添加「{city}」",
       customCityHint: "不在列表中？按 Enter 或点添加即可使用自定义城市。",
-      remoteDefaultHint: "未设置城市时以远程模式运行。输入城市后按 Enter 或点击保存即可启用本地发现。",
+      remoteDefaultHint: "未设置城市时默认扫描远程招聘板。添加城市标签后可同时发现本地信号源（混合模式）。",
       detectFromIp: "根据 IP 识别城市",
       detecting: "识别中…",
       detectFailed: "无法根据 IP 识别城市",
@@ -452,27 +502,77 @@ export const messages = {
         other: "其他",
       },
     },
-    occupation: "职业 *",
+    occupation: "当前职业 *",
     occupationHint: "可添加多个职业或目标岗位。",
+    occupationCurrentHint: "你正在做或最近做的岗位。系统会据此推断可迁移技能，与下方「想找的方向」分开填写。",
+    currentRoleSuggestions: "常见岗位",
     background: "经历摘要",
     backgroundFieldDesc: "可选。补充过往岗位、工具与技能，有助于生成更准确的匹配说明。",
     backgroundPlaceholder:
       "做过什么、会什么。例如：手机组装 3 年；熟悉外观检查、ESD；做过显示器老化测试",
     desiredRoles: "想找的方向",
-    desiredRolesHint: "从建议中选择或自行输入 — 用于匹配与信号源发现。",
-    desiredRolesPlaceholder: "质检, 仓储, 文职",
+    desiredRolesHint: "想探索的新岗位，可与当前职业不同。用于匹配与信号源发现。",
+    desiredRolesPlaceholder: "质检, 仓储, 物料, 文员",
+    intentVsCurrentHint:
+      "「当前职业」记录你现在做什么；这里填写你想尝试的新方向。例如产线工人可填质检、仓储。",
+    targetRoleSuggestions: "推荐转岗方向",
+    roleSuggestionsLabel: "推荐方向",
+    avoidPhraseSuggestions: "常见排除词",
+    employmentFlexHint: "希望时间更灵活时，请同时勾选「兼职」。",
+    presets: {
+      title: "快速意向模板",
+      description: "根据常见求职场景一键填入行业、方向与排除项，仍可手动修改。",
+      "remote-developer": {
+        title: "远程软件工程师",
+        description: "仅远程；后端、全栈、DevOps 等方向，扫描国际技术招聘板。",
+      },
+      "remote-frontend": {
+        title: "远程前端",
+        description: "React、Vue、Web UI 等前端岗位，远程优先。",
+      },
+      "remote-backend": {
+        title: "远程后端",
+        description: "API、分布式系统、Go/Node 等后端岗位，远程优先。",
+      },
+      "devops-platform": {
+        title: "DevOps / SRE / 平台",
+        description: "Kubernetes、CI/CD、基础设施与平台工程岗位。",
+      },
+      "product-ux": {
+        title: "产品 & UX",
+        description: "产品经理、UX/UI、B2B SaaS 设计类远程岗位。",
+      },
+      "data-ml": {
+        title: "数据 & ML",
+        description: "数据工程、分析、机器学习与 MLOps 岗位。",
+      },
+      "digital-nomad": {
+        title: "数字游民 / 自由职业",
+        description: "仅远程；开发、设计等异步友好团队，支持合同制岗位。",
+      },
+      "factory-upgrade": {
+        title: "产线转更轻松岗位",
+        description: "普工/产线 → 质检、仓储、物料；排除流水线、夜班与骑手岗。",
+      },
+      "flexible-hours": {
+        title: "更自由的时间",
+        description: "接受全职+兼职，优先仓储/物料等相对灵活的岗位。",
+      },
+    },
     tags: {
       placeholder: "输入搜索…",
       addPlaceholder: "继续添加…",
       removeTag: "移除 {tag}",
       industryPlaceholder: "搜索行业…",
       rolePlaceholder: "例如：全栈开发",
+      currentRolePlaceholder: "例如：产线/普工",
       rolesPlaceholder: "前端、后端、运维…",
     },
     avoidRoles: "不要的机会",
-    avoidRolesPlaceholder: "销售, 流水线, 劳务, 押金",
+    avoidRolesPlaceholder: "流水线, 夜班, 押金, 骑手",
     excludeProductionLine: "排除产线/流水线岗位",
     excludeSales: "排除销售/推广岗位",
+    excludeFoodService: "排除餐饮/服务员岗位",
     exclusionTogglesTitle: "快捷排除",
     exclusionTogglesDesc: "隐藏你从不考虑的常见岗位类型。",
     trustNote: "默认过滤劳务中介与高风险 listing。第三方 Profile 同步将在未来 OSS 版本提供。",
@@ -540,8 +640,8 @@ export const messages = {
     sectionDesc: {
       location: "可选。留空则按远程模式匹配；添加城市标签后可匹配本地岗位。",
       employment: "选择你可接受的工作形态，影响匹配与展示。",
-      background: "行业与职业为发现引擎必填项，经历摘要可选但有助于匹配说明。",
-      intent: "想找的方向，逗号分隔多个关键词。",
+      background: "行业与当前职业为发现引擎必填项。经历摘要用大白话即可，有助于匹配说明。",
+      intent: "想探索的新岗位方向，可与当前职业不同。",
       exclusions: "明确不想看的岗位类型与关键词。",
       connectors: "可选 API 密钥仅保存在本机 SQLite 中，不会上传。",
       trust: "调整风险、中介与直招 listing 的过滤强度。",
@@ -644,6 +744,23 @@ export const messages = {
       saveFailed: "保存凭证失败",
       clearKeys: "清除 Adzuna 密钥",
     },
+    cnSession: {
+      title: "国内招聘站 Cookie（可选）",
+      description:
+        "在浏览器登录 BOSS直聘、智联、58 后，从开发者工具复制 Cookie。仅保存在本机，用于已启用的对应域名信号源。",
+      warning: "请仅使用你自己的账号；频繁抓取仍可能触发验证码。",
+      zhipinLabel: "BOSS直聘 Cookie",
+      zhaopinLabel: "智联招聘 Cookie",
+      cookie58Label: "58同城 Cookie",
+      cookiePlaceholder: "session=…; token=…",
+      secretKeepHint: "留空则保留已保存的 Cookie",
+      configuredNote: "已保存至少一个站点的 Cookie。",
+      save: "保存 Cookie",
+      saving: "保存中…",
+      saved: "Cookie 已保存。",
+      saveFailed: "保存失败",
+      clear: "清除全部 Cookie",
+    },
   },
   api: {
     authRequired: "请先完成 Profile 设置",
@@ -656,6 +773,7 @@ export const messages = {
     enabledMustBeBoolean: "enabled 必须为布尔值",
     streamNotFound: "信号源不存在",
     urlRequired: "请提供 URL",
+    opmlRequired: "请提供 OPML 内容",
     invalidRequest: "无效请求",
     addFailed: "添加失败",
     deleteFailed: "删除失败",

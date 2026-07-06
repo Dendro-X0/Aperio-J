@@ -10,6 +10,8 @@ import type {
 } from "@aperio-j/core";
 import { clampScore, createEngineTranslator, getTaxonomyNode, taxonomyLabel } from "@aperio-j/core";
 import { buildCapabilityHaystack } from "@aperio-j/discovery/transferable";
+import { shouldDiscardCnFeedItem } from "@aperio-j/discovery/cn-feed-quality";
+import { shouldDiscardRemoteTechFeedItem } from "@aperio-j/discovery/remote-tech-feed-quality";
 import { countIntentHits, expandIntentTerms } from "@aperio-j/discovery/intent-expansion";
 import { localizeLocationText, locationMatchesProfile } from "@aperio-j/discovery/text-utils";
 import {
@@ -59,6 +61,15 @@ function hasCategoryOverlap(categories: RoleCategory[], avoidLabels: string[]): 
     sales: ["销售", "sales"],
     "food-service": ["服务员", "餐饮", "food-service"],
     "general-labor": ["普工", "general-labor"],
+    "frontend-dev": ["前端", "frontend", "front-end"],
+    "backend-dev": ["后端", "backend", "back-end"],
+    "fullstack-dev": ["全栈", "fullstack", "full-stack"],
+    devops: ["devops", "sre", "运维"],
+    "mobile-dev": ["mobile", "ios", "android"],
+    "game-dev": ["game", "unity", "unreal"],
+    "data-ml": ["data", "machine learning", "ml"],
+    "qa-automation": ["qa", "sdet", "测试"],
+    "product-design": ["product", "ux", "ui"],
     other: [],
   };
 
@@ -82,6 +93,26 @@ function checkHardGates(
 
   if (!matchesCity(profile, opportunity.locationText, corpus)) {
     return t("matcher.exclusion.locationOutOfRange");
+  }
+
+  if (
+    shouldDiscardCnFeedItem(
+      { title: opportunity.title, body: opportunity.body, url: opportunity.url },
+      profile,
+      { roleCategories: opportunity.roleCategories },
+    )
+  ) {
+    return t("matcher.exclusion.irrelevantListing");
+  }
+
+  if (
+    shouldDiscardRemoteTechFeedItem(
+      { title: opportunity.title, body: opportunity.body, url: opportunity.url },
+      profile,
+      { roleCategories: opportunity.roleCategories },
+    )
+  ) {
+    return t("matcher.exclusion.irrelevantListing");
   }
 
   if (

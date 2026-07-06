@@ -29,6 +29,15 @@ export type RoleCategory =
   | "sales"
   | "food-service"
   | "general-labor"
+  | "frontend-dev"
+  | "backend-dev"
+  | "fullstack-dev"
+  | "devops"
+  | "mobile-dev"
+  | "game-dev"
+  | "data-ml"
+  | "qa-automation"
+  | "product-design"
   | "other";
 
 export interface GeoProfile {
@@ -166,6 +175,13 @@ export {
   getTaxonomyNodes,
   loadTaxonomyCatalog,
   taxonomyLabel,
+  cityIdentityKey,
+  cityIsChinaRegion,
+  cityMatchTerms,
+  citiesShareIdentity,
+  displayCityLabel,
+  localizeCityList,
+  resolveCityNode,
   type TaxonomyCatalog,
   type TaxonomyKind,
   type TaxonomyNodeDef,

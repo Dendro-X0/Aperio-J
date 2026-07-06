@@ -567,7 +567,7 @@ describe("connectors/resolve-connectors", () => {
     assert.ok(configs.some((row) => row.connectorId === "jobicy"));
   });
 
-  it("includes global remote connectors for Chinese city hybrid profiles", () => {
+  it("includes global remote connectors for Chinese city hybrid tech profiles", () => {
     const configs = resolveConnectorsForProfile(
       minimalProfile({
         constraints: {
@@ -575,10 +575,34 @@ describe("connectors/resolve-connectors", () => {
           primaryCity: "深圳",
           remotePreference: "hybrid-ok",
         },
+        intent: {
+          ...minimalProfile().intent,
+          desiredRoles: ["后端开发"],
+          desiredIndustries: ["软件"],
+        },
       }),
     );
     assert.ok(configs.some((row) => row.connectorId === "remotive"));
     assert.ok(configs.some((row) => row.connectorId === "remoteok"));
+  });
+
+  it("skips global remote connectors for Chinese hybrid factory-worker profiles", () => {
+    const configs = resolveConnectorsForProfile(
+      minimalProfile({
+        constraints: {
+          ...minimalProfile().constraints,
+          primaryCity: "深圳",
+          remotePreference: "hybrid-ok",
+        },
+        intent: {
+          ...minimalProfile().intent,
+          desiredRoles: ["普工"],
+          desiredIndustries: ["电子制造"],
+        },
+      }),
+    );
+    assert.ok(!configs.some((row) => row.connectorId === "remotive"));
+    assert.ok(!configs.some((row) => row.connectorId === "remoteok"));
   });
 
   it("skips global remote connectors for Chinese onsite-only profiles", () => {

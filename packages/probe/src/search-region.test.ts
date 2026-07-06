@@ -4,6 +4,7 @@ import {
   buildRegionalSearchQueries,
   buildSearchEngineUrl,
   resolveSearchSphere,
+  resolveSearxngBaseUrl,
   SEARCH_SPHERE_ENGINES,
 } from "./search-region.js";
 import { expandRegionalSearchProbes } from "./search-queries.js";
@@ -62,6 +63,18 @@ describe("buildRegionalSearchQueries", () => {
     assert.ok(queries.some((query) => query.includes("深圳")));
   });
 
+  it("adds factory-worker search queries for cn sphere", () => {
+    const queries = buildRegionalSearchQueries("深圳", "cn", ["普工", "电子制造"]);
+    assert.ok(queries.some((query) => query.includes("普工")));
+    assert.ok(queries.some((query) => query.includes("人才网")));
+  });
+
+  it("localizes English city labels to Chinese in cn sphere queries", () => {
+    const queries = buildRegionalSearchQueries("Shenzhen", "cn", ["普工"]);
+    assert.ok(queries.some((query) => query.includes("深圳")));
+    assert.ok(!queries.some((query) => /Shenzhen/i.test(query)));
+  });
+
   it("builds Japanese employment queries for jp sphere", () => {
     const queries = buildRegionalSearchQueries("東京", "jp");
     assert.ok(queries.some((query) => query.includes("求人")));
@@ -76,6 +89,20 @@ describe("buildSearchEngineUrl", () => {
     assert.ok(buildSearchEngineUrl("bing", "test").includes("bing.com/search?"));
     assert.ok(buildSearchEngineUrl("bing", "test").includes("format=rss"));
     assert.ok(buildSearchEngineUrl("google", "test").includes("google.com/search?"));
+  });
+
+  it("builds SearXNG JSON search URL when configured", () => {
+    const previous = process.env.APERO_J_SEARXNG_URL;
+    process.env.APERO_J_SEARXNG_URL = "http://localhost:8080/";
+    try {
+      assert.equal(resolveSearxngBaseUrl(), "http://localhost:8080");
+      const url = buildSearchEngineUrl("searxng", "深圳 普工 招聘");
+      assert.ok(url.startsWith("http://localhost:8080/search?"));
+      assert.ok(url.includes("format=json"));
+    } finally {
+      if (previous === undefined) delete process.env.APERO_J_SEARXNG_URL;
+      else process.env.APERO_J_SEARXNG_URL = previous;
+    }
   });
 });
 
@@ -112,6 +139,19 @@ describe("expandRegionalSearchProbes", () => {
           probe.label.includes("backend developer"),
       ),
     );
+  });
+
+  it("prepends SearXNG probes when APERO_J_SEARXNG_URL is set", () => {
+    const previous = process.env.APERO_J_SEARXNG_URL;
+    process.env.APERO_J_SEARXNG_URL = "http://127.0.0.1:8888";
+    try {
+      const probes = expandRegionalSearchProbes("深圳", [], "深圳", [], probeId);
+      assert.ok(probes.some((probe) => probe.seed.startsWith("http://127.0.0.1:8888/search?")));
+      assert.equal(probes[0]?.seed.startsWith("http://127.0.0.1:8888/search?"), true);
+    } finally {
+      if (previous === undefined) delete process.env.APERO_J_SEARXNG_URL;
+      else process.env.APERO_J_SEARXNG_URL = previous;
+    }
   });
 
   it("uses Japanese search queries for Tokyo kanji", () => {

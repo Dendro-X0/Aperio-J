@@ -18,9 +18,22 @@ import { ProfileFieldCard } from "@/components/profile/profile-field-card";
 import { RemotePreferenceField } from "@/components/profile/remote-preference-field";
 import { LocalDataPanel } from "@/components/profile/local-data-panel";
 import { ConnectorSettingsPanel } from "@/components/profile/connector-settings-panel";
-import type { ConnectorCredentialSettings } from "@/lib/local-settings-store";
+import { CnSessionSettingsPanel } from "@/components/profile/cn-session-settings-panel";
+import type { CnSessionCredentialSettings, ConnectorCredentialSettings } from "@/lib/local-settings-store";
 import { industryOptions } from "@/lib/industry-options";
+import { ProfileIntentPresetCards } from "@/components/profile/profile-intent-preset-cards";
+import { QuickTagChips } from "@/components/profile/quick-tag-chips";
+import {
+  addTagsToCommaField,
+  applyProfileIntentPreset,
+  avoidPhraseSuggestions,
+  backgroundPlaceholderForProfile,
+  isManufacturingLikeProfile,
+  targetRoleSuggestionsForProfile,
+  type ProfileIntentPresetId,
+} from "@/lib/profile-intent-suggestions";
 import { roleSuggestionsForIndustries } from "@/lib/role-options";
+import { localizeCityList } from "@/lib/city-options";
 import { splitProfileList } from "@/lib/profile-form";
 import {
   PROFILE_NAV_GROUPS,
@@ -109,6 +122,7 @@ export interface ProfileDashboardProps {
   profileId?: string;
   isFirstSetup?: boolean;
   initialConnectorSettings?: ConnectorCredentialSettings | null;
+  initialCnSessionSettings?: CnSessionCredentialSettings | null;
 }
 
 function CompletenessBar({
@@ -172,6 +186,7 @@ export function ProfileDashboard({
   profileId,
   isFirstSetup = false,
   initialConnectorSettings = null,
+  initialCnSessionSettings = null,
 }: ProfileDashboardProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -196,6 +211,7 @@ export function ProfileDashboard({
   const [resetting, setResetting] = useState(false);
   const [skipping, setSkipping] = useState(false);
   const [industryCatalogOpen, setIndustryCatalogOpen] = useState(false);
+  const [appliedPreset, setAppliedPreset] = useState<ProfileIntentPresetId | null>(null);
   const cityInputRef = useRef<CityTagsInputHandle>(null);
 
   const industrySuggestions = useMemo(
@@ -206,6 +222,29 @@ export function ProfileDashboard({
     () => roleSuggestionsForIndustries(form.industries, locale),
     [form.industries, locale],
   );
+  const targetRoleSuggestions = useMemo(
+    () => targetRoleSuggestionsForProfile(form, locale),
+    [form, locale],
+  );
+  const avoidSuggestions = useMemo(() => avoidPhraseSuggestions(locale), [locale]);
+  const backgroundPlaceholder = useMemo(
+    () => backgroundPlaceholderForProfile(form, locale),
+    [form, locale],
+  );
+  const manufacturingProfile = useMemo(() => isManufacturingLikeProfile(form), [form]);
+
+  useEffect(() => {
+    setForm((prev) => {
+      const nextCities = localizeCityList(prev.cities, locale);
+      if (nextCities.join("\0") === prev.cities.join("\0")) return prev;
+      return { ...prev, cities: nextCities };
+    });
+    setBaselineForm((prev) => {
+      const nextCities = localizeCityList(prev.cities, locale);
+      if (nextCities.join("\0") === prev.cities.join("\0")) return prev;
+      return { ...prev, cities: nextCities };
+    });
+  }, [locale]);
 
   useEffect(() => {
     const section = new URLSearchParams(window.location.search).get("section");
@@ -273,6 +312,26 @@ export function ProfileDashboard({
       }
       return { ...prev, occupations: [...prev.occupations, label] };
     });
+  }
+
+  function addDesiredRole(tag: string) {
+    setForm((prev) => ({
+      ...prev,
+      desiredRolesText: addTagsToCommaField(prev.desiredRolesText, tag),
+    }));
+  }
+
+  function addAvoidPhrase(tag: string) {
+    setForm((prev) => ({
+      ...prev,
+      avoidText: addTagsToCommaField(prev.avoidText, tag),
+    }));
+  }
+
+  function applyIntentPreset(presetId: ProfileIntentPresetId) {
+    setForm((prev) => applyProfileIntentPreset(prev, presetId, locale));
+    setAppliedPreset(presetId);
+    setActiveSection("intent");
   }
 
   function updateField<K extends keyof ProfileFormState>(
@@ -469,25 +528,29 @@ export function ProfileDashboard({
         );
       case "employment":
         return (
-          <ProfileFieldCard title={sectionLabels.employment} description={t("sectionDesc.employment")}>
-            <div className="flex flex-wrap gap-2">
-              {(["full-time", "part-time", "contract"] as const).map((type) => (
-                <Toggle
-                  key={type}
-                  pressed={form.employmentTypes.includes(type)}
-                  onPressedChange={() => toggleEmployment(type)}
-                  variant="outline"
-                  className="data-[state=on]:border-primary data-[state=on]:bg-primary/10 data-[state=on]:text-primary"
-                >
-                  {tEnums(`employmentType.${type}` as "employmentType.full-time")}
-                </Toggle>
-              ))}
-            </div>
-          </ProfileFieldCard>
+          <div className="space-y-4">
+            <ProfileFieldCard title={sectionLabels.employment} description={t("sectionDesc.employment")}>
+              <div className="flex flex-wrap gap-2">
+                {(["full-time", "part-time", "contract"] as const).map((type) => (
+                  <Toggle
+                    key={type}
+                    pressed={form.employmentTypes.includes(type)}
+                    onPressedChange={() => toggleEmployment(type)}
+                    variant="outline"
+                    className="data-[state=on]:border-primary data-[state=on]:bg-primary/10 data-[state=on]:text-primary"
+                  >
+                    {tEnums(`employmentType.${type}` as "employmentType.full-time")}
+                  </Toggle>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">{t("employmentFlexHint")}</p>
+            </ProfileFieldCard>
+          </div>
         );
       case "background":
         return (
           <div className="space-y-4">
+            <ProfileIntentPresetCards onApply={applyIntentPreset} activePreset={appliedPreset} />
             <ProfileFieldCard
               title={t("industry")}
               description={t("industryHint")}
@@ -512,7 +575,7 @@ export function ProfileDashboard({
             </ProfileFieldCard>
             <ProfileFieldCard
               title={t("occupation")}
-              description={t("occupationHint")}
+              description={t("occupationCurrentHint")}
               required
             >
               <AutocompleteTagsInput
@@ -520,33 +583,16 @@ export function ProfileDashboard({
                 value={form.occupations}
                 onChange={(tags) => updateField("occupations", tags)}
                 suggestions={roleSuggestions}
-                placeholder={t("tags.rolePlaceholder")}
+                placeholder={t("tags.currentRolePlaceholder")}
                 allowCustom
               />
               {roleSuggestions.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {roleSuggestions.slice(0, 8).map((label) => {
-                    const selected = form.occupations.some(
-                      (item) => item.toLowerCase() === label.toLowerCase(),
-                    );
-                    return (
-                      <button
-                        key={label}
-                        type="button"
-                        disabled={selected}
-                        onClick={() => addOccupationSuggestion(label)}
-                        className={cn(
-                          "rounded-md border px-2 py-1 text-xs transition-colors",
-                          selected
-                            ? "cursor-default border-primary/30 bg-primary/10 text-primary"
-                            : "border-border text-muted-foreground hover:border-primary/30 hover:bg-primary/5 hover:text-primary",
-                        )}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
+                <QuickTagChips
+                  label={t("currentRoleSuggestions")}
+                  tags={roleSuggestions.slice(0, 8)}
+                  selected={form.occupations}
+                  onAdd={addOccupationSuggestion}
+                />
               )}
             </ProfileFieldCard>
             <ProfileFieldCard
@@ -558,23 +604,36 @@ export function ProfileDashboard({
                 rows={5}
                 value={form.backgroundText}
                 onChange={(e) => updateField("backgroundText", e.target.value)}
-                placeholder={t("backgroundPlaceholder")}
+                placeholder={backgroundPlaceholder}
               />
             </ProfileFieldCard>
           </div>
         );
       case "intent":
         return (
-          <ProfileFieldCard title={sectionLabels.intent} description={t("sectionDesc.intent")}>
-            <AutocompleteTagsInput
-              id="desiredRoles"
-              value={splitProfileList(form.desiredRolesText)}
-              onChange={(tags) => updateField("desiredRolesText", tags.join(", "))}
-              suggestions={roleSuggestions}
-              placeholder={t("tags.rolesPlaceholder")}
-              allowCustom
-            />
-          </ProfileFieldCard>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">{t("intentVsCurrentHint")}</p>
+            <ProfileFieldCard title={t("desiredRoles")} description={t("desiredRolesHint")}>
+              <AutocompleteTagsInput
+                id="desiredRoles"
+                value={splitProfileList(form.desiredRolesText)}
+                onChange={(tags) => updateField("desiredRolesText", tags.join(", "))}
+                suggestions={targetRoleSuggestions}
+                placeholder={t("desiredRolesPlaceholder")}
+                allowCustom
+              />
+              <QuickTagChips
+                label={
+                  manufacturingProfile
+                    ? t("targetRoleSuggestions")
+                    : t("roleSuggestionsLabel")
+                }
+                tags={targetRoleSuggestions}
+                selected={splitProfileList(form.desiredRolesText)}
+                onAdd={addDesiredRole}
+              />
+            </ProfileFieldCard>
+          </div>
         );
       case "exclusions":
         return (
@@ -584,9 +643,15 @@ export function ProfileDashboard({
                 id="avoidText"
                 value={splitProfileList(form.avoidText)}
                 onChange={(tags) => updateField("avoidText", tags.join(", "))}
-                suggestions={roleSuggestions}
+                suggestions={avoidSuggestions}
                 placeholder={t("avoidRolesPlaceholder")}
                 allowCustom
+              />
+              <QuickTagChips
+                label={t("avoidPhraseSuggestions")}
+                tags={avoidSuggestions}
+                selected={splitProfileList(form.avoidText)}
+                onAdd={addAvoidPhrase}
               />
             </ProfileFieldCard>
             <ProfileFieldCard title={t("exclusionTogglesTitle")} description={t("exclusionTogglesDesc")}>
@@ -613,12 +678,29 @@ export function ProfileDashboard({
                     onCheckedChange={(checked) => updateField("excludeSales", Boolean(checked))}
                   />
                 </div>
+                <div className="flex items-center justify-between gap-4">
+                  <Label htmlFor="excludeFoodService" className="flex-1 cursor-pointer">
+                    {t("excludeFoodService")}
+                  </Label>
+                  <Switch
+                    id="excludeFoodService"
+                    checked={form.excludeFoodService}
+                    onCheckedChange={(checked) =>
+                      updateField("excludeFoodService", Boolean(checked))
+                    }
+                  />
+                </div>
               </div>
             </ProfileFieldCard>
           </div>
         );
       case "connectors":
-        return <ConnectorSettingsPanel initialSettings={initialConnectorSettings} />;
+        return (
+          <div className="space-y-4">
+            <CnSessionSettingsPanel initialSettings={initialCnSessionSettings} />
+            <ConnectorSettingsPanel initialSettings={initialConnectorSettings} />
+          </div>
+        );
       case "trust":
         return (
           <div className="space-y-3">

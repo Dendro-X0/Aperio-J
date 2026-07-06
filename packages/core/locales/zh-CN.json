@@ -34,6 +34,7 @@
       "sales": "销售类岗位已排除",
       "foodService": "餐饮服务业岗位已排除",
       "agencyFiltered": "劳务/中介发布已过滤",
+      "irrelevantListing": "内容与求职意向不匹配（如教师/事业编/办事入口）",
       "redFlags": "风险标记：{flags}",
       "notInterested": "你已标记不感兴趣"
     },

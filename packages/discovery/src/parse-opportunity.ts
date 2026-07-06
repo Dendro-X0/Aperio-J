@@ -6,6 +6,7 @@ import { classifyPosterType, extractEmployerHint } from "./poster-type.js";
 import {
   classifyEmploymentType,
   extractLocationText,
+  inferCityHintFromListingUrl,
   localizeLocationText,
   tokenizeRequirements,
 } from "./text-utils.js";
@@ -42,7 +43,8 @@ export function parseOpportunity(
   const roleCategories = classifyRoleCategories(corpus);
   const redFlagTiers = detectRedFlagTiers(corpus, options?.locale);
   const posterType = classifyPosterType(corpus);
-  const locationText = extractLocationText(corpus);
+  const cityHint = inferCityHintFromListingUrl(item.url);
+  const locationText = extractLocationText(corpus, cityHint ? [cityHint] : []);
   const locale = resolveLocaleOption(options?.locale);
   const taxonomyRefs = resolveOpportunityTaxonomy(
     {

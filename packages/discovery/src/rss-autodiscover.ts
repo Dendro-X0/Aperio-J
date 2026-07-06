@@ -1,10 +1,19 @@
+import { resolveSearxngBaseUrl } from "@aperio-j/probe";
 import { buildSessionAuthHeaders, type StreamSessionAuth } from "./stream-auth.js";
-import { isJsHeavyCnAggregatorUrl } from "./cn-sources.js";
+import { isGovCnHost, isJsHeavyCnAggregatorUrl } from "./cn-sources.js";
 import {
   fetchHtmlWithPlaywright,
   isCnPlaywrightEnabled,
   needsPlaywrightRender,
 } from "./cn-playwright-fetch.js";
+import { fetchHtmlViaFirecrawl, isFirecrawlEnabled } from "./firecrawl-fetch.js";
+import {
+  isHostFetchBlocked,
+  recordHostFetchBlocked,
+  recordHostFetchSuccess,
+  waitForHostFetchSlot,
+} from "./fetch-host-guard.js";
+import { isWafBlockedHtml } from "./waf-detect.js";
 
 export type { StreamSessionAuth, StreamSessionAuthMode } from "./stream-auth.js";
 export {
@@ -63,28 +72,54 @@ const BROWSER_USER_AGENT =
 
 export async function fetchHtml(
   url: string,
-  options?: { search?: boolean; sessionAuth?: StreamSessionAuth },
+  options?: { search?: boolean; sessionAuth?: StreamSessionAuth; locale?: "zh-CN" | "en-US" },
 ): Promise<string> {
-  const cnFetch = isCnFetchHost(url);
-  const browserLike = cnFetch || options?.search;
-
-  const response = await fetch(url, {
-    headers: buildSessionAuthHeaders(options?.sessionAuth, {
-      Accept: options?.search
-        ? "text/html,application/xhtml+xml,application/rss+xml,application/xml,text/xml,*/*"
-        : "text/html,application/xhtml+xml,*/*",
-      "Accept-Language": cnFetch ? "zh-CN,zh;q=0.9,en;q=0.8" : "en-US,en;q=0.9",
-      "User-Agent": browserLike ? BROWSER_USER_AGENT : "aperio-j/0.2 (+source-discovery)",
-    }),
-    signal: AbortSignal.timeout(15_000),
-    redirect: "follow",
-  });
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status} for ${url}`);
+  if (isHostFetchBlocked(url)) {
+    throw new Error(`host cooldown active for ${url}`);
   }
 
-  let html = await response.text();
+  await waitForHostFetchSlot(url);
+
+  const searxngBase = resolveSearxngBaseUrl();
+  const isSearxng = searxngBase ? url.startsWith(searxngBase) : false;
+
+  const cnFetch =
+    options?.locale === "zh-CN" ||
+    isCnFetchHost(url) ||
+    isGovCnHost(url) ||
+    (options?.search === true && /baidu\.com|bing\.com/i.test(url));
+  const browserLike = cnFetch || (options?.search === true && !isSearxng);
+  const timeoutMs = isGovCnHost(url) ? 25_000 : 15_000;
+
+  const fetchOnce = async (): Promise<string> => {
+    const response = await fetch(url, {
+      headers: buildSessionAuthHeaders(options?.sessionAuth, {
+        Accept: isSearxng
+          ? "application/json"
+          : options?.search
+            ? "text/html,application/xhtml+xml,application/rss+xml,application/xml,text/xml,*/*"
+            : "text/html,application/xhtml+xml,*/*",
+        "Accept-Language": cnFetch ? "zh-CN,zh;q=0.9,en;q=0.8" : "en-US,en;q=0.9",
+        "User-Agent": browserLike ? BROWSER_USER_AGENT : "aperio-j/0.2 (+source-discovery)",
+        ...(isGovCnHost(url) ? { Referer: "https://www.baidu.com/" } : {}),
+      }),
+      signal: AbortSignal.timeout(timeoutMs),
+      redirect: "follow",
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status} for ${url}`);
+    }
+
+    return response.text();
+  };
+
+  let html: string;
+  try {
+    html = await fetchOnce();
+  } catch (firstError) {
+    throw firstError;
+  }
 
   if (
     isCnPlaywrightEnabled() &&
@@ -97,10 +132,27 @@ export async function fetchHtml(
     }
   }
 
+  if (
+    isFirecrawlEnabled() &&
+    isJsHeavyCnAggregatorUrl(url) &&
+    (html.length < 2500 || isWafBlockedHtml(html) || countCnJobLinkHints(html) < 2)
+  ) {
+    const scraped = await fetchHtmlViaFirecrawl(url);
+    if (scraped && scraped.length > html.length) {
+      html = scraped;
+    }
+  }
+
+  if (isWafBlockedHtml(html)) {
+    recordHostFetchBlocked(url);
+    throw new Error(`WAF challenge for ${url}`);
+  }
+
+  recordHostFetchSuccess(url);
   return html;
 }
 
 function countCnJobLinkHints(html: string): number {
-  const matches = html.match(/job_detail|\/geek\/job|\/jobs\/|mpost|job\.htm/gi);
+  const matches = html.match(/job_detail|jobdetail|\/geek\/job|\/jobs\/|mpost|job\.htm/gi);
   return matches?.length ?? 0;
 }

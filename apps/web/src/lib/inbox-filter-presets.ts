@@ -36,6 +36,7 @@ const TECHNOLOGY_PRESET_IDS = [
   "subSector:game-dev",
   "subSector:data-ml",
   "subSector:qa-automation",
+  "subSector:product-design",
   INBOX_PRESET_OTHER,
 ] as const;
 

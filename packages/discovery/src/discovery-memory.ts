@@ -1,5 +1,6 @@
 import type { RemotePreference, SeekerProfile, SourceProbe } from "@aperio-j/core";
 import { isRemoteBoardUrl } from "@aperio-j/core";
+import { isCnLocalFirstProfile } from "@aperio-j/probe";
 import { isBlockedDomain, hostnameFromUrl } from "./stream-learning.js";
 import { isNationalAggregatorRootUrl, seedUrlMatchesCityProfile } from "./cn-sources.js";
 
@@ -171,19 +172,24 @@ export function buildMemoryProbes(
 
   const probes: SourceProbe[] = [];
   const seen = new Set<string>();
+  const seenHosts = new Set<string>();
+
+  const localFirst = isCnLocalFirstProfile(profile);
 
   for (const seed of memory.seeds.slice(0, MEMORY_PROBE_CAP)) {
     if (
-      profile.constraints.remotePreference === "onsite-only" &&
+      (profile.constraints.remotePreference === "onsite-only" || localFirst) &&
       isRemoteBoardUrl(seed.seedUrl)
     ) {
       continue;
     }
     if (isBlockedDomain(seed.seedUrl, blockedDomains) || seen.has(seed.seedUrl)) continue;
     if (!memorySeedMatchesCity(seed.seedUrl, city)) continue;
-    seen.add(seed.seedUrl);
 
     const domain = hostnameFromUrl(seed.seedUrl) ?? "unknown";
+    if (seenHosts.has(domain)) continue;
+    seenHosts.add(domain);
+    seen.add(seed.seedUrl);
     const kind =
       seed.seedUrl.endsWith(".rss") || seed.seedUrl.includes("/feed") ? "rss" : "list_page";
 
@@ -197,7 +203,7 @@ export function buildMemoryProbes(
       rationale: `Cross-run discovery memory (score ${seed.score.toFixed(2)})`,
     });
 
-    if (kind === "list_page") {
+    if (kind === "list_page" && !localFirst) {
       probes.push({
         id: probeId("memory-autodiscover", seed.seedUrl),
         kind: "rss_autodiscover",
@@ -216,11 +222,16 @@ export function buildMemoryProbes(
 export function mergeProbesWithMemory(
   memoryProbes: SourceProbe[],
   baseProbes: SourceProbe[],
+  profile?: SeekerProfile,
 ): SourceProbe[] {
-  const seen = new Set(memoryProbes.map((probe) => probe.seed));
-  const merged = [...memoryProbes];
+  const localFirst = profile ? isCnLocalFirstProfile(profile) : false;
+  const primary = localFirst ? baseProbes : memoryProbes;
+  const secondary = localFirst ? memoryProbes : baseProbes;
 
-  for (const probe of baseProbes) {
+  const seen = new Set(primary.map((probe) => probe.seed));
+  const merged = [...primary];
+
+  for (const probe of secondary) {
     if (seen.has(probe.seed)) continue;
     seen.add(probe.seed);
     merged.push(probe);

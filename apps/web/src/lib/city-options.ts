@@ -1,4 +1,14 @@
-import { getTaxonomyNode, getTaxonomyNodes, taxonomyLabel } from "@aperio-j/core";
+import {
+  cityIdentityKey,
+  cityMatchTerms,
+  citiesShareIdentity,
+  displayCityLabel,
+  getTaxonomyNode,
+  getTaxonomyNodes,
+  localizeCityList,
+  resolveCityNode,
+  taxonomyLabel,
+} from "@aperio-j/core";
 
 /** Normalize user input for alias lookup (trim, strip 市 suffix). */
 export function normalizeCityInput(value: string): string {
@@ -19,32 +29,15 @@ export function matchCityLabelFromGeo(cityName: string, locale: string): string 
   const trimmed = normalizeCityInput(cityName);
   if (!trimmed) return null;
 
-  const normalized = trimmed.toLowerCase();
-
-  for (const node of getTaxonomyNodes()) {
-    if (node.kind !== "city") continue;
-    if (node.id === "city:remote") continue;
-
-    const labels = [
-      taxonomyLabel(node, locale),
-      taxonomyLabel(node, "zh-CN"),
-      taxonomyLabel(node, "en"),
-      ...node.matchTerms,
-    ];
-
-    if (labels.some((term) => exactTermMatch(normalized, term))) {
-      return taxonomyLabel(node, locale);
-    }
-  }
+  const node = resolveCityNode(trimmed);
+  if (node) return taxonomyLabel(node, locale);
 
   return trimmed;
 }
 
 /** Canonical display label for a city tag — catalog hit or preserved free-form text. */
 export function canonicalCityLabel(cityName: string, locale: string): string {
-  const trimmed = normalizeCityInput(cityName);
-  if (!trimmed) return "";
-  return matchCityLabelFromGeo(trimmed, locale) ?? trimmed;
+  return displayCityLabel(cityName, locale);
 }
 
 /**
@@ -82,6 +75,11 @@ export function resolveCityDraftLabel(
   );
   if (prefixMatches.length === 1) return prefixMatches[0];
 
+  const aliasMatches = labelsToSearch.filter((label) =>
+    cityMatchTerms(label).some((term) => term.startsWith(query)),
+  );
+  if (aliasMatches.length === 1) return aliasMatches[0]!;
+
   if (catalogHit) return catalogHit;
   return trimmed;
 }
@@ -102,3 +100,11 @@ export function isRemoteCityLabel(cityName: string, locale: string): boolean {
   ];
   return terms.some((term) => exactTermMatch(normalized, term));
 }
+
+export {
+  cityIdentityKey,
+  cityMatchTerms,
+  citiesShareIdentity,
+  displayCityLabel,
+  localizeCityList,
+};

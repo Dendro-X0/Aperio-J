@@ -26,6 +26,7 @@ export interface ProfileSettingsForm {
   avoidText: string;
   excludeProductionLine: boolean;
   excludeSales: boolean;
+  excludeFoodService: boolean;
   hideRedFlagListings: boolean;
   preferDirectHire: boolean;
   allowAgencyPostings: boolean;
@@ -51,6 +52,7 @@ export const EMPTY_PROFILE_FORM: ProfileSettingsForm = {
   avoidText: "",
   excludeProductionLine: false,
   excludeSales: false,
+  excludeFoodService: false,
   hideRedFlagListings: DEFAULT_TRUST.hideRedFlagListings,
   preferDirectHire: DEFAULT_TRUST.preferDirectHire,
   allowAgencyPostings: DEFAULT_TRUST.allowAgencyPostings,
@@ -116,12 +118,7 @@ export function buildSeekerProfileFromSettings(
   const cities = form.cities.map((city) => city.trim()).filter(Boolean);
   const industries = form.industries.map((value) => value.trim()).filter(Boolean);
   const occupations = form.occupations.map((value) => value.trim()).filter(Boolean);
-  const remotePreference =
-    cities.length === 0
-      ? "remote-only"
-      : form.remotePreference === "remote-only"
-        ? "hybrid-ok"
-        : form.remotePreference;
+  const remotePreference = form.remotePreference;
   const artifacts = backgroundToArtifacts(form.backgroundText, occupations, industries);
   const skillTokens = backgroundToSkillTokens(form.backgroundText);
   const desiredRolesFromText = splitList(form.desiredRolesText);
@@ -155,7 +152,7 @@ export function buildSeekerProfileFromSettings(
       industryProximity: DEFAULT_TRUST.industryProximity,
       excludeProductionLine: form.excludeProductionLine,
       excludeSales: form.excludeSales,
-      excludeFoodService: DEFAULT_TRUST.excludeFoodService,
+      excludeFoodService: form.excludeFoodService,
     },
     artifacts,
     skillTokens,
@@ -214,6 +211,7 @@ export function settingsFormFromProfile(profile: SeekerProfile): ProfileSettings
     ),
     excludeProductionLine: profile.intent.excludeProductionLine,
     excludeSales: profile.intent.excludeSales,
+    excludeFoodService: profile.intent.excludeFoodService,
     hideRedFlagListings: profile.constraints.hideRedFlagListings,
     preferDirectHire: profile.constraints.preferDirectHire,
     allowAgencyPostings: profile.constraints.allowAgencyPostings,
