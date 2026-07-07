@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   corpusMatchesCity,
+  corpusMatchesDistrict,
   corpusClaimsRemoteWork,
   extractLocationText,
   inferCityHintFromListingUrl,
@@ -53,6 +54,7 @@ describe("locationMatchesProfile", () => {
   const profile = {
     primaryCity: "杭州",
     acceptableCities: ["宁波"],
+    preferredDistricts: ["西湖区"],
     remotePreference: "hybrid-ok" as const,
   };
 
@@ -71,6 +73,11 @@ describe("locationMatchesProfile", () => {
       locationMatchesProfile(profile, null, "招聘文员，宁波江北区，双休"),
       true,
     );
+  });
+
+  it("matches preferred districts even when only district text appears", () => {
+    assert.equal(locationMatchesProfile(profile, "西湖区", ""), true);
+    assert.equal(locationMatchesProfile(profile, null, "办公室地点：西湖区"), true);
   });
 
   it("rejects missing location for non-Chinese city profiles without corpus hints", () => {
@@ -169,5 +176,15 @@ describe("corpusMatchesCity", () => {
 
   it("does not treat remote-only corpus as a city match", () => {
     assert.equal(corpusMatchesCity("100% remote worldwide", ["杭州"]), false);
+  });
+});
+
+describe("corpusMatchesDistrict", () => {
+  it("matches Chinese districts in corpus", () => {
+    assert.equal(corpusMatchesDistrict("工作地点：杭州西湖区", ["西湖区"]), true);
+  });
+
+  it("matches Latin-script districts in corpus", () => {
+    assert.equal(corpusMatchesDistrict("Office in Brooklyn, NYC", ["Brooklyn"]), true);
   });
 });

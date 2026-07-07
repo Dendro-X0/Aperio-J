@@ -9,6 +9,8 @@ export const LOCAL_SETTING_KEYS = {
   franceTravailClientId: "connector.francetravail.clientId",
   franceTravailClientSecret: "connector.francetravail.clientSecret",
   worknetAuthKey: "connector.worknet.authKey",
+  careerjetApiKey: "connector.careerjet.apiKey",
+  joobleApiKey: "connector.jooble.apiKey",
   cnZhipinCookie: "cnSession.zhipin.com",
   cnZhaopinCookie: "cnSession.zhaopin.com",
   cn58Cookie: "cnSession.58.com",
@@ -43,6 +45,16 @@ export interface WorknetCredentialSettings {
   hasAuthKey: boolean;
 }
 
+export interface CareerjetCredentialSettings {
+  configured: boolean;
+  hasApiKey: boolean;
+}
+
+export interface JoobleCredentialSettings {
+  configured: boolean;
+  hasApiKey: boolean;
+}
+
 export interface CnSessionCredentialSettings {
   zhipinCookie: string;
   zhaopinCookie: string;
@@ -59,6 +71,8 @@ export interface ConnectorCredentialSettings {
   usajobs: UsajobsCredentialSettings;
   franceTravail: FranceTravailCredentialSettings;
   worknet: WorknetCredentialSettings;
+  careerjet: CareerjetCredentialSettings;
+  jooble: JoobleCredentialSettings;
 }
 
 const ALL_KEYS = Object.values(LOCAL_SETTING_KEYS);
@@ -129,6 +143,8 @@ export async function loadConnectorCredentialSettings(
   const franceTravailClientSecret =
     byKey.get(LOCAL_SETTING_KEYS.franceTravailClientSecret)?.trim() ?? "";
   const worknetAuthKey = byKey.get(LOCAL_SETTING_KEYS.worknetAuthKey)?.trim() ?? "";
+  const careerjetApiKey = byKey.get(LOCAL_SETTING_KEYS.careerjetApiKey)?.trim() ?? "";
+  const joobleApiKey = byKey.get(LOCAL_SETTING_KEYS.joobleApiKey)?.trim() ?? "";
 
   return {
     adzuna: {
@@ -154,6 +170,14 @@ export async function loadConnectorCredentialSettings(
     worknet: {
       configured: Boolean(worknetAuthKey),
       hasAuthKey: Boolean(worknetAuthKey),
+    },
+    careerjet: {
+      configured: Boolean(careerjetApiKey),
+      hasApiKey: Boolean(careerjetApiKey),
+    },
+    jooble: {
+      configured: Boolean(joobleApiKey),
+      hasApiKey: Boolean(joobleApiKey),
     },
   };
 }
@@ -181,6 +205,8 @@ export async function saveConnectorCredentialSettings(
     usajobs?: { apiKey?: string | null; email?: string };
     franceTravail?: { clientId?: string; clientSecret?: string | null };
     worknet?: { authKey?: string | null };
+    careerjet?: { apiKey?: string | null };
+    jooble?: { apiKey?: string | null };
   },
 ): Promise<ConnectorCredentialSettings> {
   if (input.adzuna) {
@@ -237,6 +263,30 @@ export async function saveConnectorCredentialSettings(
         profileId,
         LOCAL_SETTING_KEYS.worknetAuthKey,
         input.worknet.authKey.trim(),
+      );
+    }
+  }
+
+  if (input.careerjet) {
+    if (input.careerjet.apiKey === null) {
+      await upsertLocalSetting(profileId, LOCAL_SETTING_KEYS.careerjetApiKey, "");
+    } else if (input.careerjet.apiKey !== undefined) {
+      await upsertLocalSetting(
+        profileId,
+        LOCAL_SETTING_KEYS.careerjetApiKey,
+        input.careerjet.apiKey.trim(),
+      );
+    }
+  }
+
+  if (input.jooble) {
+    if (input.jooble.apiKey === null) {
+      await upsertLocalSetting(profileId, LOCAL_SETTING_KEYS.joobleApiKey, "");
+    } else if (input.jooble.apiKey !== undefined) {
+      await upsertLocalSetting(
+        profileId,
+        LOCAL_SETTING_KEYS.joobleApiKey,
+        input.jooble.apiKey.trim(),
       );
     }
   }
@@ -325,6 +375,8 @@ function readConnectorEnv(): ConnectorEnvSnapshot {
     APERO_J_FRANCE_TRAVAIL_CLIENT_ID: process.env.APERO_J_FRANCE_TRAVAIL_CLIENT_ID,
     APERO_J_FRANCE_TRAVAIL_CLIENT_SECRET: process.env.APERO_J_FRANCE_TRAVAIL_CLIENT_SECRET,
     APERO_J_WORKNET_AUTH_KEY: process.env.APERO_J_WORKNET_AUTH_KEY,
+    APERO_J_CAREERJET_API_KEY: process.env.APERO_J_CAREERJET_API_KEY,
+    APERO_J_JOOBLE_API_KEY: process.env.APERO_J_JOOBLE_API_KEY,
   };
 }
 
@@ -420,6 +472,18 @@ async function resolveConnectorEnvOverrides(profileId: string): Promise<
     if (authKey) overrides.APERO_J_WORKNET_AUTH_KEY = authKey;
   }
 
+  if (!process.env.APERO_J_CAREERJET_API_KEY?.trim() && settings.careerjet.configured) {
+    const byKey = await loadSettingMap(profileId);
+    const apiKey = byKey.get(LOCAL_SETTING_KEYS.careerjetApiKey)?.trim();
+    if (apiKey) overrides.APERO_J_CAREERJET_API_KEY = apiKey;
+  }
+
+  if (!process.env.APERO_J_JOOBLE_API_KEY?.trim() && settings.jooble.configured) {
+    const byKey = await loadSettingMap(profileId);
+    const apiKey = byKey.get(LOCAL_SETTING_KEYS.joobleApiKey)?.trim();
+    if (apiKey) overrides.APERO_J_JOOBLE_API_KEY = apiKey;
+  }
+
   return overrides;
 }
 
@@ -451,5 +515,7 @@ export function publicConnectorCredentialSettings(
     usajobs: settings.usajobs,
     franceTravail: settings.franceTravail,
     worknet: settings.worknet,
+    careerjet: settings.careerjet,
+    jooble: settings.jooble,
   };
 }

@@ -13,6 +13,14 @@ export function profileCities(
     .filter(Boolean);
 }
 
+export function profileDistricts(
+  profile: Pick<SeekerProfile, "constraints">,
+): string[] {
+  return (profile.constraints.preferredDistricts ?? [])
+    .map((district) => district.trim())
+    .filter(Boolean);
+}
+
 export function profileHasExplicitCity(
   profile: Pick<SeekerProfile, "constraints">,
 ): boolean {

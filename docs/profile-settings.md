@@ -33,6 +33,11 @@ On **保存并运行匹配**:
 3. `runMatchPipeline(profile)` — fetch → parse → rank
 4. Redirect to `/inbox`
 
+## Discovery guardrails
+
+- **Discovery region** appears under city tags to show how the primary city resolved (metro id/country/slug when available).
+- **Sources → Technical details** shows resolved city identities and connector query params for troubleshooting local discovery.
+
 ## Out of scope (v1)
 
 - GitHub / LinkedIn / resume file import

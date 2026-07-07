@@ -94,6 +94,40 @@ export function isAdzunaCountrySupported(country: string): boolean {
   return coreIsAdzunaCountrySupported(country);
 }
 
+/** Careerjet locale codes for metro-routed Adzuna countries plus KR/JP. */
+const CAREERJET_LOCALES: Record<string, string> = {
+  de: "de_DE",
+  gb: "en_GB",
+  us: "en_US",
+  au: "en_AU",
+  at: "de_AT",
+  be: "nl_BE",
+  br: "pt_BR",
+  ca: "en_CA",
+  ch: "de_CH",
+  es: "es_ES",
+  fr: "fr_FR",
+  in: "en_IN",
+  it: "it_IT",
+  mx: "es_MX",
+  nl: "nl_NL",
+  nz: "en_NZ",
+  pl: "pl_PL",
+  sg: "en_SG",
+  za: "en_ZA",
+  kr: "ko_KR",
+  jp: "ja_JP",
+};
+
+export function resolveCareerjetLocale(country: string): string | null {
+  const code = country.trim().toLowerCase();
+  return CAREERJET_LOCALES[code] ?? null;
+}
+
+export function isCareerjetCountrySupported(country: string): boolean {
+  return resolveCareerjetLocale(country) !== null;
+}
+
 export function isGermanCity(city: string): boolean {
   const metro = resolveMetro(city);
   if (metro) return metro.countryCode === "de";

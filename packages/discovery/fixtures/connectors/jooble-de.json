@@ -1,0 +1,17 @@
+{
+  "totalCount": 1,
+  "jobs": [
+    {
+      "title": "Full Stack Entwickler",
+      "location": "Frankfurt",
+      "snippet": "React und Node.js Plattformteam.",
+      "salary": "60.000 - 80.000 EUR",
+      "source": "jooble",
+      "type": "Full-time",
+      "link": "https://de.jooble.org/jdp/example-1",
+      "company": "FinTech GmbH",
+      "updated": "2026-07-01T10:00:00.0000000",
+      "id": 9001
+    }
+  ]
+}

@@ -54,6 +54,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cityIdentityKey, displayCityLabel, resolveMetro } from "@aperio-j/core";
 
 type CategoryFilter = "all" | "remote" | "onsite";
 
@@ -130,6 +131,49 @@ export function SourcesRegistryView({
   const healthyCount = streams.filter((row) => row.health === "healthy").length;
   const remoteCount = streams.filter((row) => row.workCategory === "remote").length;
   const onsiteCount = streams.filter((row) => row.workCategory === "onsite").length;
+
+  const [techDetailsOpen, setTechDetailsOpen] = useState(false);
+
+  const resolvedCities = useMemo(() => {
+    const cities = profileSummary.cities ?? profileSummary.city.split(" · ").filter(Boolean);
+    return cities.map((city) => {
+      const trimmed = city.trim();
+      const metro = trimmed ? resolveMetro(trimmed) : undefined;
+      return {
+        raw: trimmed,
+        identity: trimmed ? cityIdentityKey(trimmed) : "",
+        label: trimmed ? displayCityLabel(trimmed, locale) : "",
+        metro,
+      };
+    });
+  }, [locale, profileSummary.city, profileSummary.cities]);
+
+  const resolvedDistricts = useMemo(
+    () => (profileSummary.districts ?? []).map((district) => district.trim()).filter(Boolean),
+    [profileSummary.districts],
+  );
+
+  const connectorDetails = useMemo(() => {
+    const connectorRows = streams.filter((row) => row.kind === "connector" || row.connectorId);
+
+    function parseConnectorSeed(seedUrl: string): Record<string, string> {
+      if (!seedUrl.startsWith("connector://")) return {};
+      const queryPart = seedUrl.split("?", 2)[1] ?? "";
+      const params = new URLSearchParams(queryPart);
+      const out: Record<string, string> = {};
+      for (const [key, value] of params.entries()) out[key] = value;
+      return out;
+    }
+
+    return connectorRows.map((row) => ({
+      connectorId:
+        row.connectorId ??
+        row.seedUrl.replace(/^connector:\/\//, "").split("?", 1)[0] ??
+        "",
+      seedUrl: row.seedUrl,
+      params: parseConnectorSeed(row.seedUrl),
+    }));
+  }, [streams]);
 
   const filteredStreams = useMemo(() => {
     if (categoryFilter === "all") return streams;
@@ -564,6 +608,93 @@ export function SourcesRegistryView({
             <CardContent className="space-y-1 border-t pt-0 pb-4 text-sm text-muted-foreground">
               <p>{tSession("description")}</p>
               <p>{tSession("warning")}</p>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
+
+      <Collapsible open={techDetailsOpen} onOpenChange={setTechDetailsOpen}>
+        <Card className="border-dashed py-0">
+          <CollapsibleTrigger className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium">
+            {t("technical.title")}
+            <ChevronDown
+              className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${techDetailsOpen ? "rotate-180" : ""}`}
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="space-y-4 border-t pt-3 pb-4 text-sm text-muted-foreground">
+              <p>{t("technical.description")}</p>
+
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-foreground/80">
+                  {t("technical.cities")}
+                </p>
+                {resolvedCities.length === 0 ? (
+                  <p className="text-sm">{t("technical.none")}</p>
+                ) : (
+                  <ul className="space-y-1">
+                    {resolvedCities.map((city) => (
+                      <li key={city.identity || city.raw} className="text-sm">
+                        <span className="font-medium text-foreground">
+                          {city.label || city.raw}
+                        </span>
+                        {city.metro ? (
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            ({city.metro.id} · {city.metro.countryCode.toUpperCase()} ·{" "}
+                            {city.metro.slug})
+                          </span>
+                        ) : (
+                          <span className="ml-2 text-xs text-muted-foreground">(unmapped)</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-foreground/80">
+                  {t("technical.districts")}
+                </p>
+                {resolvedDistricts.length === 0 ? (
+                  <p className="text-sm">{t("technical.none")}</p>
+                ) : (
+                  <ul className="space-y-1">
+                    {resolvedDistricts.map((district) => (
+                      <li key={district} className="text-sm">
+                        <span className="font-medium text-foreground">{district}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-foreground/80">
+                  {t("technical.connectors")}
+                </p>
+                {connectorDetails.length === 0 ? (
+                  <p className="text-sm">{t("technical.none")}</p>
+                ) : (
+                  <ul className="space-y-1">
+                    {connectorDetails.map((row) => (
+                      <li key={row.seedUrl} className="text-sm">
+                        <span className="font-medium text-foreground">
+                          {row.connectorId || t("technical.none")}
+                        </span>
+                        {row.params.city || row.params.country ? (
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            {row.params.city ? `city=${row.params.city}` : ""}
+                            {row.params.country
+                              ? `${row.params.city ? ", " : ""}country=${row.params.country}`
+                              : ""}
+                          </span>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </CardContent>
           </CollapsibleContent>
         </Card>

@@ -2,6 +2,7 @@ import type { EmploymentType } from "@aperio-j/core";
 
 export {
   corpusMatchesCity,
+  corpusMatchesDistrict,
   extractLocationText,
   inferCityHintFromListingUrl,
   localizeLocationText,

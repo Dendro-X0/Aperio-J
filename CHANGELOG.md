@@ -4,12 +4,35 @@ All notable changes to Aperio-J are documented here. Format follows [Keep a Chan
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-07-06
+
 ### Added
 
 - Metro catalog (~164 cities) with autocomplete API and Adzuna routing table
 - Country-level local job board fallbacks for metro catalog cities (Bundesagentur, Praca.gov.pl, etc.)
 - Inbox city filter for multi-city profiles
 - City-scoped API connectors now query every profile city tag (not only primary)
+- Discovery guardrails:
+  - Profile **Discovery region** summary for metro/country resolution visibility
+  - Sources **Technical details** panel for city identity and connector query inspection
+- District / neighborhood preferences for large cities:
+  - optional districts field in Profile settings
+  - district-aware matching and inbox filtering
+  - curated district suggestions for major metros with free-text fallback
+- Experimental city-aware API connectors:
+  - Careerjet (`APERO_J_CAREERJET_API_KEY`)
+  - Jooble (`APERO_J_JOOBLE_API_KEY`)
+  - Flagged behind `APERO_J_CONNECTORS_EXPERIMENTAL=true` (or explicit allowlist)
+
+### Changed
+
+- Connector settings now include optional local credential storage for Careerjet and Jooble keys
+- `apps/web/.env.example` documents experimental connector flags and keys
+- Settings page preset behavior is clearer with merge vs replace modes and overwrite preview
+
+### Fixed
+
+- Preset-applied Experience Summary no longer duplicates overlapping paragraphs after save/reload
 
 ## [0.2.0] — 2026-07-06
 

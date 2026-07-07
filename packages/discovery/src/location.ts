@@ -273,16 +273,37 @@ export function corpusMatchesCity(corpus: string, cities: string[]): boolean {
   return [...terms].some((key) => lower.includes(key));
 }
 
+function normalizeDistrictKey(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[.,]/g, " ")
+    .replace(/\s+/g, " ");
+}
+
+export function corpusMatchesDistrict(corpus: string, districts: string[]): boolean {
+  const lower = normalizeDistrictKey(corpus);
+  if (!lower) return false;
+
+  return districts.some((district) => {
+    const normalized = normalizeDistrictKey(district);
+    if (!normalized || normalized.length < 2) return false;
+    return lower.includes(normalized);
+  });
+}
+
 export function locationMatchesProfile(
   profile: {
     primaryCity: string;
     acceptableCities: string[];
+    preferredDistricts?: string[];
     remotePreference: RemotePreference;
   },
   locationText: string | null,
   corpus?: string,
 ): boolean {
   const cities = [profile.primaryCity, ...profile.acceptableCities].filter(Boolean);
+  const districts = (profile.preferredDistricts ?? []).filter(Boolean);
   const searchable = corpus?.toLowerCase() ?? "";
 
   if (cities.length === 0) {
@@ -303,6 +324,7 @@ export function locationMatchesProfile(
       return profile.remotePreference !== "onsite-only";
     }
     if (isForeignCountryForProfile(locationText, cities)) return false;
+    if (districts.length > 0 && corpusMatchesDistrict(locationText, districts)) return true;
     if (corpusMatchesCity(locationText, cities)) return true;
   }
 
@@ -311,6 +333,10 @@ export function locationMatchesProfile(
   }
 
   if (searchable && corpusMatchesCity(searchable, cities)) {
+    return true;
+  }
+
+  if (searchable && districts.length > 0 && corpusMatchesDistrict(searchable, districts)) {
     return true;
   }
 

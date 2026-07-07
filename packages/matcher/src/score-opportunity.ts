@@ -14,6 +14,7 @@ import { shouldDiscardCnFeedItem } from "@aperio-j/discovery/cn-feed-quality";
 import { shouldDiscardRemoteTechFeedItem } from "@aperio-j/discovery/remote-tech-feed-quality";
 import { countIntentHits, expandIntentTerms } from "@aperio-j/discovery/intent-expansion";
 import { localizeLocationText, locationMatchesProfile } from "@aperio-j/discovery/text-utils";
+import { corpusMatchesDistrict } from "@aperio-j/discovery/text-utils";
 import {
   buildSeekerTaxonomy,
   scoreTaxonomyOverlap,
@@ -236,6 +237,8 @@ function scoreGeo(opportunity: Opportunity, profile: SeekerProfile): number {
 
   const primary = profile.constraints.primaryCity.replace(/市/g, "").toLowerCase();
   const location = opportunity.locationText.toLowerCase();
+  const districts = profile.constraints.preferredDistricts ?? [];
+  const districtCorpus = `${opportunity.locationText} ${opportunity.title} ${opportunity.body}`;
   const noGeoProfile =
     !profile.constraints.primaryCity.trim() &&
     profile.constraints.acceptableCities.every((city) => !city.trim());
@@ -244,6 +247,7 @@ function scoreGeo(opportunity: Opportunity, profile: SeekerProfile): number {
     return /remote|远程/.test(location) ? 85 : 35;
   }
 
+  if (districts.length > 0 && corpusMatchesDistrict(districtCorpus, districts)) return 98;
   if (primary && location.includes(primary)) return 90;
   if (matchesCity(profile, opportunity.locationText, `${opportunity.title} ${opportunity.body}`)) {
     return 70;

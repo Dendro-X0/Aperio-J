@@ -11,6 +11,8 @@ const CITY_SCOPED_CONNECTORS = new Set<ConnectorId>([
   "francetravail",
   "worknet",
   "mycareersfuture",
+  "careerjet",
+  "jooble",
 ]);
 
 /** Geo/country-scoped connectors dedupe across cities in the same region. */

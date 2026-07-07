@@ -37,6 +37,20 @@ A **stream** is a poll target, identical in concept to Aperio's `InformationStre
 
 **List pages:** `fetchListPage` extracts job-like links, then **`enrichListItemsWithDetails`** fetches up to 8 detail pages (configurable) to populate `body` for parse/match. Disable with `APERO_J_DETAIL_FETCH=false`.
 
+### How local search works
+
+Local search is now metro-driven:
+
+1. Profile city tags are normalized (diacritics/punctuation/aliases) and resolved against the metro catalog.
+2. City-scoped connectors (Adzuna, Reed, USAJobs, France Travail, Worknet, MyCareersFuture, and experimental Careerjet/Jooble) run per resolved city.
+3. Geo-scoped connectors (Himalayas, Jobicy) dedupe by country/geo slug to avoid duplicate fetches across nearby cities.
+4. Probe packs use metro country data for country-specific fallback sources when curated city packs are missing.
+
+Guardrails in UI:
+
+- Profile displays a **Discovery region** summary for primary city resolution.
+- Sources page exposes **Technical details** with city identity and connector routing parameters.
+
 ---
 
 ## Stage 2 — Parse
@@ -166,4 +180,4 @@ These boost **adjacent** roles (QC, warehouse, material handler) when user selec
 | Stream health | `apps/web` stream-health | Phase 2d |
 | Web onboarding UI | `apps/web` | Phase 1 |
 
-**Last updated:** 2026-07-03
+**Last updated:** 2026-07-06

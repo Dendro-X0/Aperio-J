@@ -5,15 +5,19 @@ import { normalizeAdzunaResponse } from "./connectors/adzuna.js";
 import { normalizeArbeitnowResponse } from "./connectors/arbeitnow.js";
 import { normalizeBundesagenturResponse } from "./connectors/bundesagentur.js";
 import {
+  isCareerjetCountrySupported,
   isKoreanCity,
   isSingaporeCity,
   isUkCity,
   resolveAdzunaCountry,
+  resolveCareerjetLocale,
   resolveJobicyGeo,
 } from "./connectors/geo.js";
+import { normalizeCareerjetResponse } from "./connectors/careerjet.js";
 import { normalizeFranceTravailResponse } from "./connectors/francetravail.js";
 import { normalizeHimalayasResponse } from "./connectors/himalayas.js";
 import { normalizeJobicyResponse } from "./connectors/jobicy.js";
+import { normalizeJoobleResponse } from "./connectors/jooble.js";
 import { normalizeMcfResponse } from "./connectors/mycareersfuture.js";
 import { dedupeRawFeedItems } from "./connectors/normalize.js";
 import { normalizeRemotiveResponse } from "./connectors/remotive.js";
@@ -84,6 +88,14 @@ describe("connectors/geo", () => {
     assert.equal(isKoreanCity("Seoul"), true);
     assert.equal(isKoreanCity("서울"), true);
     assert.equal(resolveAdzunaCountry("Paris"), "fr");
+  });
+
+  it("maps metro countries to Careerjet locale codes", () => {
+    assert.equal(resolveCareerjetLocale("gb"), "en_GB");
+    assert.equal(resolveCareerjetLocale("de"), "de_DE");
+    assert.equal(resolveCareerjetLocale("jp"), "ja_JP");
+    assert.equal(isCareerjetCountrySupported("fr"), true);
+    assert.equal(isCareerjetCountrySupported("xx"), false);
   });
 });
 
@@ -412,6 +424,61 @@ describe("connectors/reed", () => {
   });
 });
 
+describe("connectors/careerjet", () => {
+  it("normalizes listings with company and salary", () => {
+    const items = normalizeCareerjetResponse(
+      {
+        type: "JOBS",
+        jobs: [
+          {
+            title: "Senior Full-Stack Developer",
+            company: "Example Tech Ltd",
+            locations: "London",
+            salary: "GBP 65000 - 85000",
+            url: "https://www.careerjet.co.uk/job/example-1",
+          },
+        ],
+      },
+      "stream-careerjet",
+    );
+
+    assert.equal(items.length, 1);
+    assert.match(items[0]?.body ?? "", /Example Tech Ltd/);
+    assert.match(items[0]?.body ?? "", /GBP/);
+  });
+
+  it("returns empty when response type is LOCATIONS", () => {
+    const items = normalizeCareerjetResponse(
+      { type: "LOCATIONS", jobs: [{ title: "Ignored", url: "https://example.com" }] },
+      "stream-careerjet",
+    );
+    assert.equal(items.length, 0);
+  });
+});
+
+describe("connectors/jooble", () => {
+  it("normalizes listings with company and location", () => {
+    const items = normalizeJoobleResponse(
+      {
+        jobs: [
+          {
+            title: "Full Stack Entwickler",
+            company: "FinTech GmbH",
+            location: "Frankfurt",
+            salary: "60.000 EUR",
+            link: "https://de.jooble.org/jdp/example-1",
+          },
+        ],
+      },
+      "stream-jooble",
+    );
+
+    assert.equal(items.length, 1);
+    assert.match(items[0]?.body ?? "", /FinTech GmbH/);
+    assert.match(items[0]?.body ?? "", /Frankfurt/);
+  });
+});
+
 describe("connectors/usajobs", () => {
   it("normalizes government listings with salary band", () => {
     const items = normalizeUsajobsResponse(
@@ -699,6 +766,56 @@ describe("connectors/resolve-connectors", () => {
     } finally {
       delete process.env.APERO_J_ADZUNA_APP_ID;
       delete process.env.APERO_J_ADZUNA_APP_KEY;
+    }
+  });
+
+  it("skips experimental connectors unless explicitly enabled", () => {
+    process.env.APERO_J_CAREERJET_API_KEY = "test";
+    process.env.APERO_J_JOOBLE_API_KEY = "test";
+    try {
+      const disabled = resolveConnectorsForProfile(
+        minimalProfile({ constraints: { ...minimalProfile().constraints, primaryCity: "London" } }),
+      );
+      assert.ok(!disabled.some((row) => row.connectorId === "careerjet"));
+      assert.ok(!disabled.some((row) => row.connectorId === "jooble"));
+
+      process.env.APERO_J_CONNECTORS_EXPERIMENTAL = "true";
+      const enabled = resolveConnectorsForProfile(
+        minimalProfile({ constraints: { ...minimalProfile().constraints, primaryCity: "London" } }),
+      );
+      assert.ok(enabled.some((row) => row.connectorId === "careerjet"));
+      assert.ok(
+        enabled.some(
+          (row) => row.connectorId === "jooble" && row.query.city === "Frankfurt",
+        ) === false,
+      );
+    } finally {
+      delete process.env.APERO_J_CAREERJET_API_KEY;
+      delete process.env.APERO_J_JOOBLE_API_KEY;
+      delete process.env.APERO_J_CONNECTORS_EXPERIMENTAL;
+    }
+  });
+
+  it("builds separate Jooble streams per profile city when experimental", () => {
+    process.env.APERO_J_JOOBLE_API_KEY = "test";
+    process.env.APERO_J_CONNECTORS_EXPERIMENTAL = "true";
+    try {
+      const configs = resolveConnectorsForProfile(
+        minimalProfile({
+          constraints: {
+            ...minimalProfile().constraints,
+            primaryCity: "Frankfurt",
+            acceptableCities: ["Munich"],
+          },
+        }),
+      );
+      const jooble = configs.filter((row) => row.connectorId === "jooble");
+      assert.equal(jooble.length, 2);
+      assert.ok(jooble.some((row) => row.query.city === "Frankfurt"));
+      assert.ok(jooble.some((row) => row.query.city === "Munich"));
+    } finally {
+      delete process.env.APERO_J_JOOBLE_API_KEY;
+      delete process.env.APERO_J_CONNECTORS_EXPERIMENTAL;
     }
   });
 });

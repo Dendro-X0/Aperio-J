@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { loadSourcesPageData } from "@/lib/page-data";
-import { profileCities } from "@/lib/profile-location-display";
+import { profileCities, profileDistricts } from "@/lib/profile-location-display";
 import { SourcesRegistryView } from "@/components/sources/sources-registry-view";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +24,8 @@ export default async function SourcesPage() {
       }
       profileSummary={{
         city: profileCities(profile).join(" · "),
+        cities: profileCities(profile),
+        districts: profileDistricts(profile),
         roles: profile.intent.desiredRoles,
         remotePreference: profile.constraints.remotePreference,
       }}

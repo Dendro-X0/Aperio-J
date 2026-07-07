@@ -34,7 +34,9 @@ import {
 } from "@/lib/profile-intent-suggestions";
 import { roleSuggestionsForIndustries } from "@/lib/role-options";
 import { localizeCityList } from "@/lib/city-options";
+import { districtSuggestionsForCities } from "@/lib/district-options";
 import { splitProfileList } from "@/lib/profile-form";
+import { displayCityLabel, resolveMetro } from "@aperio-j/core";
 import {
   PROFILE_NAV_GROUPS,
   PROFILE_SECTIONS,
@@ -212,6 +214,7 @@ export function ProfileDashboard({
   const [skipping, setSkipping] = useState(false);
   const [industryCatalogOpen, setIndustryCatalogOpen] = useState(false);
   const [appliedPreset, setAppliedPreset] = useState<ProfileIntentPresetId | null>(null);
+  const [presetApplyMode, setPresetApplyMode] = useState<"merge" | "replace">("merge");
   const cityInputRef = useRef<CityTagsInputHandle>(null);
 
   const industrySuggestions = useMemo(
@@ -232,6 +235,23 @@ export function ProfileDashboard({
     [form, locale],
   );
   const manufacturingProfile = useMemo(() => isManufacturingLikeProfile(form), [form]);
+  const districtSuggestions = useMemo(
+    () => districtSuggestionsForCities(form.cities),
+    [form.cities],
+  );
+  const presetReplacePreview = useMemo(() => {
+    const fields: string[] = [];
+    if (form.industries.length > 0) fields.push(t("presets.previewIndustries"));
+    if (form.occupations.length > 0) fields.push(t("presets.previewOccupations"));
+    if (form.desiredRolesText.trim()) fields.push(t("presets.previewDesiredRoles"));
+    if (form.avoidText.trim()) fields.push(t("presets.previewAvoid"));
+    if (form.backgroundText.trim()) fields.push(t("presets.previewBackground"));
+    if (form.employmentTypes.length > 0) fields.push(t("presets.previewEmployment"));
+    if (form.excludeProductionLine || form.excludeSales || form.excludeFoodService) {
+      fields.push(t("presets.previewFilters"));
+    }
+    return fields;
+  }, [form, t]);
 
   useEffect(() => {
     setForm((prev) => {
@@ -329,7 +349,24 @@ export function ProfileDashboard({
   }
 
   function applyIntentPreset(presetId: ProfileIntentPresetId) {
-    setForm((prev) => applyProfileIntentPreset(prev, presetId, locale));
+    setForm((prev) => {
+      const base =
+        presetApplyMode === "replace"
+          ? {
+              ...prev,
+              industries: [],
+              occupations: [],
+              backgroundText: "",
+              desiredRolesText: "",
+              avoidText: "",
+              employmentTypes: [],
+              excludeProductionLine: false,
+              excludeSales: false,
+              excludeFoodService: false,
+            }
+          : prev;
+      return applyProfileIntentPreset(base, presetId, locale);
+    });
     setAppliedPreset(presetId);
     setActiveSection("intent");
   }
@@ -512,6 +549,55 @@ export function ProfileDashboard({
                 value={form.cities}
                 onChange={(cities) => updateField("cities", cities)}
               />
+              <div className="mt-2 space-y-1 text-xs text-muted-foreground">
+                <p>
+                  <span className="font-medium text-foreground">
+                    {t("location.discoveryRegionLabel")}
+                  </span>
+                  {": "}
+                  {form.cities.length === 0
+                    ? t("location.discoveryRegionRemote")
+                    : (() => {
+                        const primary = form.cities[0]?.trim() ?? "";
+                        const metro = primary ? resolveMetro(primary) : undefined;
+                        const label = primary ? displayCityLabel(primary, locale) : "";
+                        return metro ? `${label} · ${metro.countryCode.toUpperCase()}` : label;
+                      })()}
+                </p>
+                {form.cities.length > 0 && (() => {
+                  const primary = form.cities[0]?.trim() ?? "";
+                  if (!primary) return null;
+                  const metro = resolveMetro(primary);
+                  if (metro) return null;
+                  return <p>{t("location.discoveryRegionUnknownHint")}</p>;
+                })()}
+              </div>
+            </ProfileFieldCard>
+            <ProfileFieldCard
+              title={t("location.districtsLabel")}
+              description={t("location.districtsHint")}
+            >
+              <AutocompleteTagsInput
+                id="districts"
+                value={form.districts}
+                onChange={(tags) => updateField("districts", tags)}
+                suggestions={districtSuggestions}
+                placeholder={t("location.districtsPlaceholder")}
+                allowCustom
+              />
+              {districtSuggestions.length > 0 ? (
+                <QuickTagChips
+                  label={t("location.districtSuggestions")}
+                  tags={districtSuggestions}
+                  selected={form.districts}
+                  onAdd={(district) => updateField("districts", [...form.districts, district])}
+                />
+              ) : (
+                <p className="text-xs text-muted-foreground">{t("location.districtsFreeformHint")}</p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                {t("location.districtsGuardrail")}
+              </p>
             </ProfileFieldCard>
             {form.cities.length > 0 && (
               <ProfileFieldCard
@@ -551,6 +637,48 @@ export function ProfileDashboard({
         return (
           <div className="space-y-4">
             <ProfileIntentPresetCards onApply={applyIntentPreset} activePreset={appliedPreset} />
+            <div className="rounded-lg border bg-muted/20 px-3 py-2.5">
+              <p className="text-xs font-medium text-foreground">{t("presets.applyModeLabel")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("presets.applyModeHint")}</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={presetApplyMode === "merge" ? "default" : "outline"}
+                  onClick={() => setPresetApplyMode("merge")}
+                >
+                  {t("presets.applyModeMerge")}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={presetApplyMode === "replace" ? "default" : "outline"}
+                  onClick={() => setPresetApplyMode("replace")}
+                >
+                  {t("presets.applyModeReplace")}
+                </Button>
+              </div>
+              {presetApplyMode === "replace" && presetReplacePreview.length > 0 && (
+                <div className="mt-3 rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2">
+                  <p className="text-xs font-medium text-amber-700 dark:text-amber-300">
+                    {t("presets.replacePreviewTitle")}
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {t("presets.replacePreviewHint")}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {presetReplacePreview.map((field) => (
+                      <span
+                        key={field}
+                        className="inline-flex items-center rounded-full border border-amber-500/30 bg-background px-2 py-0.5 text-[11px] text-foreground"
+                      >
+                        {field}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
             <ProfileFieldCard
               title={t("industry")}
               description={t("industryHint")}

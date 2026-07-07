@@ -43,6 +43,7 @@ export type RoleCategory =
 export interface GeoProfile {
   primaryCity: string;
   acceptableCities: string[];
+  preferredDistricts?: string[];
   remotePreference: RemotePreference;
   maxCommuteMinutes?: number;
 }
@@ -50,6 +51,7 @@ export interface GeoProfile {
 export interface SeekerConstraints {
   primaryCity: string;
   acceptableCities: string[];
+  preferredDistricts?: string[];
   remotePreference: RemotePreference;
   maxCommuteMinutes?: number;
   employmentTypes: EmploymentType[];

@@ -194,4 +194,30 @@ describe("rankOpportunities — remote tech profile", () => {
     assert.match(ranked[0]!.opportunity.title, /Backend Engineer/);
     assert.equal(excluded.length, 2);
   });
+
+  it("boosts geo score when a preferred district matches", () => {
+    const profile = {
+      ...remoteBackendProfile,
+      constraints: {
+        ...remoteBackendProfile.constraints,
+        primaryCity: "New York",
+        remotePreference: "hybrid-ok" as const,
+        preferredDistricts: ["Brooklyn"],
+      },
+    } satisfies SeekerProfile;
+
+    const opportunities = parseOpportunities([
+      {
+        title: "Backend Engineer",
+        body: "Python PostgreSQL platform role\nHeadquarters: Brooklyn, New York",
+        url: "https://example.com/jobs/backend-brooklyn",
+        sourceId: "example",
+        fetchedAt: "2026-07-05T00:00:00Z",
+      },
+    ]);
+
+    const ranked = rankOpportunities(opportunities, profile);
+    assert.equal(ranked.length, 1);
+    assert.equal(ranked[0]!.match.breakdown.geoScore, 98);
+  });
 });

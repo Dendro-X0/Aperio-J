@@ -1,5 +1,5 @@
 import type { SeekerProfile } from "@aperio-j/core";
-import { isConnectorEnabled, listConnectorDefinitions } from "./registry.js";
+import { isConnectorEnabled, isExperimentalConnectorEnabled, listConnectorDefinitions } from "./registry.js";
 import {
   connectorProfileVariants,
   isGeoScopedConnector,
@@ -34,6 +34,7 @@ export function resolveConnectorsForProfile(profile: SeekerProfile): ConnectorSt
 
   for (const connector of listConnectorDefinitions()) {
     if (connector.ready === false) continue;
+    if (connector.experimental && !isExperimentalConnectorEnabled(connector.id)) continue;
     if (!isConnectorEnabled(connector.id)) continue;
     if (shouldSkipConnector(connector.id, profile)) continue;
 

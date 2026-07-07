@@ -2,7 +2,7 @@
 
 A **profile-driven remote job discovery engine** for tech professionals, freelancers, and digital nomads. It aggregates public remote feeds and API connectors, matches listings to your skills and intent, and explains every score — no ads, no pay-to-rank.
 
-Optional **city tags** add hybrid local sources (Indeed, city boards, CN aggregators) when you want both remote and on-site options.
+Optional **city tags** add hybrid local sources (API connectors, country boards, city boards, CN aggregators) when you want both remote and on-site options.
 
 ## How it differs
 
@@ -32,6 +32,7 @@ pnpm dev          # http://localhost:3010
 1. Open **Profile settings** → use **Remote software engineer** or **Digital nomad** quick template (or fill industry + roles manually).
 2. Leave cities empty for pure remote, or add a city for hybrid local + remote sources.
 3. Open **Matches** → **Refresh matches**.
+4. Open **Sources** → expand **Technical details** to inspect resolved city/metropolitan mapping and connector query routing.
 
 Engine-only tests:
 
@@ -41,6 +42,14 @@ pnpm fixture:run
 ```
 
 See [START-HERE.md](./START-HERE.md) for documentation index.
+
+## Local search and connectors
+
+- City tags resolve against a metro catalog (~164 cities) with alias normalization and autocomplete.
+- City-scoped connectors run once per city tag; geo-scoped connectors dedupe by country/region.
+- Profile settings show a **Discovery region** summary so users can verify how local routing resolves.
+- Sources page shows **Technical details** for city identity and connector URL/query diagnostics.
+- Experimental city-aware connectors (Careerjet, Jooble) can be enabled with `APERO_J_CONNECTORS_EXPERIMENTAL=true`.
 
 ## Packages
 

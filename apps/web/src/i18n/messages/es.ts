@@ -178,6 +178,14 @@ export const messages: Messages = {
     title: "Fuentes",
     rediscover: "Redescubrir fuentes",
     discovering: "Descubriendo…",
+    technical: {
+      title: "Detalles técnicos",
+      description: "Cómo se resolvieron tus ciudades y conectores para descubrimiento y coincidencias.",
+      cities: "Ciudades",
+      districts: "Distritos",
+      connectors: "Conectores",
+      none: "Ninguno",
+    },
     table: {
       ...en.sources.table,
       health: "Estado",
@@ -226,9 +234,20 @@ export const messages: Messages = {
     location: {
       ...en.profile.location,
       citiesLabel: "Ciudades",
+      districtsLabel: "Distritos / barrios",
       cityPlaceholder: "Escribe una ciudad y pulsa Enter…",
+      districtsPlaceholder: "p. ej. Chaoyang, Pudong, Shibuya",
+      districtsHint: "Opcional. Acota grandes áreas metropolitanas a distritos o barrios concretos.",
+      districtsGuardrail:
+        "Se usa para coincidencias y filtros cuando el anuncio menciona el distrito. Los conectores siguen buscando al nivel de metro/ciudad.",
+      districtSuggestions: "Distritos sugeridos",
+      districtsFreeformHint: "Aún no hay distritos sugeridos para esta ciudad — añade cualquiera como texto libre.",
       remoteDefaultHint:
         "Sin ciudad — tableros remotos por defecto. Añade una ciudad para fuentes locales.",
+      discoveryRegionLabel: "Región de descubrimiento",
+      discoveryRegionRemote: "Remoto",
+      discoveryRegionUnknownHint:
+        "La búsqueda local usará plantillas genéricas para esta ciudad (no está en el catálogo de metrópolis).",
       detectFromIp: "Detectar ciudad por IP",
       detecting: "Detectando…",
       removeCity: "Quitar {city}",
@@ -236,6 +255,19 @@ export const messages: Messages = {
     presets: {
       title: "Plantillas rápidas de intención",
       description: "Rellena industria, objetivos y exclusiones para escenarios comunes.",
+      applyModeLabel: "Modo de aplicación de plantilla",
+      applyModeHint: "Combinar conserva tus campos actuales. Reemplazar limpia intención/resumen antes de aplicar.",
+      applyModeMerge: "Combinar con valores actuales",
+      applyModeReplace: "Reemplazar campos de intención",
+      replacePreviewTitle: "El modo reemplazar borrará estos campos actuales",
+      replacePreviewHint: "Las ciudades y preferencias de confianza no cambian. La plantilla volverá a rellenar los campos siguientes.",
+      previewIndustries: "Industrias",
+      previewOccupations: "Rol actual",
+      previewDesiredRoles: "Roles a explorar",
+      previewAvoid: "Exclusiones",
+      previewBackground: "Resumen de experiencia",
+      previewEmployment: "Tipos de empleo",
+      previewFilters: "Filtros rápidos",
       "remote-developer": {
         title: "Ingeniero de software remoto",
         description: "Solo remoto; backend, full-stack, DevOps desde tableros internacionales.",

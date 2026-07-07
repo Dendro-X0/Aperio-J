@@ -1,5 +1,5 @@
 import type { SeekerProfile } from "@aperio-j/core";
-import { profileCities } from "@/lib/profile-location-display";
+import { profileCities, profileDistricts } from "@/lib/profile-location-display";
 import { getServerLocale } from "@/i18n/server";
 import {
   getProfileIdFromCookies,
@@ -142,6 +142,7 @@ export async function loadInboxOpportunityPageData(opportunityId: string) {
 
 export function inboxProfileSummary(profile: SeekerProfile) {
   const cities = profileCities(profile);
+  const districts = profileDistricts(profile);
 
   const industries = profile.intent.desiredIndustries
     .map((value) => value.trim())
@@ -157,6 +158,7 @@ export function inboxProfileSummary(profile: SeekerProfile) {
   return {
     city: cities.join(" · "),
     cities,
+    districts,
     remoteOnly: cities.length === 0,
     roles: profile.intent.desiredRoles,
     industries: [...new Set(industries)],

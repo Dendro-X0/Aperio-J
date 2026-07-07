@@ -13,7 +13,9 @@ export type ConnectorId =
   | "reed"
   | "usajobs"
   | "francetravail"
-  | "worknet";
+  | "worknet"
+  | "careerjet"
+  | "jooble";
 
 export interface ConnectorQuery {
   id: ConnectorId;
@@ -37,6 +39,8 @@ export interface ConnectorDefinition {
   label: string;
   /** When false, profile resolution skips this connector (C3+ implementation). */
   ready?: boolean;
+  /** When true, requires APERO_J_CONNECTORS_EXPERIMENTAL or explicit allowlist entry. */
+  experimental?: boolean;
   supports(profile: {
     constraints: { primaryCity: string; remotePreference: RemotePreference };
   }): boolean;

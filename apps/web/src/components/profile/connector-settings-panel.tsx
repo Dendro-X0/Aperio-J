@@ -14,6 +14,8 @@ type SavePayload = {
   usajobs?: { apiKey?: string | null; email?: string };
   franceTravail?: { clientId?: string; clientSecret?: string | null };
   worknet?: { authKey?: string | null };
+  careerjet?: { apiKey?: string | null };
+  jooble?: { apiKey?: string | null };
 };
 
 export function ConnectorSettingsPanel({
@@ -59,6 +61,22 @@ export function ConnectorSettingsPanel({
     initialSettings?.worknet.hasAuthKey ?? false,
   );
 
+  const [careerjetApiKey, setCareerjetApiKey] = useState("");
+  const [careerjetConfigured, setCareerjetConfigured] = useState(
+    initialSettings?.careerjet.configured ?? false,
+  );
+  const [careerjetHasApiKey, setCareerjetHasApiKey] = useState(
+    initialSettings?.careerjet.hasApiKey ?? false,
+  );
+
+  const [joobleApiKey, setJoobleApiKey] = useState("");
+  const [joobleConfigured, setJoobleConfigured] = useState(
+    initialSettings?.jooble.configured ?? false,
+  );
+  const [joobleHasApiKey, setJoobleHasApiKey] = useState(
+    initialSettings?.jooble.hasApiKey ?? false,
+  );
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -102,6 +120,14 @@ export function ConnectorSettingsPanel({
       setWorknetConfigured(body.worknet.configured);
       setWorknetHasAuthKey(body.worknet.hasAuthKey);
       setWorknetAuthKey("");
+
+      setCareerjetConfigured(body.careerjet.configured);
+      setCareerjetHasApiKey(body.careerjet.hasApiKey);
+      setCareerjetApiKey("");
+
+      setJoobleConfigured(body.jooble.configured);
+      setJoobleHasApiKey(body.jooble.hasApiKey);
+      setJoobleApiKey("");
 
       setSaved(true);
     } catch (err) {
@@ -308,6 +334,70 @@ export function ConnectorSettingsPanel({
             saveCredentials({ worknet: { authKey: worknetAuthKey.trim() || undefined } })
           }
           onClear={() => saveCredentials({ worknet: { authKey: null } })}
+        />
+      </ProfileFieldCard>
+
+      <ProfileFieldCard title={t("careerjetTitle")} description={t("careerjetDescription")}>
+        <CredentialFields
+          fields={[
+            {
+              id: "careerjetApiKey",
+              label: t("careerjetApiKey"),
+              value: careerjetApiKey,
+              onChange: setCareerjetApiKey,
+              type: "password",
+              placeholder: careerjetHasApiKey
+                ? t("secretKeepPlaceholder")
+                : t("careerjetApiKeyPlaceholder"),
+            },
+          ]}
+          configured={careerjetConfigured}
+          configuredLabel={t("careerjetConfigured")}
+          localOnlyNote={t("localOnlyNote")}
+          error={error}
+          saved={saved}
+          saving={saving}
+          saveLabel={t("save")}
+          savingLabel={t("saving")}
+          savedLabel={t("saved")}
+          clearLabel={t("clearCareerjetKey")}
+          canSave={Boolean(careerjetApiKey.trim())}
+          canClear={careerjetHasApiKey}
+          onSave={() =>
+            saveCredentials({ careerjet: { apiKey: careerjetApiKey.trim() || undefined } })
+          }
+          onClear={() => saveCredentials({ careerjet: { apiKey: null } })}
+        />
+      </ProfileFieldCard>
+
+      <ProfileFieldCard title={t("joobleTitle")} description={t("joobleDescription")}>
+        <CredentialFields
+          fields={[
+            {
+              id: "joobleApiKey",
+              label: t("joobleApiKey"),
+              value: joobleApiKey,
+              onChange: setJoobleApiKey,
+              type: "password",
+              placeholder: joobleHasApiKey
+                ? t("secretKeepPlaceholder")
+                : t("joobleApiKeyPlaceholder"),
+            },
+          ]}
+          configured={joobleConfigured}
+          configuredLabel={t("joobleConfigured")}
+          localOnlyNote={t("localOnlyNote")}
+          error={error}
+          saved={saved}
+          saving={saving}
+          saveLabel={t("save")}
+          savingLabel={t("saving")}
+          savedLabel={t("saved")}
+          clearLabel={t("clearJoobleKey")}
+          canSave={Boolean(joobleApiKey.trim())}
+          canClear={joobleHasApiKey}
+          onSave={() => saveCredentials({ jooble: { apiKey: joobleApiKey.trim() || undefined } })}
+          onClear={() => saveCredentials({ jooble: { apiKey: null } })}
         />
       </ProfileFieldCard>
     </div>

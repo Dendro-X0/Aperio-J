@@ -65,12 +65,13 @@ export function filterInboxItems(
   availablePresetIds: string[],
   searchFacetIds: string[] = [],
   profileCities: string[] = [],
+  profileDistricts: string[] = [],
 ): InboxItem[] {
   const activeFacetIds = filters.query.trim() ? searchFacetIds : availablePresetIds;
   const filtered = items.filter((item) => {
     if (!matchesQuery(item, filters.query)) return false;
     if (!matchesWorkModeFilter(item, filters.workMode)) return false;
-    if (!matchesCityFilter(item, filters.city, profileCities)) return false;
+    if (!matchesCityFilter(item, filters.city, profileCities, profileDistricts)) return false;
     if (filters.posterType !== "all" && item.opportunity.posterType !== filters.posterType) {
       return false;
     }
@@ -96,7 +97,12 @@ export function filterInboxItems(
   });
 }
 
-export function useInboxFilters(items: InboxItem[], industryLabels: string[], profileCities: string[] = []) {
+export function useInboxFilters(
+  items: InboxItem[],
+  industryLabels: string[],
+  profileCities: string[] = [],
+  profileDistricts: string[] = [],
+) {
   const availablePresetIds = useMemo(
     () => resolveInboxFilterPresetIdsForIndustries(industryLabels),
     [industryLabels],
@@ -132,8 +138,16 @@ export function useInboxFilters(items: InboxItem[], industryLabels: string[], pr
   }, [filters.query, searchFacetIds]);
 
   const filteredItems = useMemo(
-    () => filterInboxItems(items, filters, availablePresetIds, searchFacetIds, profileCities),
-    [items, filters, availablePresetIds, searchFacetIds, profileCities],
+    () =>
+      filterInboxItems(
+        items,
+        filters,
+        availablePresetIds,
+        searchFacetIds,
+        profileCities,
+        profileDistricts,
+      ),
+    [items, filters, availablePresetIds, searchFacetIds, profileCities, profileDistricts],
   );
 
   function togglePreset(presetId: string) {

@@ -31,6 +31,8 @@ export async function PATCH(request: Request) {
     usajobs?: { apiKey?: string | null; email?: string };
     franceTravail?: { clientId?: string; clientSecret?: string | null };
     worknet?: { authKey?: string | null };
+    careerjet?: { apiKey?: string | null };
+    jooble?: { apiKey?: string | null };
   };
 
   if (
@@ -38,7 +40,9 @@ export async function PATCH(request: Request) {
     !body.reed &&
     !body.usajobs &&
     !body.franceTravail &&
-    !body.worknet
+    !body.worknet &&
+    !body.careerjet &&
+    !body.jooble
   ) {
     return NextResponse.json({ error: t("api.invalidRequest") }, { status: 400 });
   }

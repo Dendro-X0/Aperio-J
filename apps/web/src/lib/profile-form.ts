@@ -12,6 +12,8 @@ import { inferCapabilitiesFromArtifacts } from "@aperio-j/discovery/transferable
 export interface ProfileSettingsForm {
   /** One or more city tags; first is primary for legacy constraints. */
   cities: string[];
+  /** Optional neighborhood / district preferences within selected metros. */
+  districts: string[];
   remotePreference: RemotePreference;
   employmentTypes: EmploymentType[];
   /** Taxonomy industry labels or custom text — required for discovery. */
@@ -43,6 +45,7 @@ export const DEFAULT_TRUST = {
 
 export const EMPTY_PROFILE_FORM: ProfileSettingsForm = {
   cities: [],
+  districts: [],
   remotePreference: "remote-only",
   employmentTypes: ["full-time"],
   industries: [],
@@ -116,6 +119,7 @@ export function buildSeekerProfileFromSettings(
   id: string,
 ): SeekerProfile {
   const cities = form.cities.map((city) => city.trim()).filter(Boolean);
+  const districts = form.districts.map((district) => district.trim()).filter(Boolean);
   const industries = form.industries.map((value) => value.trim()).filter(Boolean);
   const occupations = form.occupations.map((value) => value.trim()).filter(Boolean);
   const remotePreference = form.remotePreference;
@@ -137,6 +141,7 @@ export function buildSeekerProfileFromSettings(
     constraints: {
       primaryCity: cities[0] ?? "",
       acceptableCities: cities.slice(1),
+      preferredDistricts: districts,
       remotePreference,
       employmentTypes:
         form.employmentTypes.length > 0 ? form.employmentTypes : ["full-time"],
@@ -168,9 +173,7 @@ export function buildSeekerProfileFromSettings(
 export function settingsFormFromProfile(profile: SeekerProfile): ProfileSettingsForm {
   const artifact = profile.artifacts[0];
   const backgroundText =
-    artifact != null
-      ? [artifact.duties, ...profile.skillTokens].filter(Boolean).join("\n")
-      : profile.skillTokens.join(", ");
+    artifact?.duties?.trim() || [...new Set(profile.skillTokens.map((token) => token.trim()).filter(Boolean))].join(", ");
 
   const industries = profile.intent.desiredIndustries
     .map((value) => value.trim())
@@ -198,6 +201,7 @@ export function settingsFormFromProfile(profile: SeekerProfile): ProfileSettings
 
   return {
     cities,
+    districts: profile.constraints.preferredDistricts?.map((value) => value.trim()).filter(Boolean) ?? [],
     remotePreference: profile.constraints.remotePreference,
     employmentTypes: profile.constraints.employmentTypes.filter(
       (t) => t !== "unknown",

@@ -1,6 +1,6 @@
 [package]
 name = "aperio-j-desktop"
-version = "0.1.0"
+version = "0.3.0"
 description = "Local-first employment opportunity engine"
 authors = ["aperio-j"]
 edition = "2021"

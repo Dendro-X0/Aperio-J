@@ -23,6 +23,8 @@ export interface StreamRow {
 
 export interface SourcesProfileSummary {
   city: string;
+  cities?: string[];
+  districts?: string[];
   roles: string[];
   remotePreference: "remote-only" | "hybrid-ok" | "onsite-only";
 }

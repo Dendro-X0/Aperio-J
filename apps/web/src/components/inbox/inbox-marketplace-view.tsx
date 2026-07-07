@@ -37,6 +37,7 @@ import { Card, CardContent } from "@/components/ui/card";
 export interface InboxProfileSummary {
   city: string;
   cities: string[];
+  districts: string[];
   roles: string[];
   industries: string[];
   remoteOnly: boolean;
@@ -126,11 +127,16 @@ export function InboxMarketplaceView({
     searchFacetIds,
     togglePreset,
     resetFilters,
-  } = useInboxFilters(items, profileSummary.industries, profileSummary.cities);
+  } = useInboxFilters(
+    items,
+    profileSummary.industries,
+    profileSummary.cities,
+    profileSummary.districts,
+  );
 
   const cityFilterOptions = useMemo(
-    () => inboxCityFilterOptions(profileSummary.cities, locale),
-    [profileSummary.cities, locale],
+    () => inboxCityFilterOptions(profileSummary.cities, profileSummary.districts, locale),
+    [profileSummary.cities, profileSummary.districts, locale],
   );
 
   const filteredExcluded = useMemo(
@@ -141,8 +147,16 @@ export function InboxMarketplaceView({
         availablePresetIds,
         searchFacetIds,
         profileSummary.cities,
+        profileSummary.districts,
       ),
-    [excludedItems, filters, availablePresetIds, searchFacetIds, profileSummary.cities],
+    [
+      excludedItems,
+      filters,
+      availablePresetIds,
+      searchFacetIds,
+      profileSummary.cities,
+      profileSummary.districts,
+    ],
   );
   const filterHiddenCount = items.length - filteredItems.length;
   const totalPages = totalPagesForCount(filteredItems.length);

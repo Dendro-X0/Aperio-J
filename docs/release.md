@@ -1,6 +1,6 @@
 # Release checklist
 
-Use this before tagging `v0.2.0` (or any release).
+Use this before tagging a new version (for example `v0.3.0`).
 
 ## Local gates (match CI)
 
@@ -25,7 +25,11 @@ pnpm build:android   # requires Android SDK + preflight
 
 1. Update `version` in all `package.json` files and `apps/desktop/src-tauri/{tauri.conf.json,Cargo.toml}`.
 2. Move `[Unreleased]` entries in `CHANGELOG.md` to a dated version section.
-3. Commit: `chore: release v0.2.0`
+3. Refresh release-facing docs:
+   - `README.md` capability highlights
+   - `docs/discovery-and-matching.md` if pipeline behavior changed
+   - `apps/web/.env.example` for new runtime flags/secrets
+4. Commit: `chore: release vX.Y.Z`
 
 ## Publish
 
@@ -34,8 +38,8 @@ pnpm build:android   # requires Android SDK + preflight
 **Tagged release:**
 
 ```bash
-git tag v0.2.0
-git push origin v0.2.0
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
 
 `.github/workflows/release.yml` builds Windows `.exe` + Android `.apk` and creates a GitHub Release with generated notes.
@@ -43,4 +47,5 @@ git push origin v0.2.0
 ## Post-release
 
 - Smoke-test: Profile → remote preset → Refresh matches → Sources → Enable all (API rows stay visible)
+- Smoke-test: Profile with multiple cities → verify inbox city filter and Sources technical details
 - Verify default locale is English on a fresh browser session

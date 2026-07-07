@@ -1,0 +1,16 @@
+{
+  "type": "JOBS",
+  "hits": 1,
+  "jobs": [
+    {
+      "title": "Full Stack Developer",
+      "company": "Example Tech Ltd",
+      "locations": "London",
+      "salary": "GBP 65000 - 85000",
+      "description": "React and Node.js platform team.",
+      "date": "Wed, 01 Jul 2026 10:00:00 GMT",
+      "site": "example.com",
+      "url": "https://www.careerjet.co.uk/job/example-1"
+    }
+  ]
+}
