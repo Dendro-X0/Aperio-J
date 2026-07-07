@@ -1,0 +1,2722 @@
+{
+  "meta": {
+    "version": "1",
+    "generatedAt": "2026-07-07T06:28:25.010Z",
+    "count": 164
+  },
+  "metros": [
+    {
+      "id": "metro:adelaide",
+      "slug": "adelaide",
+      "countryCode": "au",
+      "labels": {
+        "en": "Adelaide",
+        "zh-CN": "阿德莱德"
+      },
+      "matchTerms": [
+        "adelaide",
+        "阿德莱德"
+      ],
+      "adzuna": {
+        "country": "au",
+        "where": "Adelaide"
+      }
+    },
+    {
+      "id": "metro:ahmedabad",
+      "slug": "ahmedabad",
+      "countryCode": "in",
+      "labels": {
+        "en": "Ahmedabad",
+        "zh-CN": "艾哈迈达巴德"
+      },
+      "matchTerms": [
+        "ahmedabad",
+        "艾哈迈达巴德"
+      ],
+      "adzuna": {
+        "country": "in",
+        "where": "Ahmedabad"
+      }
+    },
+    {
+      "id": "metro:amsterdam",
+      "slug": "amsterdam",
+      "countryCode": "nl",
+      "labels": {
+        "en": "Amsterdam",
+        "zh-CN": "阿姆斯特丹"
+      },
+      "matchTerms": [
+        "amsterdam",
+        "阿姆斯特丹"
+      ],
+      "taxonomyId": "city:amsterdam",
+      "adzuna": {
+        "country": "nl",
+        "where": "Amsterdam"
+      }
+    },
+    {
+      "id": "metro:antwerp",
+      "slug": "antwerp",
+      "countryCode": "be",
+      "labels": {
+        "en": "Antwerp",
+        "zh-CN": "安特卫普"
+      },
+      "matchTerms": [
+        "antwerp",
+        "antwerpen",
+        "安特卫普"
+      ],
+      "adzuna": {
+        "country": "be",
+        "where": "Antwerp"
+      }
+    },
+    {
+      "id": "metro:atlanta",
+      "slug": "atlanta",
+      "countryCode": "us",
+      "labels": {
+        "en": "Atlanta",
+        "zh-CN": "亚特兰大"
+      },
+      "matchTerms": [
+        "atlanta",
+        "亚特兰大"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "Atlanta"
+      }
+    },
+    {
+      "id": "metro:auckland",
+      "slug": "auckland",
+      "countryCode": "nz",
+      "labels": {
+        "en": "Auckland",
+        "zh-CN": "奥克兰"
+      },
+      "matchTerms": [
+        "auckland",
+        "奥克兰"
+      ],
+      "adzuna": {
+        "country": "nz",
+        "where": "Auckland"
+      }
+    },
+    {
+      "id": "metro:austin",
+      "slug": "austin",
+      "countryCode": "us",
+      "labels": {
+        "en": "Austin",
+        "zh-CN": "奥斯汀"
+      },
+      "matchTerms": [
+        "austin",
+        "奥斯汀"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "Austin"
+      }
+    },
+    {
+      "id": "metro:bangalore",
+      "slug": "bangalore",
+      "countryCode": "in",
+      "labels": {
+        "en": "Bangalore",
+        "zh-CN": "班加罗尔"
+      },
+      "matchTerms": [
+        "bangalore",
+        "bengaluru",
+        "班加罗尔"
+      ],
+      "adzuna": {
+        "country": "in",
+        "where": "Bangalore"
+      }
+    },
+    {
+      "id": "metro:barcelona",
+      "slug": "barcelona",
+      "countryCode": "es",
+      "labels": {
+        "en": "Barcelona",
+        "zh-CN": "巴塞罗那"
+      },
+      "matchTerms": [
+        "barcelona",
+        "巴塞罗那"
+      ],
+      "adzuna": {
+        "country": "es",
+        "where": "Barcelona"
+      }
+    },
+    {
+      "id": "metro:basel",
+      "slug": "basel",
+      "countryCode": "ch",
+      "labels": {
+        "en": "Basel",
+        "zh-CN": "巴塞尔"
+      },
+      "matchTerms": [
+        "basel",
+        "巴塞尔"
+      ],
+      "adzuna": {
+        "country": "ch",
+        "where": "Basel"
+      }
+    },
+    {
+      "id": "metro:beijing",
+      "slug": "beijing",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Beijing",
+        "zh-CN": "北京"
+      },
+      "matchTerms": [
+        "beijing",
+        "北京",
+        "北京市"
+      ],
+      "taxonomyId": "city:beijing"
+    },
+    {
+      "id": "metro:belfast",
+      "slug": "belfast",
+      "countryCode": "gb",
+      "labels": {
+        "en": "Belfast",
+        "zh-CN": "贝尔法斯特"
+      },
+      "matchTerms": [
+        "belfast",
+        "贝尔法斯特"
+      ],
+      "adzuna": {
+        "country": "gb",
+        "where": "Belfast"
+      }
+    },
+    {
+      "id": "metro:belo-horizonte",
+      "slug": "belo-horizonte",
+      "countryCode": "br",
+      "labels": {
+        "en": "Belo Horizonte",
+        "zh-CN": "贝洛奥里藏特"
+      },
+      "matchTerms": [
+        "belo horizonte",
+        "贝洛奥里藏特"
+      ],
+      "adzuna": {
+        "country": "br",
+        "where": "Belo Horizonte"
+      }
+    },
+    {
+      "id": "metro:berlin",
+      "slug": "berlin",
+      "countryCode": "de",
+      "labels": {
+        "en": "Berlin",
+        "zh-CN": "柏林"
+      },
+      "matchTerms": [
+        "berlin",
+        "柏林"
+      ],
+      "taxonomyId": "city:berlin",
+      "adzuna": {
+        "country": "de",
+        "where": "Berlin"
+      }
+    },
+    {
+      "id": "metro:bern",
+      "slug": "bern",
+      "countryCode": "ch",
+      "labels": {
+        "en": "Bern",
+        "zh-CN": "伯尔尼"
+      },
+      "matchTerms": [
+        "bern",
+        "伯尔尼"
+      ],
+      "adzuna": {
+        "country": "ch",
+        "where": "Bern"
+      }
+    },
+    {
+      "id": "metro:bilbao",
+      "slug": "bilbao",
+      "countryCode": "es",
+      "labels": {
+        "en": "Bilbao",
+        "zh-CN": "毕尔巴鄂"
+      },
+      "matchTerms": [
+        "bilbao",
+        "毕尔巴鄂"
+      ],
+      "adzuna": {
+        "country": "es",
+        "where": "Bilbao"
+      }
+    },
+    {
+      "id": "metro:birmingham",
+      "slug": "birmingham",
+      "countryCode": "gb",
+      "labels": {
+        "en": "Birmingham",
+        "zh-CN": "伯明翰"
+      },
+      "matchTerms": [
+        "birmingham",
+        "伯明翰"
+      ],
+      "adzuna": {
+        "country": "gb",
+        "where": "Birmingham"
+      }
+    },
+    {
+      "id": "metro:bologna",
+      "slug": "bologna",
+      "countryCode": "it",
+      "labels": {
+        "en": "Bologna",
+        "zh-CN": "博洛尼亚"
+      },
+      "matchTerms": [
+        "bologna",
+        "博洛尼亚"
+      ],
+      "adzuna": {
+        "country": "it",
+        "where": "Bologna"
+      }
+    },
+    {
+      "id": "metro:bonn",
+      "slug": "bonn",
+      "countryCode": "de",
+      "labels": {
+        "en": "Bonn",
+        "zh-CN": "波恩"
+      },
+      "matchTerms": [
+        "bonn",
+        "波恩"
+      ],
+      "taxonomyId": "city:bonn",
+      "adzuna": {
+        "country": "de",
+        "where": "Bonn"
+      }
+    },
+    {
+      "id": "metro:bordeaux",
+      "slug": "bordeaux",
+      "countryCode": "fr",
+      "labels": {
+        "en": "Bordeaux",
+        "zh-CN": "波尔多"
+      },
+      "matchTerms": [
+        "bordeaux",
+        "波尔多"
+      ],
+      "adzuna": {
+        "country": "fr",
+        "where": "Bordeaux"
+      }
+    },
+    {
+      "id": "metro:boston",
+      "slug": "boston",
+      "countryCode": "us",
+      "labels": {
+        "en": "Boston",
+        "zh-CN": "波士顿"
+      },
+      "matchTerms": [
+        "boston",
+        "波士顿"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "Boston"
+      }
+    },
+    {
+      "id": "metro:brasilia",
+      "slug": "brasilia",
+      "countryCode": "br",
+      "labels": {
+        "en": "Brasília",
+        "zh-CN": "巴西利亚"
+      },
+      "matchTerms": [
+        "brasília",
+        "brasilia",
+        "巴西利亚"
+      ],
+      "adzuna": {
+        "country": "br",
+        "where": "Brasília"
+      }
+    },
+    {
+      "id": "metro:bremen",
+      "slug": "bremen",
+      "countryCode": "de",
+      "labels": {
+        "en": "Bremen",
+        "zh-CN": "不来梅"
+      },
+      "matchTerms": [
+        "bremen",
+        "不来梅"
+      ],
+      "adzuna": {
+        "country": "de",
+        "where": "Bremen"
+      }
+    },
+    {
+      "id": "metro:brisbane",
+      "slug": "brisbane",
+      "countryCode": "au",
+      "labels": {
+        "en": "Brisbane",
+        "zh-CN": "布里斯班"
+      },
+      "matchTerms": [
+        "brisbane",
+        "布里斯班"
+      ],
+      "adzuna": {
+        "country": "au",
+        "where": "Brisbane"
+      }
+    },
+    {
+      "id": "metro:bristol",
+      "slug": "bristol",
+      "countryCode": "gb",
+      "labels": {
+        "en": "Bristol",
+        "zh-CN": "布里斯托尔"
+      },
+      "matchTerms": [
+        "bristol",
+        "布里斯托尔"
+      ],
+      "adzuna": {
+        "country": "gb",
+        "where": "Bristol"
+      }
+    },
+    {
+      "id": "metro:brussels",
+      "slug": "brussels",
+      "countryCode": "be",
+      "labels": {
+        "en": "Brussels",
+        "zh-CN": "布鲁塞尔"
+      },
+      "matchTerms": [
+        "brussels",
+        "bruxelles",
+        "布鲁塞尔"
+      ],
+      "adzuna": {
+        "country": "be",
+        "where": "Brussels"
+      }
+    },
+    {
+      "id": "metro:busan",
+      "slug": "busan",
+      "countryCode": "kr",
+      "labels": {
+        "en": "Busan",
+        "zh-CN": "釜山"
+      },
+      "matchTerms": [
+        "busan",
+        "부산",
+        "釜山"
+      ]
+    },
+    {
+      "id": "metro:calgary",
+      "slug": "calgary",
+      "countryCode": "ca",
+      "labels": {
+        "en": "Calgary",
+        "zh-CN": "卡尔加里"
+      },
+      "matchTerms": [
+        "calgary",
+        "卡尔加里"
+      ],
+      "adzuna": {
+        "country": "ca",
+        "where": "Calgary"
+      }
+    },
+    {
+      "id": "metro:cambridge",
+      "slug": "cambridge",
+      "countryCode": "gb",
+      "labels": {
+        "en": "Cambridge",
+        "zh-CN": "剑桥"
+      },
+      "matchTerms": [
+        "cambridge",
+        "剑桥"
+      ],
+      "adzuna": {
+        "country": "gb",
+        "where": "Cambridge"
+      }
+    },
+    {
+      "id": "metro:canberra",
+      "slug": "canberra",
+      "countryCode": "au",
+      "labels": {
+        "en": "Canberra",
+        "zh-CN": "堪培拉"
+      },
+      "matchTerms": [
+        "canberra",
+        "堪培拉"
+      ],
+      "adzuna": {
+        "country": "au",
+        "where": "Canberra"
+      }
+    },
+    {
+      "id": "metro:cape-town",
+      "slug": "cape-town",
+      "countryCode": "za",
+      "labels": {
+        "en": "Cape Town",
+        "zh-CN": "开普敦"
+      },
+      "matchTerms": [
+        "cape town",
+        "开普敦"
+      ],
+      "adzuna": {
+        "country": "za",
+        "where": "Cape Town"
+      }
+    },
+    {
+      "id": "metro:cardiff",
+      "slug": "cardiff",
+      "countryCode": "gb",
+      "labels": {
+        "en": "Cardiff",
+        "zh-CN": "卡迪夫"
+      },
+      "matchTerms": [
+        "cardiff",
+        "卡迪夫"
+      ],
+      "adzuna": {
+        "country": "gb",
+        "where": "Cardiff"
+      }
+    },
+    {
+      "id": "metro:changsha",
+      "slug": "changsha",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Changsha",
+        "zh-CN": "长沙"
+      },
+      "matchTerms": [
+        "changsha",
+        "长沙"
+      ]
+    },
+    {
+      "id": "metro:chengdu",
+      "slug": "chengdu",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Chengdu",
+        "zh-CN": "成都"
+      },
+      "matchTerms": [
+        "chengdu",
+        "成都",
+        "成都市"
+      ],
+      "taxonomyId": "city:chengdu"
+    },
+    {
+      "id": "metro:chennai",
+      "slug": "chennai",
+      "countryCode": "in",
+      "labels": {
+        "en": "Chennai",
+        "zh-CN": "金奈"
+      },
+      "matchTerms": [
+        "chennai",
+        "madras",
+        "金奈"
+      ],
+      "adzuna": {
+        "country": "in",
+        "where": "Chennai"
+      }
+    },
+    {
+      "id": "metro:chicago",
+      "slug": "chicago",
+      "countryCode": "us",
+      "labels": {
+        "en": "Chicago",
+        "zh-CN": "芝加哥"
+      },
+      "matchTerms": [
+        "chicago",
+        "芝加哥"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "Chicago"
+      }
+    },
+    {
+      "id": "metro:chongqing",
+      "slug": "chongqing",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Chongqing",
+        "zh-CN": "重庆"
+      },
+      "matchTerms": [
+        "chongqing",
+        "重庆"
+      ]
+    },
+    {
+      "id": "metro:christchurch",
+      "slug": "christchurch",
+      "countryCode": "nz",
+      "labels": {
+        "en": "Christchurch",
+        "zh-CN": "基督城"
+      },
+      "matchTerms": [
+        "christchurch",
+        "基督城"
+      ],
+      "adzuna": {
+        "country": "nz",
+        "where": "Christchurch"
+      }
+    },
+    {
+      "id": "metro:cologne",
+      "slug": "cologne",
+      "countryCode": "de",
+      "labels": {
+        "en": "Cologne",
+        "zh-CN": "科隆"
+      },
+      "matchTerms": [
+        "cologne",
+        "köln",
+        "koln",
+        "科隆"
+      ],
+      "adzuna": {
+        "country": "de",
+        "where": "Köln"
+      }
+    },
+    {
+      "id": "metro:daegu",
+      "slug": "daegu",
+      "countryCode": "kr",
+      "labels": {
+        "en": "Daegu",
+        "zh-CN": "大邱"
+      },
+      "matchTerms": [
+        "daegu",
+        "大邱"
+      ]
+    },
+    {
+      "id": "metro:daejeon",
+      "slug": "daejeon",
+      "countryCode": "kr",
+      "labels": {
+        "en": "Daejeon",
+        "zh-CN": "大田"
+      },
+      "matchTerms": [
+        "daejeon",
+        "大田"
+      ]
+    },
+    {
+      "id": "metro:dalian",
+      "slug": "dalian",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Dalian",
+        "zh-CN": "大连"
+      },
+      "matchTerms": [
+        "dalian",
+        "大连"
+      ]
+    },
+    {
+      "id": "metro:dallas",
+      "slug": "dallas",
+      "countryCode": "us",
+      "labels": {
+        "en": "Dallas",
+        "zh-CN": "达拉斯"
+      },
+      "matchTerms": [
+        "dallas",
+        "达拉斯"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "Dallas"
+      }
+    },
+    {
+      "id": "metro:delhi",
+      "slug": "delhi",
+      "countryCode": "in",
+      "labels": {
+        "en": "Delhi",
+        "zh-CN": "德里"
+      },
+      "matchTerms": [
+        "delhi",
+        "new delhi",
+        "德里"
+      ],
+      "adzuna": {
+        "country": "in",
+        "where": "Delhi"
+      }
+    },
+    {
+      "id": "metro:denver",
+      "slug": "denver",
+      "countryCode": "us",
+      "labels": {
+        "en": "Denver",
+        "zh-CN": "丹佛"
+      },
+      "matchTerms": [
+        "denver",
+        "丹佛"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "Denver"
+      }
+    },
+    {
+      "id": "metro:detroit",
+      "slug": "detroit",
+      "countryCode": "us",
+      "labels": {
+        "en": "Detroit",
+        "zh-CN": "底特律"
+      },
+      "matchTerms": [
+        "detroit",
+        "底特律"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "Detroit"
+      }
+    },
+    {
+      "id": "metro:dongguan",
+      "slug": "dongguan",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Dongguan",
+        "zh-CN": "东莞"
+      },
+      "matchTerms": [
+        "dongguan",
+        "东莞"
+      ],
+      "taxonomyId": "city:dongguan"
+    },
+    {
+      "id": "metro:dortmund",
+      "slug": "dortmund",
+      "countryCode": "de",
+      "labels": {
+        "en": "Dortmund",
+        "zh-CN": "多特蒙德"
+      },
+      "matchTerms": [
+        "dortmund",
+        "多特蒙德"
+      ],
+      "adzuna": {
+        "country": "de",
+        "where": "Dortmund"
+      }
+    },
+    {
+      "id": "metro:dresden",
+      "slug": "dresden",
+      "countryCode": "de",
+      "labels": {
+        "en": "Dresden",
+        "zh-CN": "德累斯顿"
+      },
+      "matchTerms": [
+        "dresden",
+        "德累斯顿"
+      ],
+      "adzuna": {
+        "country": "de",
+        "where": "Dresden"
+      }
+    },
+    {
+      "id": "metro:durban",
+      "slug": "durban",
+      "countryCode": "za",
+      "labels": {
+        "en": "Durban",
+        "zh-CN": "德班"
+      },
+      "matchTerms": [
+        "durban",
+        "德班"
+      ],
+      "adzuna": {
+        "country": "za",
+        "where": "Durban"
+      }
+    },
+    {
+      "id": "metro:dusseldorf",
+      "slug": "dusseldorf",
+      "countryCode": "de",
+      "labels": {
+        "en": "Düsseldorf",
+        "zh-CN": "杜塞尔多夫"
+      },
+      "matchTerms": [
+        "düsseldorf",
+        "dusseldorf",
+        "杜塞尔多夫"
+      ],
+      "adzuna": {
+        "country": "de",
+        "where": "Düsseldorf"
+      }
+    },
+    {
+      "id": "metro:edinburgh",
+      "slug": "edinburgh",
+      "countryCode": "gb",
+      "labels": {
+        "en": "Edinburgh",
+        "zh-CN": "爱丁堡"
+      },
+      "matchTerms": [
+        "edinburgh",
+        "爱丁堡"
+      ],
+      "adzuna": {
+        "country": "gb",
+        "where": "Edinburgh"
+      }
+    },
+    {
+      "id": "metro:edmonton",
+      "slug": "edmonton",
+      "countryCode": "ca",
+      "labels": {
+        "en": "Edmonton",
+        "zh-CN": "埃德蒙顿"
+      },
+      "matchTerms": [
+        "edmonton",
+        "埃德蒙顿"
+      ],
+      "adzuna": {
+        "country": "ca",
+        "where": "Edmonton"
+      }
+    },
+    {
+      "id": "metro:eindhoven",
+      "slug": "eindhoven",
+      "countryCode": "nl",
+      "labels": {
+        "en": "Eindhoven",
+        "zh-CN": "埃因霍温"
+      },
+      "matchTerms": [
+        "eindhoven",
+        "埃因霍温"
+      ],
+      "adzuna": {
+        "country": "nl",
+        "where": "Eindhoven"
+      }
+    },
+    {
+      "id": "metro:essen",
+      "slug": "essen",
+      "countryCode": "de",
+      "labels": {
+        "en": "Essen",
+        "zh-CN": "埃森"
+      },
+      "matchTerms": [
+        "essen",
+        "埃森"
+      ],
+      "adzuna": {
+        "country": "de",
+        "where": "Essen"
+      }
+    },
+    {
+      "id": "metro:florence",
+      "slug": "florence",
+      "countryCode": "it",
+      "labels": {
+        "en": "Florence",
+        "zh-CN": "佛罗伦萨"
+      },
+      "matchTerms": [
+        "florence",
+        "firenze",
+        "佛罗伦萨"
+      ],
+      "adzuna": {
+        "country": "it",
+        "where": "Florence"
+      }
+    },
+    {
+      "id": "metro:foshan",
+      "slug": "foshan",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Foshan",
+        "zh-CN": "佛山"
+      },
+      "matchTerms": [
+        "foshan",
+        "佛山"
+      ],
+      "taxonomyId": "city:foshan"
+    },
+    {
+      "id": "metro:frankfurt",
+      "slug": "frankfurt",
+      "countryCode": "de",
+      "labels": {
+        "en": "Frankfurt",
+        "zh-CN": "法兰克福"
+      },
+      "matchTerms": [
+        "frankfurt",
+        "法兰克福",
+        "frankfurt am main"
+      ],
+      "taxonomyId": "city:frankfurt",
+      "adzuna": {
+        "country": "de",
+        "where": "Frankfurt"
+      }
+    },
+    {
+      "id": "metro:fukuoka",
+      "slug": "fukuoka",
+      "countryCode": "jp",
+      "labels": {
+        "en": "Fukuoka",
+        "zh-CN": "福冈"
+      },
+      "matchTerms": [
+        "fukuoka",
+        "福岡",
+        "福冈"
+      ]
+    },
+    {
+      "id": "metro:gdansk",
+      "slug": "gdansk",
+      "countryCode": "pl",
+      "labels": {
+        "en": "Gdansk",
+        "zh-CN": "格但斯克"
+      },
+      "matchTerms": [
+        "gdansk",
+        "gdańsk",
+        "格但斯克"
+      ],
+      "adzuna": {
+        "country": "pl",
+        "where": "Gdansk"
+      }
+    },
+    {
+      "id": "metro:geneva",
+      "slug": "geneva",
+      "countryCode": "ch",
+      "labels": {
+        "en": "Geneva",
+        "zh-CN": "日内瓦"
+      },
+      "matchTerms": [
+        "geneva",
+        "genève",
+        "geneve",
+        "日内瓦"
+      ],
+      "adzuna": {
+        "country": "ch",
+        "where": "Geneva"
+      }
+    },
+    {
+      "id": "metro:ghent",
+      "slug": "ghent",
+      "countryCode": "be",
+      "labels": {
+        "en": "Ghent",
+        "zh-CN": "根特"
+      },
+      "matchTerms": [
+        "ghent",
+        "gent",
+        "根特"
+      ],
+      "adzuna": {
+        "country": "be",
+        "where": "Ghent"
+      }
+    },
+    {
+      "id": "metro:glasgow",
+      "slug": "glasgow",
+      "countryCode": "gb",
+      "labels": {
+        "en": "Glasgow",
+        "zh-CN": "格拉斯哥"
+      },
+      "matchTerms": [
+        "glasgow",
+        "格拉斯哥"
+      ],
+      "adzuna": {
+        "country": "gb",
+        "where": "Glasgow"
+      }
+    },
+    {
+      "id": "metro:graz",
+      "slug": "graz",
+      "countryCode": "at",
+      "labels": {
+        "en": "Graz",
+        "zh-CN": "格拉茨"
+      },
+      "matchTerms": [
+        "graz",
+        "格拉茨"
+      ],
+      "adzuna": {
+        "country": "at",
+        "where": "Graz"
+      }
+    },
+    {
+      "id": "metro:guadalajara",
+      "slug": "guadalajara",
+      "countryCode": "mx",
+      "labels": {
+        "en": "Guadalajara",
+        "zh-CN": "瓜达拉哈拉"
+      },
+      "matchTerms": [
+        "guadalajara",
+        "瓜达拉哈拉"
+      ],
+      "adzuna": {
+        "country": "mx",
+        "where": "Guadalajara"
+      }
+    },
+    {
+      "id": "metro:guangzhou",
+      "slug": "guangzhou",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Guangzhou",
+        "zh-CN": "广州"
+      },
+      "matchTerms": [
+        "guangzhou",
+        "广州"
+      ],
+      "taxonomyId": "city:guangzhou"
+    },
+    {
+      "id": "metro:gurgaon",
+      "slug": "gurgaon",
+      "countryCode": "in",
+      "labels": {
+        "en": "Gurgaon",
+        "zh-CN": "古尔冈"
+      },
+      "matchTerms": [
+        "gurgaon",
+        "gurugram",
+        "古尔冈"
+      ],
+      "adzuna": {
+        "country": "in",
+        "where": "Gurgaon"
+      }
+    },
+    {
+      "id": "metro:hamburg",
+      "slug": "hamburg",
+      "countryCode": "de",
+      "labels": {
+        "en": "Hamburg",
+        "zh-CN": "汉堡"
+      },
+      "matchTerms": [
+        "hamburg",
+        "汉堡"
+      ],
+      "adzuna": {
+        "country": "de",
+        "where": "Hamburg"
+      }
+    },
+    {
+      "id": "metro:hangzhou",
+      "slug": "hangzhou",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Hangzhou",
+        "zh-CN": "杭州"
+      },
+      "matchTerms": [
+        "hangzhou",
+        "杭州市",
+        "杭州"
+      ]
+    },
+    {
+      "id": "metro:hannover",
+      "slug": "hannover",
+      "countryCode": "de",
+      "labels": {
+        "en": "Hannover",
+        "zh-CN": "汉诺威"
+      },
+      "matchTerms": [
+        "hannover",
+        "汉诺威"
+      ],
+      "adzuna": {
+        "country": "de",
+        "where": "Hannover"
+      }
+    },
+    {
+      "id": "metro:hefei",
+      "slug": "hefei",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Hefei",
+        "zh-CN": "合肥"
+      },
+      "matchTerms": [
+        "hefei",
+        "合肥"
+      ]
+    },
+    {
+      "id": "metro:hong-kong",
+      "slug": "hong-kong",
+      "countryCode": "hk",
+      "labels": {
+        "en": "Hong Kong",
+        "zh-CN": "香港"
+      },
+      "matchTerms": [
+        "hong kong",
+        "香港",
+        "hongkong"
+      ],
+      "taxonomyId": "city:hongkong"
+    },
+    {
+      "id": "metro:houston",
+      "slug": "houston",
+      "countryCode": "us",
+      "labels": {
+        "en": "Houston",
+        "zh-CN": "休斯顿"
+      },
+      "matchTerms": [
+        "houston",
+        "休斯顿"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "Houston"
+      }
+    },
+    {
+      "id": "metro:huizhou",
+      "slug": "huizhou",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Huizhou",
+        "zh-CN": "惠州"
+      },
+      "matchTerms": [
+        "huizhou",
+        "惠州"
+      ],
+      "taxonomyId": "city:huizhou"
+    },
+    {
+      "id": "metro:hyderabad",
+      "slug": "hyderabad",
+      "countryCode": "in",
+      "labels": {
+        "en": "Hyderabad",
+        "zh-CN": "海得拉巴"
+      },
+      "matchTerms": [
+        "hyderabad",
+        "海得拉巴"
+      ],
+      "adzuna": {
+        "country": "in",
+        "where": "Hyderabad"
+      }
+    },
+    {
+      "id": "metro:incheon",
+      "slug": "incheon",
+      "countryCode": "kr",
+      "labels": {
+        "en": "Incheon",
+        "zh-CN": "仁川"
+      },
+      "matchTerms": [
+        "incheon",
+        "인천",
+        "仁川"
+      ]
+    },
+    {
+      "id": "metro:johannesburg",
+      "slug": "johannesburg",
+      "countryCode": "za",
+      "labels": {
+        "en": "Johannesburg",
+        "zh-CN": "约翰内斯堡"
+      },
+      "matchTerms": [
+        "johannesburg",
+        "约翰内斯堡"
+      ],
+      "adzuna": {
+        "country": "za",
+        "where": "Johannesburg"
+      }
+    },
+    {
+      "id": "metro:kobe",
+      "slug": "kobe",
+      "countryCode": "jp",
+      "labels": {
+        "en": "Kobe",
+        "zh-CN": "神户"
+      },
+      "matchTerms": [
+        "kobe",
+        "神戸",
+        "神户"
+      ]
+    },
+    {
+      "id": "metro:kolkata",
+      "slug": "kolkata",
+      "countryCode": "in",
+      "labels": {
+        "en": "Kolkata",
+        "zh-CN": "加尔各答"
+      },
+      "matchTerms": [
+        "kolkata",
+        "calcutta",
+        "加尔各答"
+      ],
+      "adzuna": {
+        "country": "in",
+        "where": "Kolkata"
+      }
+    },
+    {
+      "id": "metro:krakow",
+      "slug": "krakow",
+      "countryCode": "pl",
+      "labels": {
+        "en": "Krakow",
+        "zh-CN": "克拉科夫"
+      },
+      "matchTerms": [
+        "krakow",
+        "kraków",
+        "cracow",
+        "克拉科夫"
+      ],
+      "adzuna": {
+        "country": "pl",
+        "where": "Krakow"
+      }
+    },
+    {
+      "id": "metro:kunming",
+      "slug": "kunming",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Kunming",
+        "zh-CN": "昆明"
+      },
+      "matchTerms": [
+        "kunming",
+        "昆明"
+      ]
+    },
+    {
+      "id": "metro:kyoto",
+      "slug": "kyoto",
+      "countryCode": "jp",
+      "labels": {
+        "en": "Kyoto",
+        "zh-CN": "京都"
+      },
+      "matchTerms": [
+        "kyoto",
+        "京都"
+      ]
+    },
+    {
+      "id": "metro:lausanne",
+      "slug": "lausanne",
+      "countryCode": "ch",
+      "labels": {
+        "en": "Lausanne",
+        "zh-CN": "洛桑"
+      },
+      "matchTerms": [
+        "lausanne",
+        "洛桑"
+      ],
+      "adzuna": {
+        "country": "ch",
+        "where": "Lausanne"
+      }
+    },
+    {
+      "id": "metro:leeds",
+      "slug": "leeds",
+      "countryCode": "gb",
+      "labels": {
+        "en": "Leeds",
+        "zh-CN": "利兹"
+      },
+      "matchTerms": [
+        "leeds",
+        "利兹"
+      ],
+      "adzuna": {
+        "country": "gb",
+        "where": "Leeds"
+      }
+    },
+    {
+      "id": "metro:leipzig",
+      "slug": "leipzig",
+      "countryCode": "de",
+      "labels": {
+        "en": "Leipzig",
+        "zh-CN": "莱比锡"
+      },
+      "matchTerms": [
+        "leipzig",
+        "莱比锡"
+      ],
+      "adzuna": {
+        "country": "de",
+        "where": "Leipzig"
+      }
+    },
+    {
+      "id": "metro:lille",
+      "slug": "lille",
+      "countryCode": "fr",
+      "labels": {
+        "en": "Lille",
+        "zh-CN": "里尔"
+      },
+      "matchTerms": [
+        "lille",
+        "里尔"
+      ],
+      "adzuna": {
+        "country": "fr",
+        "where": "Lille"
+      }
+    },
+    {
+      "id": "metro:linz",
+      "slug": "linz",
+      "countryCode": "at",
+      "labels": {
+        "en": "Linz",
+        "zh-CN": "林茨"
+      },
+      "matchTerms": [
+        "linz",
+        "林茨"
+      ],
+      "adzuna": {
+        "country": "at",
+        "where": "Linz"
+      }
+    },
+    {
+      "id": "metro:liverpool",
+      "slug": "liverpool",
+      "countryCode": "gb",
+      "labels": {
+        "en": "Liverpool",
+        "zh-CN": "利物浦"
+      },
+      "matchTerms": [
+        "liverpool",
+        "利物浦"
+      ],
+      "adzuna": {
+        "country": "gb",
+        "where": "Liverpool"
+      }
+    },
+    {
+      "id": "metro:london",
+      "slug": "london",
+      "countryCode": "gb",
+      "labels": {
+        "en": "London",
+        "zh-CN": "伦敦"
+      },
+      "matchTerms": [
+        "london",
+        "伦敦"
+      ],
+      "taxonomyId": "city:london",
+      "adzuna": {
+        "country": "gb",
+        "where": "London"
+      }
+    },
+    {
+      "id": "metro:los-angeles",
+      "slug": "los-angeles",
+      "countryCode": "us",
+      "labels": {
+        "en": "Los Angeles",
+        "zh-CN": "洛杉矶"
+      },
+      "matchTerms": [
+        "los angeles",
+        "la",
+        "洛杉矶"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "Los Angeles"
+      }
+    },
+    {
+      "id": "metro:lyon",
+      "slug": "lyon",
+      "countryCode": "fr",
+      "labels": {
+        "en": "Lyon",
+        "zh-CN": "里昂"
+      },
+      "matchTerms": [
+        "lyon",
+        "里昂"
+      ],
+      "adzuna": {
+        "country": "fr",
+        "where": "Lyon"
+      }
+    },
+    {
+      "id": "metro:madrid",
+      "slug": "madrid",
+      "countryCode": "es",
+      "labels": {
+        "en": "Madrid",
+        "zh-CN": "马德里"
+      },
+      "matchTerms": [
+        "madrid",
+        "马德里"
+      ],
+      "adzuna": {
+        "country": "es",
+        "where": "Madrid"
+      }
+    },
+    {
+      "id": "metro:manchester",
+      "slug": "manchester",
+      "countryCode": "gb",
+      "labels": {
+        "en": "Manchester",
+        "zh-CN": "曼彻斯特"
+      },
+      "matchTerms": [
+        "manchester",
+        "曼彻斯特"
+      ],
+      "adzuna": {
+        "country": "gb",
+        "where": "Manchester"
+      }
+    },
+    {
+      "id": "metro:marseille",
+      "slug": "marseille",
+      "countryCode": "fr",
+      "labels": {
+        "en": "Marseille",
+        "zh-CN": "马赛"
+      },
+      "matchTerms": [
+        "marseille",
+        "马赛"
+      ],
+      "adzuna": {
+        "country": "fr",
+        "where": "Marseille"
+      }
+    },
+    {
+      "id": "metro:melbourne",
+      "slug": "melbourne",
+      "countryCode": "au",
+      "labels": {
+        "en": "Melbourne",
+        "zh-CN": "墨尔本"
+      },
+      "matchTerms": [
+        "melbourne",
+        "墨尔本"
+      ],
+      "adzuna": {
+        "country": "au",
+        "where": "Melbourne"
+      }
+    },
+    {
+      "id": "metro:mexico-city",
+      "slug": "mexico-city",
+      "countryCode": "mx",
+      "labels": {
+        "en": "Mexico City",
+        "zh-CN": "墨西哥城"
+      },
+      "matchTerms": [
+        "mexico city",
+        "ciudad de mexico",
+        "cdmx",
+        "墨西哥城"
+      ],
+      "adzuna": {
+        "country": "mx",
+        "where": "Mexico City"
+      }
+    },
+    {
+      "id": "metro:miami",
+      "slug": "miami",
+      "countryCode": "us",
+      "labels": {
+        "en": "Miami",
+        "zh-CN": "迈阿密"
+      },
+      "matchTerms": [
+        "miami",
+        "迈阿密"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "Miami"
+      }
+    },
+    {
+      "id": "metro:milan",
+      "slug": "milan",
+      "countryCode": "it",
+      "labels": {
+        "en": "Milan",
+        "zh-CN": "米兰"
+      },
+      "matchTerms": [
+        "milan",
+        "milano",
+        "米兰"
+      ],
+      "adzuna": {
+        "country": "it",
+        "where": "Milan"
+      }
+    },
+    {
+      "id": "metro:minneapolis",
+      "slug": "minneapolis",
+      "countryCode": "us",
+      "labels": {
+        "en": "Minneapolis",
+        "zh-CN": "明尼阿波利斯"
+      },
+      "matchTerms": [
+        "minneapolis",
+        "明尼阿波利斯"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "Minneapolis"
+      }
+    },
+    {
+      "id": "metro:monterrey",
+      "slug": "monterrey",
+      "countryCode": "mx",
+      "labels": {
+        "en": "Monterrey",
+        "zh-CN": "蒙特雷"
+      },
+      "matchTerms": [
+        "monterrey",
+        "蒙特雷"
+      ],
+      "adzuna": {
+        "country": "mx",
+        "where": "Monterrey"
+      }
+    },
+    {
+      "id": "metro:montreal",
+      "slug": "montreal",
+      "countryCode": "ca",
+      "labels": {
+        "en": "Montreal",
+        "zh-CN": "蒙特利尔"
+      },
+      "matchTerms": [
+        "montreal",
+        "montréal",
+        "蒙特利尔"
+      ],
+      "adzuna": {
+        "country": "ca",
+        "where": "Montreal"
+      }
+    },
+    {
+      "id": "metro:mumbai",
+      "slug": "mumbai",
+      "countryCode": "in",
+      "labels": {
+        "en": "Mumbai",
+        "zh-CN": "孟买"
+      },
+      "matchTerms": [
+        "mumbai",
+        "bombay",
+        "孟买"
+      ],
+      "adzuna": {
+        "country": "in",
+        "where": "Mumbai"
+      }
+    },
+    {
+      "id": "metro:munich",
+      "slug": "munich",
+      "countryCode": "de",
+      "labels": {
+        "en": "Munich",
+        "zh-CN": "慕尼黑"
+      },
+      "matchTerms": [
+        "munich",
+        "münchen",
+        "慕尼黑"
+      ],
+      "adzuna": {
+        "country": "de",
+        "where": "München"
+      }
+    },
+    {
+      "id": "metro:nagoya",
+      "slug": "nagoya",
+      "countryCode": "jp",
+      "labels": {
+        "en": "Nagoya",
+        "zh-CN": "名古屋"
+      },
+      "matchTerms": [
+        "nagoya",
+        "名古屋"
+      ]
+    },
+    {
+      "id": "metro:nanjing",
+      "slug": "nanjing",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Nanjing",
+        "zh-CN": "南京"
+      },
+      "matchTerms": [
+        "nanjing",
+        "南京",
+        "南京市"
+      ],
+      "taxonomyId": "city:nanjing"
+    },
+    {
+      "id": "metro:nantes",
+      "slug": "nantes",
+      "countryCode": "fr",
+      "labels": {
+        "en": "Nantes",
+        "zh-CN": "南特"
+      },
+      "matchTerms": [
+        "nantes",
+        "南特"
+      ],
+      "adzuna": {
+        "country": "fr",
+        "where": "Nantes"
+      }
+    },
+    {
+      "id": "metro:new-york",
+      "slug": "new-york",
+      "countryCode": "us",
+      "labels": {
+        "en": "New York",
+        "zh-CN": "纽约"
+      },
+      "matchTerms": [
+        "new york",
+        "纽约",
+        "nyc",
+        "new york city"
+      ],
+      "taxonomyId": "city:newyork",
+      "adzuna": {
+        "country": "us",
+        "where": "New York"
+      }
+    },
+    {
+      "id": "metro:nice",
+      "slug": "nice",
+      "countryCode": "fr",
+      "labels": {
+        "en": "Nice",
+        "zh-CN": "尼斯"
+      },
+      "matchTerms": [
+        "nice",
+        "尼斯"
+      ],
+      "adzuna": {
+        "country": "fr",
+        "where": "Nice"
+      }
+    },
+    {
+      "id": "metro:ningbo",
+      "slug": "ningbo",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Ningbo",
+        "zh-CN": "宁波"
+      },
+      "matchTerms": [
+        "ningbo",
+        "宁波"
+      ]
+    },
+    {
+      "id": "metro:nuremberg",
+      "slug": "nuremberg",
+      "countryCode": "de",
+      "labels": {
+        "en": "Nuremberg",
+        "zh-CN": "纽伦堡"
+      },
+      "matchTerms": [
+        "nuremberg",
+        "nürnberg",
+        "nurnberg",
+        "纽伦堡"
+      ],
+      "adzuna": {
+        "country": "de",
+        "where": "Nürnberg"
+      }
+    },
+    {
+      "id": "metro:osaka",
+      "slug": "osaka",
+      "countryCode": "jp",
+      "labels": {
+        "en": "Osaka",
+        "zh-CN": "大阪"
+      },
+      "matchTerms": [
+        "osaka",
+        "大阪"
+      ]
+    },
+    {
+      "id": "metro:ottawa",
+      "slug": "ottawa",
+      "countryCode": "ca",
+      "labels": {
+        "en": "Ottawa",
+        "zh-CN": "渥太华"
+      },
+      "matchTerms": [
+        "ottawa",
+        "渥太华"
+      ],
+      "adzuna": {
+        "country": "ca",
+        "where": "Ottawa"
+      }
+    },
+    {
+      "id": "metro:oxford",
+      "slug": "oxford",
+      "countryCode": "gb",
+      "labels": {
+        "en": "Oxford",
+        "zh-CN": "牛津"
+      },
+      "matchTerms": [
+        "oxford",
+        "牛津"
+      ],
+      "adzuna": {
+        "country": "gb",
+        "where": "Oxford"
+      }
+    },
+    {
+      "id": "metro:paris",
+      "slug": "paris",
+      "countryCode": "fr",
+      "labels": {
+        "en": "Paris",
+        "zh-CN": "巴黎"
+      },
+      "matchTerms": [
+        "paris",
+        "巴黎"
+      ],
+      "taxonomyId": "city:paris",
+      "adzuna": {
+        "country": "fr",
+        "where": "Paris"
+      }
+    },
+    {
+      "id": "metro:perth",
+      "slug": "perth",
+      "countryCode": "au",
+      "labels": {
+        "en": "Perth",
+        "zh-CN": "珀斯"
+      },
+      "matchTerms": [
+        "perth",
+        "珀斯"
+      ],
+      "adzuna": {
+        "country": "au",
+        "where": "Perth"
+      }
+    },
+    {
+      "id": "metro:philadelphia",
+      "slug": "philadelphia",
+      "countryCode": "us",
+      "labels": {
+        "en": "Philadelphia",
+        "zh-CN": "费城"
+      },
+      "matchTerms": [
+        "philadelphia",
+        "费城"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "Philadelphia"
+      }
+    },
+    {
+      "id": "metro:phoenix",
+      "slug": "phoenix",
+      "countryCode": "us",
+      "labels": {
+        "en": "Phoenix",
+        "zh-CN": "凤凰城"
+      },
+      "matchTerms": [
+        "phoenix",
+        "凤凰城"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "Phoenix"
+      }
+    },
+    {
+      "id": "metro:portland",
+      "slug": "portland",
+      "countryCode": "us",
+      "labels": {
+        "en": "Portland",
+        "zh-CN": "波特兰"
+      },
+      "matchTerms": [
+        "portland",
+        "波特兰"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "Portland"
+      }
+    },
+    {
+      "id": "metro:pretoria",
+      "slug": "pretoria",
+      "countryCode": "za",
+      "labels": {
+        "en": "Pretoria",
+        "zh-CN": "比勒陀利亚"
+      },
+      "matchTerms": [
+        "pretoria",
+        "比勒陀利亚"
+      ],
+      "adzuna": {
+        "country": "za",
+        "where": "Pretoria"
+      }
+    },
+    {
+      "id": "metro:pune",
+      "slug": "pune",
+      "countryCode": "in",
+      "labels": {
+        "en": "Pune",
+        "zh-CN": "浦那"
+      },
+      "matchTerms": [
+        "pune",
+        "浦那"
+      ],
+      "adzuna": {
+        "country": "in",
+        "where": "Pune"
+      }
+    },
+    {
+      "id": "metro:qingdao",
+      "slug": "qingdao",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Qingdao",
+        "zh-CN": "青岛"
+      },
+      "matchTerms": [
+        "qingdao",
+        "青岛"
+      ]
+    },
+    {
+      "id": "metro:quebec-city",
+      "slug": "quebec-city",
+      "countryCode": "ca",
+      "labels": {
+        "en": "Quebec City",
+        "zh-CN": "魁北克城"
+      },
+      "matchTerms": [
+        "quebec city",
+        "quebec",
+        "魁北克城"
+      ],
+      "adzuna": {
+        "country": "ca",
+        "where": "Quebec City"
+      }
+    },
+    {
+      "id": "metro:raleigh",
+      "slug": "raleigh",
+      "countryCode": "us",
+      "labels": {
+        "en": "Raleigh",
+        "zh-CN": "罗利"
+      },
+      "matchTerms": [
+        "raleigh",
+        "罗利"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "Raleigh"
+      }
+    },
+    {
+      "id": "metro:rio-de-janeiro",
+      "slug": "rio-de-janeiro",
+      "countryCode": "br",
+      "labels": {
+        "en": "Rio de Janeiro",
+        "zh-CN": "里约热内卢"
+      },
+      "matchTerms": [
+        "rio de janeiro",
+        "里约热内卢"
+      ],
+      "adzuna": {
+        "country": "br",
+        "where": "Rio de Janeiro"
+      }
+    },
+    {
+      "id": "metro:rome",
+      "slug": "rome",
+      "countryCode": "it",
+      "labels": {
+        "en": "Rome",
+        "zh-CN": "罗马"
+      },
+      "matchTerms": [
+        "rome",
+        "roma",
+        "罗马"
+      ],
+      "adzuna": {
+        "country": "it",
+        "where": "Rome"
+      }
+    },
+    {
+      "id": "metro:rotterdam",
+      "slug": "rotterdam",
+      "countryCode": "nl",
+      "labels": {
+        "en": "Rotterdam",
+        "zh-CN": "鹿特丹"
+      },
+      "matchTerms": [
+        "rotterdam",
+        "鹿特丹"
+      ],
+      "adzuna": {
+        "country": "nl",
+        "where": "Rotterdam"
+      }
+    },
+    {
+      "id": "metro:salzburg",
+      "slug": "salzburg",
+      "countryCode": "at",
+      "labels": {
+        "en": "Salzburg",
+        "zh-CN": "萨尔茨堡"
+      },
+      "matchTerms": [
+        "salzburg",
+        "萨尔茨堡"
+      ],
+      "adzuna": {
+        "country": "at",
+        "where": "Salzburg"
+      }
+    },
+    {
+      "id": "metro:san-diego",
+      "slug": "san-diego",
+      "countryCode": "us",
+      "labels": {
+        "en": "San Diego",
+        "zh-CN": "圣迭戈"
+      },
+      "matchTerms": [
+        "san diego",
+        "圣迭戈"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "San Diego"
+      }
+    },
+    {
+      "id": "metro:san-francisco",
+      "slug": "san-francisco",
+      "countryCode": "us",
+      "labels": {
+        "en": "San Francisco",
+        "zh-CN": "旧金山"
+      },
+      "matchTerms": [
+        "san francisco",
+        "旧金山",
+        "sf",
+        "bay area"
+      ],
+      "taxonomyId": "city:sanfrancisco",
+      "adzuna": {
+        "country": "us",
+        "where": "San Francisco"
+      }
+    },
+    {
+      "id": "metro:sao-paulo",
+      "slug": "sao-paulo",
+      "countryCode": "br",
+      "labels": {
+        "en": "São Paulo",
+        "zh-CN": "圣保罗"
+      },
+      "matchTerms": [
+        "são paulo",
+        "sao paulo",
+        "圣保罗"
+      ],
+      "adzuna": {
+        "country": "br",
+        "where": "São Paulo"
+      }
+    },
+    {
+      "id": "metro:sapporo",
+      "slug": "sapporo",
+      "countryCode": "jp",
+      "labels": {
+        "en": "Sapporo",
+        "zh-CN": "札幌"
+      },
+      "matchTerms": [
+        "sapporo",
+        "札幌"
+      ]
+    },
+    {
+      "id": "metro:seattle",
+      "slug": "seattle",
+      "countryCode": "us",
+      "labels": {
+        "en": "Seattle",
+        "zh-CN": "西雅图"
+      },
+      "matchTerms": [
+        "seattle",
+        "西雅图"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "Seattle"
+      }
+    },
+    {
+      "id": "metro:seoul",
+      "slug": "seoul",
+      "countryCode": "kr",
+      "labels": {
+        "en": "Seoul",
+        "zh-CN": "首尔"
+      },
+      "matchTerms": [
+        "seoul",
+        "서울",
+        "首尔"
+      ]
+    },
+    {
+      "id": "metro:seville",
+      "slug": "seville",
+      "countryCode": "es",
+      "labels": {
+        "en": "Seville",
+        "zh-CN": "塞维利亚"
+      },
+      "matchTerms": [
+        "seville",
+        "sevilla",
+        "塞维利亚"
+      ],
+      "adzuna": {
+        "country": "es",
+        "where": "Seville"
+      }
+    },
+    {
+      "id": "metro:shanghai",
+      "slug": "shanghai",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Shanghai",
+        "zh-CN": "上海"
+      },
+      "matchTerms": [
+        "shanghai",
+        "上海",
+        "上海市"
+      ],
+      "taxonomyId": "city:shanghai"
+    },
+    {
+      "id": "metro:shenzhen",
+      "slug": "shenzhen",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Shenzhen",
+        "zh-CN": "深圳"
+      },
+      "matchTerms": [
+        "shenzhen",
+        "深圳"
+      ],
+      "taxonomyId": "city:shenzhen"
+    },
+    {
+      "id": "metro:singapore",
+      "slug": "singapore",
+      "countryCode": "sg",
+      "labels": {
+        "en": "Singapore",
+        "zh-CN": "新加坡"
+      },
+      "matchTerms": [
+        "singapore",
+        "新加坡"
+      ],
+      "taxonomyId": "city:singapore",
+      "adzuna": {
+        "country": "sg",
+        "where": "Singapore"
+      }
+    },
+    {
+      "id": "metro:strasbourg",
+      "slug": "strasbourg",
+      "countryCode": "fr",
+      "labels": {
+        "en": "Strasbourg",
+        "zh-CN": "斯特拉斯堡"
+      },
+      "matchTerms": [
+        "strasbourg",
+        "斯特拉斯堡"
+      ],
+      "adzuna": {
+        "country": "fr",
+        "where": "Strasbourg"
+      }
+    },
+    {
+      "id": "metro:stuttgart",
+      "slug": "stuttgart",
+      "countryCode": "de",
+      "labels": {
+        "en": "Stuttgart",
+        "zh-CN": "斯图加特"
+      },
+      "matchTerms": [
+        "stuttgart",
+        "斯图加特"
+      ],
+      "adzuna": {
+        "country": "de",
+        "where": "Stuttgart"
+      }
+    },
+    {
+      "id": "metro:suzhou",
+      "slug": "suzhou",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Suzhou",
+        "zh-CN": "苏州"
+      },
+      "matchTerms": [
+        "suzhou",
+        "苏州",
+        "苏州市"
+      ],
+      "taxonomyId": "city:suzhou"
+    },
+    {
+      "id": "metro:sydney",
+      "slug": "sydney",
+      "countryCode": "au",
+      "labels": {
+        "en": "Sydney",
+        "zh-CN": "悉尼"
+      },
+      "matchTerms": [
+        "sydney",
+        "悉尼"
+      ],
+      "taxonomyId": "city:sydney",
+      "adzuna": {
+        "country": "au",
+        "where": "Sydney"
+      }
+    },
+    {
+      "id": "metro:the-hague",
+      "slug": "the-hague",
+      "countryCode": "nl",
+      "labels": {
+        "en": "The Hague",
+        "zh-CN": "海牙"
+      },
+      "matchTerms": [
+        "the hague",
+        "den haag",
+        "'s-gravenhage",
+        "海牙"
+      ],
+      "adzuna": {
+        "country": "nl",
+        "where": "The Hague"
+      }
+    },
+    {
+      "id": "metro:tianjin",
+      "slug": "tianjin",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Tianjin",
+        "zh-CN": "天津"
+      },
+      "matchTerms": [
+        "tianjin",
+        "天津"
+      ]
+    },
+    {
+      "id": "metro:tokyo",
+      "slug": "tokyo",
+      "countryCode": "jp",
+      "labels": {
+        "en": "Tokyo",
+        "zh-CN": "东京"
+      },
+      "matchTerms": [
+        "tokyo",
+        "东京",
+        "東京"
+      ],
+      "taxonomyId": "city:tokyo"
+    },
+    {
+      "id": "metro:toronto",
+      "slug": "toronto",
+      "countryCode": "ca",
+      "labels": {
+        "en": "Toronto",
+        "zh-CN": "多伦多"
+      },
+      "matchTerms": [
+        "toronto",
+        "多伦多"
+      ],
+      "taxonomyId": "city:toronto",
+      "adzuna": {
+        "country": "ca",
+        "where": "Toronto"
+      }
+    },
+    {
+      "id": "metro:toulouse",
+      "slug": "toulouse",
+      "countryCode": "fr",
+      "labels": {
+        "en": "Toulouse",
+        "zh-CN": "图卢兹"
+      },
+      "matchTerms": [
+        "toulouse",
+        "图卢兹"
+      ],
+      "adzuna": {
+        "country": "fr",
+        "where": "Toulouse"
+      }
+    },
+    {
+      "id": "metro:turin",
+      "slug": "turin",
+      "countryCode": "it",
+      "labels": {
+        "en": "Turin",
+        "zh-CN": "都灵"
+      },
+      "matchTerms": [
+        "turin",
+        "torino",
+        "都灵"
+      ],
+      "adzuna": {
+        "country": "it",
+        "where": "Turin"
+      }
+    },
+    {
+      "id": "metro:utrecht",
+      "slug": "utrecht",
+      "countryCode": "nl",
+      "labels": {
+        "en": "Utrecht",
+        "zh-CN": "乌得勒支"
+      },
+      "matchTerms": [
+        "utrecht",
+        "乌得勒支"
+      ],
+      "adzuna": {
+        "country": "nl",
+        "where": "Utrecht"
+      }
+    },
+    {
+      "id": "metro:valencia",
+      "slug": "valencia",
+      "countryCode": "es",
+      "labels": {
+        "en": "Valencia",
+        "zh-CN": "瓦伦西亚"
+      },
+      "matchTerms": [
+        "valencia",
+        "瓦伦西亚"
+      ],
+      "adzuna": {
+        "country": "es",
+        "where": "Valencia"
+      }
+    },
+    {
+      "id": "metro:vancouver",
+      "slug": "vancouver",
+      "countryCode": "ca",
+      "labels": {
+        "en": "Vancouver",
+        "zh-CN": "温哥华"
+      },
+      "matchTerms": [
+        "vancouver",
+        "温哥华"
+      ],
+      "adzuna": {
+        "country": "ca",
+        "where": "Vancouver"
+      }
+    },
+    {
+      "id": "metro:vienna",
+      "slug": "vienna",
+      "countryCode": "at",
+      "labels": {
+        "en": "Vienna",
+        "zh-CN": "维也纳"
+      },
+      "matchTerms": [
+        "vienna",
+        "wien",
+        "维也纳"
+      ],
+      "adzuna": {
+        "country": "at",
+        "where": "Vienna"
+      }
+    },
+    {
+      "id": "metro:warsaw",
+      "slug": "warsaw",
+      "countryCode": "pl",
+      "labels": {
+        "en": "Warsaw",
+        "zh-CN": "华沙"
+      },
+      "matchTerms": [
+        "warsaw",
+        "warszawa",
+        "华沙"
+      ],
+      "adzuna": {
+        "country": "pl",
+        "where": "Warsaw"
+      }
+    },
+    {
+      "id": "metro:washington",
+      "slug": "washington",
+      "countryCode": "us",
+      "labels": {
+        "en": "Washington",
+        "zh-CN": "华盛顿"
+      },
+      "matchTerms": [
+        "washington",
+        "washington dc",
+        "dc",
+        "华盛顿"
+      ],
+      "adzuna": {
+        "country": "us",
+        "where": "Washington"
+      }
+    },
+    {
+      "id": "metro:wellington",
+      "slug": "wellington",
+      "countryCode": "nz",
+      "labels": {
+        "en": "Wellington",
+        "zh-CN": "惠灵顿"
+      },
+      "matchTerms": [
+        "wellington",
+        "惠灵顿"
+      ],
+      "adzuna": {
+        "country": "nz",
+        "where": "Wellington"
+      }
+    },
+    {
+      "id": "metro:wroclaw",
+      "slug": "wroclaw",
+      "countryCode": "pl",
+      "labels": {
+        "en": "Wroclaw",
+        "zh-CN": "弗罗茨瓦夫"
+      },
+      "matchTerms": [
+        "wroclaw",
+        "wrocław",
+        "弗罗茨瓦夫"
+      ],
+      "adzuna": {
+        "country": "pl",
+        "where": "Wroclaw"
+      }
+    },
+    {
+      "id": "metro:wuhan",
+      "slug": "wuhan",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Wuhan",
+        "zh-CN": "武汉"
+      },
+      "matchTerms": [
+        "wuhan",
+        "武汉",
+        "武汉市"
+      ],
+      "taxonomyId": "city:wuhan"
+    },
+    {
+      "id": "metro:wuxi",
+      "slug": "wuxi",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Wuxi",
+        "zh-CN": "无锡"
+      },
+      "matchTerms": [
+        "wuxi",
+        "无锡"
+      ]
+    },
+    {
+      "id": "metro:xi-an",
+      "slug": "xi-an",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Xi'an",
+        "zh-CN": "西安"
+      },
+      "matchTerms": [
+        "xi'an",
+        "xian",
+        "西安"
+      ]
+    },
+    {
+      "id": "metro:xiamen",
+      "slug": "xiamen",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Xiamen",
+        "zh-CN": "厦门"
+      },
+      "matchTerms": [
+        "xiamen",
+        "厦门"
+      ]
+    },
+    {
+      "id": "metro:yokohama",
+      "slug": "yokohama",
+      "countryCode": "jp",
+      "labels": {
+        "en": "Yokohama",
+        "zh-CN": "横滨"
+      },
+      "matchTerms": [
+        "yokohama",
+        "横浜",
+        "横滨"
+      ]
+    },
+    {
+      "id": "metro:zhengzhou",
+      "slug": "zhengzhou",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Zhengzhou",
+        "zh-CN": "郑州"
+      },
+      "matchTerms": [
+        "zhengzhou",
+        "郑州"
+      ]
+    },
+    {
+      "id": "metro:zhongshan",
+      "slug": "zhongshan",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Zhongshan",
+        "zh-CN": "中山"
+      },
+      "matchTerms": [
+        "zhongshan",
+        "中山"
+      ]
+    },
+    {
+      "id": "metro:zhuhai",
+      "slug": "zhuhai",
+      "countryCode": "cn",
+      "labels": {
+        "en": "Zhuhai",
+        "zh-CN": "珠海"
+      },
+      "matchTerms": [
+        "zhuhai",
+        "珠海"
+      ]
+    },
+    {
+      "id": "metro:zurich",
+      "slug": "zurich",
+      "countryCode": "ch",
+      "labels": {
+        "en": "Zurich",
+        "zh-CN": "苏黎世"
+      },
+      "matchTerms": [
+        "zurich",
+        "zürich",
+        "苏黎世"
+      ],
+      "adzuna": {
+        "country": "ch",
+        "where": "Zurich"
+      }
+    }
+  ]
+}

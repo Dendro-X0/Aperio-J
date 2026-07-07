@@ -51,8 +51,8 @@ export const messages: Messages = {
   },
   locale: {
     label: "Language",
-    zhCN: "简体中文",
     en: "English",
+    zhCN: "简体中文",
     es: "Español",
   },
   common: {
@@ -261,6 +261,7 @@ export const messages: Messages = {
       workModeAll: "All",
       workModeRemote: "Remote",
       workModeOnsite: "On-site",
+      cityFilterAll: "All cities",
       searchFacetsLabel: "Refine these search results",
       posterType: "Poster type",
       posterAll: "All",

@@ -18,6 +18,9 @@ importers:
         specifier: workspace:*
         version: link:packages/probe
     devDependencies:
+      '@countrystatecity/countries':
+        specifier: ^1.0.7
+        version: 1.0.7
       '@types/node':
         specifier: ^22.15.32
         version: 22.20.0
@@ -363,6 +366,9 @@ packages:
     peerDependenciesMeta:
       '@types/react':
         optional: true
+
+  '@countrystatecity/countries@1.0.7':
+    resolution: {integrity: sha512-/CDaCWpdJQWarHnDSqvg7bWZdFlQX7XxDMM3iAwxnOifvO20ntpqb2MKFmm6Dtd6sEgbpWcelHjDzWQSrXP+cw==}
 
   '@dotenvx/dotenvx@1.75.1':
     resolution: {integrity: sha512-/BITOC9dmS/edY2zQwZNicQ059O6RKabtQfyEafV0nGtfYRNHYy1DIPiYVcov40+tob9hfmBnbR963dS+EQ1DQ==}
@@ -2902,6 +2908,8 @@ snapshots:
       use-sync-external-store: 1.6.0(react@19.2.7)
     optionalDependencies:
       '@types/react': 19.2.17
+
+  '@countrystatecity/countries@1.0.7': {}
 
   '@dotenvx/dotenvx@1.75.1':
     dependencies:

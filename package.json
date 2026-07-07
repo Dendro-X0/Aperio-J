@@ -23,6 +23,7 @@
     "preflight:android": "bash scripts/android-preflight.sh",
     "db:push": "dotenv -c -- pnpm --filter @aperio-j/db push",
     "db:generate": "dotenv -c -- pnpm --filter @aperio-j/db generate",
+    "metro:generate": "node scripts/generate-metro-catalog.mjs",
     "postinstall": "node scripts/rebuild-native-modules.mjs",
     "native:rebuild": "node scripts/rebuild-native-modules.mjs"
   },
@@ -35,6 +36,7 @@
     "@aperio-j/probe": "workspace:*"
   },
   "devDependencies": {
+    "@countrystatecity/countries": "^1.0.7",
     "@types/node": "^22.15.32",
     "dotenv-cli": "^11.0.0",
     "typescript": "^6.0.3"

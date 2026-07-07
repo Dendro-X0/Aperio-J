@@ -156,6 +156,7 @@ export function inboxProfileSummary(profile: SeekerProfile) {
 
   return {
     city: cities.join(" · "),
+    cities,
     remoteOnly: cities.length === 0,
     roles: profile.intent.desiredRoles,
     industries: [...new Set(industries)],

@@ -52,8 +52,8 @@ export const messages: Messages = {
   },
   locale: {
     label: "Idioma",
-    zhCN: "简体中文",
     en: "English",
+    zhCN: "简体中文",
     es: "Español",
   },
   common: {
@@ -132,6 +132,7 @@ export const messages: Messages = {
       filter: "Filtros",
       workModeRemote: "Remoto",
       workModeOnsite: "Presencial",
+      cityFilterAll: "Todas las ciudades",
       workModeAll: "Todas",
       resultCount: "{count} oportunidades",
     },

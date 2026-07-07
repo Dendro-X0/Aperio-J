@@ -1,6 +1,12 @@
 /** Locale-keyed probe pack — community-extensible registry. */
 
 import type { SeekerProfile } from "@aperio-j/core";
+import { resolveMetro } from "@aperio-j/core";
+import {
+  buildCountryFallbackStreams,
+  resolveIndeedHostForCity,
+  resolveMetroSlug,
+} from "./metro-intl.js";
 
 export interface RegistryStreamDef {
   id: string;
@@ -602,6 +608,9 @@ export function resolveCitySlug(city: string): string | null {
     }
   }
 
+  const metroSlug = resolveMetroSlug(raw);
+  if (metroSlug) return metroSlug;
+
   if (/^[a-z][a-z0-9-]*$/i.test(normalized)) return normalized;
   if (firstToken && /^[a-z][a-z0-9-]*$/i.test(firstToken)) return firstToken;
   return null;
@@ -754,23 +763,19 @@ export function buildGenericCityStreams(city: string): RegistryStreamDef[] {
   return cityAggregators(label, slug);
 }
 
-/** German metros — use country-specific job boards in buildInternationalCityStreams. */
-const GERMAN_CITY_SLUGS = new Set(["berlin", "bonn", "frankfurt", "munich", "hamburg", "cologne"]);
-
-function resolveIndeedHost(city: string, slug: string): string {
-  if (isJapanCityLabel(city)) return "jp.indeed.com";
-  if (GERMAN_CITY_SLUGS.has(slug)) return "de.indeed.com";
-  return "www.indeed.com";
-}
-
 /** Build international city registry + aggregator probes for global-city pack. */
 export function buildInternationalCityStreams(city: string): RegistryStreamDef[] {
   const slug = resolveCitySlug(city) ?? normalizeCity(city).replace(/\s+/g, "");
   if (!slug) return [];
 
   const label = city.trim().replace(/市$/u, "") || city;
-  const known = INTL_CITY_REGISTRY[slug] ?? [];
-  const indeedHost = resolveIndeedHost(city, slug);
+  const curated = INTL_CITY_REGISTRY[slug] ?? [];
+  const metro = resolveMetro(city);
+  const countryFallback =
+    curated.length === 0 && metro
+      ? buildCountryFallbackStreams(metro.countryCode, slug, label)
+      : [];
+  const indeedHost = resolveIndeedHostForCity(city, slug);
   const generic: RegistryStreamDef[] = [
     {
       id: `${slug}-indeed`,
@@ -789,7 +794,7 @@ export function buildInternationalCityStreams(city: string): RegistryStreamDef[]
   ];
 
   const seen = new Set<string>();
-  return [...known, ...generic].filter((stream) => {
+  return [...curated, ...countryFallback, ...generic].filter((stream) => {
     if (seen.has(stream.seedUrl)) return false;
     seen.add(stream.seedUrl);
     return true;

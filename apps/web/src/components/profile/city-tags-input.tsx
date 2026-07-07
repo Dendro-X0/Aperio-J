@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { MapPin, X } from "lucide-react";
 import { useI18n, useTranslations } from "@/i18n/provider";
 import {
@@ -13,11 +13,15 @@ import {
   matchCityLabelFromGeo,
   resolveCityDraftLabel,
 } from "@/lib/city-options";
-import { taxonomyOptionsForKind } from "@/lib/taxonomy-options";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+
+interface MetroSuggestion {
+  id: string;
+  label: string;
+}
 
 export interface CityTagsInputHandle {
   commitDraft: () => string[];
@@ -35,30 +39,57 @@ export const CityTagsInput = forwardRef<
   const [draft, setDraft] = useState("");
   const [detecting, setDetecting] = useState(false);
   const [detectError, setDetectError] = useState<string | null>(null);
+  const [metroSuggestions, setMetroSuggestions] = useState<MetroSuggestion[]>([]);
   const skipBlurCommitRef = useRef(false);
 
-  const suggestions = useMemo(
-    () =>
-      taxonomyOptionsForKind("city", locale).filter((item) => item.id !== "city:remote"),
-    [locale],
+  const selectedIdentityKeys = useMemo(
+    () => new Set(value.map((city) => cityIdentityKey(city))),
+    [value],
   );
 
+  useEffect(() => {
+    const query = draft.trim();
+    const exclude = [...selectedIdentityKeys].join(",");
+    const controller = new AbortController();
+
+    const timer = window.setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({
+          q: query,
+          limit: "8",
+          exclude,
+        });
+        const response = await fetch(`/api/geo/cities?${params.toString()}`, {
+          signal: controller.signal,
+        });
+        if (!response.ok) return;
+        const payload = (await response.json()) as { cities?: MetroSuggestion[] };
+        setMetroSuggestions(payload.cities ?? []);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+      }
+    }, query ? 120 : 0);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timer);
+    };
+  }, [draft, selectedIdentityKeys]);
+
   const filteredSuggestions = useMemo(() => {
-    const query = draft.trim().toLowerCase();
-    const available = suggestions.filter(
+    const available = metroSuggestions.filter(
       (item) => !value.some((city) => citiesShareIdentity(city, item.label)),
     );
 
-    if (!query) return available.slice(0, 8);
+    const query = draft.trim().toLowerCase();
+    if (!query) return available;
 
-    return available
-      .filter(
-        (item) =>
-          item.label.toLowerCase().includes(query) ||
-          cityMatchTerms(item.label).some((term) => term.includes(query)),
-      )
-      .slice(0, 8);
-  }, [draft, suggestions, value]);
+    return available.filter(
+      (item) =>
+        item.label.toLowerCase().includes(query) ||
+        cityMatchTerms(item.label).some((term) => term.includes(query)),
+    );
+  }, [draft, metroSuggestions, value]);
 
   const suggestionLabels = useMemo(
     () => filteredSuggestions.map((item) => item.label),
@@ -199,7 +230,7 @@ export const CityTagsInput = forwardRef<
         />
       </div>
 
-      {filteredSuggestions.length > 0 && draft.trim() && (
+      {filteredSuggestions.length > 0 && (
         <ul id="city-suggestions" className="flex flex-wrap gap-1.5" role="listbox">
           {filteredSuggestions.map((item) => (
             <li key={item.id} role="option">

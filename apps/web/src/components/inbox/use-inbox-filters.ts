@@ -16,6 +16,7 @@ import {
   matchesWorkModeFilter,
   type InboxWorkModeFilter,
 } from "@/lib/inbox-work-mode";
+import { matchesCityFilter, type InboxCityFilter } from "@/lib/inbox-city-filter";
 
 export type InboxSort = "score" | "recent";
 export type PosterFilter = PosterType | "all";
@@ -25,6 +26,7 @@ export interface InboxFilters {
   presets: string[];
   posterType: PosterFilter;
   workMode: InboxWorkModeFilter;
+  city: InboxCityFilter;
   minScore: number;
   sort: InboxSort;
 }
@@ -34,6 +36,7 @@ export const DEFAULT_INBOX_FILTERS: InboxFilters = {
   presets: [],
   posterType: "all",
   workMode: "all",
+  city: "all",
   minScore: 0,
   sort: "score",
 };
@@ -61,11 +64,13 @@ export function filterInboxItems(
   filters: InboxFilters,
   availablePresetIds: string[],
   searchFacetIds: string[] = [],
+  profileCities: string[] = [],
 ): InboxItem[] {
   const activeFacetIds = filters.query.trim() ? searchFacetIds : availablePresetIds;
   const filtered = items.filter((item) => {
     if (!matchesQuery(item, filters.query)) return false;
     if (!matchesWorkModeFilter(item, filters.workMode)) return false;
+    if (!matchesCityFilter(item, filters.city, profileCities)) return false;
     if (filters.posterType !== "all" && item.opportunity.posterType !== filters.posterType) {
       return false;
     }
@@ -91,7 +96,7 @@ export function filterInboxItems(
   });
 }
 
-export function useInboxFilters(items: InboxItem[], industryLabels: string[]) {
+export function useInboxFilters(items: InboxItem[], industryLabels: string[], profileCities: string[] = []) {
   const availablePresetIds = useMemo(
     () => resolveInboxFilterPresetIdsForIndustries(industryLabels),
     [industryLabels],
@@ -127,8 +132,8 @@ export function useInboxFilters(items: InboxItem[], industryLabels: string[]) {
   }, [filters.query, searchFacetIds]);
 
   const filteredItems = useMemo(
-    () => filterInboxItems(items, filters, availablePresetIds, searchFacetIds),
-    [items, filters, availablePresetIds, searchFacetIds],
+    () => filterInboxItems(items, filters, availablePresetIds, searchFacetIds, profileCities),
+    [items, filters, availablePresetIds, searchFacetIds, profileCities],
   );
 
   function togglePreset(presetId: string) {
@@ -165,9 +170,10 @@ export function countActiveFilters(filters: InboxFilters): number {
   if (filters.presets.length > 0) count += 1;
   if (filters.posterType !== "all") count += 1;
   if (filters.workMode !== "all") count += 1;
+  if (filters.city !== "all") count += 1;
   if (filters.minScore > 0) count += 1;
   if (filters.sort !== "score") count += 1;
   return count;
 }
 
-export type { InboxSearchFacet };
+export type { InboxSearchFacet, InboxCityFilter };

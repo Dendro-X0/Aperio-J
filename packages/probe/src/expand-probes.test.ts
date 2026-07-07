@@ -185,22 +185,22 @@ describe("expandSourceProbes", () => {
     assert.ok(probes.filter((probe) => probe.regionHint === "remote").length <= 8);
   });
 
-  it("discovers unknown cities via search without preset registry hits", () => {
+  it("discovers Kraków via search and Poland metro fallbacks", () => {
     const profile = minimalProfile("Kraków");
     profile.intent.desiredRoles = ["software engineer"];
     const probes = expandSourceProbes(profile);
 
     assert.equal(probes[0]?.kind, "search_discovery");
     assert.ok(probes.some((probe) => probe.kind === "search_discovery"));
+    assert.ok(probes.some((probe) => probe.seed.includes("praca.gov.pl")));
+    assert.ok(probes.some((probe) => probe.seed.includes("pl.indeed.com")));
     assert.ok(!probes.some((probe) => probe.seed.includes("francetravail.fr")));
     assert.ok(!probes.some((probe) => probe.seed.includes("arbeitsagentur.de")));
-    assert.ok(
-      probes.some(
-        (probe) =>
-          probe.kind === "search_discovery" &&
-          (probe.seed.includes(encodeURIComponent("software engineer")) ||
-            probe.label.includes("software engineer")),
-      ),
-    );
+  });
+
+  it("adds Bundesagentur and German Indeed for Munich", () => {
+    const probes = expandSourceProbes(minimalProfile("Munich"));
+    assert.ok(probes.some((probe) => probe.seed.includes("arbeitsagentur.de")));
+    assert.ok(probes.some((probe) => probe.seed.includes("de.indeed.com")));
   });
 });

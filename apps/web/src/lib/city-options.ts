@@ -6,7 +6,9 @@ import {
   getTaxonomyNode,
   getTaxonomyNodes,
   localizeCityList,
+  resolveMetro,
   resolveCityNode,
+  searchMetros,
   taxonomyLabel,
 } from "@aperio-j/core";
 
@@ -31,6 +33,9 @@ export function matchCityLabelFromGeo(cityName: string, locale: string): string 
 
   const node = resolveCityNode(trimmed);
   if (node) return taxonomyLabel(node, locale);
+
+  const metro = resolveMetro(trimmed);
+  if (metro) return displayCityLabel(trimmed, locale);
 
   return trimmed;
 }
@@ -64,6 +69,7 @@ export function resolveCityDraftLabel(
       ...getTaxonomyNodes()
         .filter((node) => node.kind === "city" && node.id !== "city:remote")
         .map((node) => taxonomyLabel(node, locale)),
+      ...searchMetros(trimmed, locale, 12).map((item) => item.label),
     ]),
   ];
 

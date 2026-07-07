@@ -4,6 +4,13 @@ All notable changes to Aperio-J are documented here. Format follows [Keep a Chan
 
 ## [Unreleased]
 
+### Added
+
+- Metro catalog (~164 cities) with autocomplete API and Adzuna routing table
+- Country-level local job board fallbacks for metro catalog cities (Bundesagentur, Praca.gov.pl, etc.)
+- Inbox city filter for multi-city profiles
+- City-scoped API connectors now query every profile city tag (not only primary)
+
 ## [0.2.0] — 2026-07-06
 
 ### Added

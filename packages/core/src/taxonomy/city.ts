@@ -1,5 +1,6 @@
 import { getTaxonomyNodes, taxonomyLabel } from "./load-catalog.js";
 import type { TaxonomyNodeDef } from "./types.js";
+import { metroDisplayLabel, metroMatchTerms, resolveMetro } from "./metro.js";
 
 function normalizeCityInput(value: string): string {
   return value.trim().replace(/市$/u, "");
@@ -36,10 +37,14 @@ export function resolveCityNode(cityName: string): TaxonomyNodeDef | undefined {
   return undefined;
 }
 
-/** Stable identity for deduping and profile location keys (`city:shenzhen` or free-form). */
+/** Stable identity for deduping and profile location keys (`city:shenzhen`, `metro:munich`, or free-form). */
 export function cityIdentityKey(cityName: string): string {
   const node = resolveCityNode(cityName);
   if (node) return node.id;
+
+  const metro = resolveMetro(cityName);
+  if (metro) return metro.id;
+
   return normalizeCityInput(cityName).toLowerCase();
 }
 
@@ -51,23 +56,29 @@ export function displayCityLabel(cityName: string, locale = "zh-CN"): string {
   const node = resolveCityNode(trimmed);
   if (node) return taxonomyLabel(node, locale);
 
+  const metro = resolveMetro(trimmed);
+  if (metro) return metroDisplayLabel(metro, locale);
+
   return trimmed;
 }
 
 /** All lowercase match aliases for corpus / connector search. */
 export function cityMatchTerms(cityName: string): string[] {
   const node = resolveCityNode(cityName);
-  if (!node) {
-    const key = normalizeCityInput(cityName).toLowerCase();
-    return key ? [key] : [];
+  if (node) {
+    const terms = new Set<string>();
+    for (const term of cityNodeTerms(node)) {
+      const normalized = normalizeCityInput(term).toLowerCase();
+      if (normalized) terms.add(normalized);
+    }
+    return [...terms];
   }
 
-  const terms = new Set<string>();
-  for (const term of cityNodeTerms(node)) {
-    const normalized = normalizeCityInput(term).toLowerCase();
-    if (normalized) terms.add(normalized);
-  }
-  return [...terms];
+  const metro = resolveMetro(cityName);
+  if (metro) return metroMatchTerms(metro);
+
+  const key = normalizeCityInput(cityName).toLowerCase();
+  return key ? [key] : [];
 }
 
 export function citiesShareIdentity(a: string, b: string): boolean {
@@ -95,5 +106,9 @@ export function localizeCityList(cities: string[], locale: string): string[] {
 export function cityIsChinaRegion(cityName: string): boolean {
   const node = resolveCityNode(cityName);
   if (node) return /[\u4e00-\u9fff]/.test(taxonomyLabel(node, "zh-CN"));
+
+  const metro = resolveMetro(cityName);
+  if (metro) return metro.countryCode === "cn" || metro.countryCode === "hk";
+
   return /[\u4e00-\u9fff]/.test(cityName);
 }

@@ -33,4 +33,10 @@ describe("city localization", () => {
     assert.deepEqual(localizeCityList(["Shenzhen", "Berlin"], "zh-CN"), ["深圳", "柏林"]);
     assert.deepEqual(localizeCityList(["深圳", "柏林"], "en"), ["Shenzhen", "Berlin"]);
   });
+
+  it("resolves metro catalog cities outside taxonomy nodes", () => {
+    assert.equal(cityIdentityKey("Munich"), "metro:munich");
+    assert.equal(displayCityLabel("Munich", "zh-CN"), "慕尼黑");
+    assert.ok(cityMatchTerms("Austin").includes("austin"));
+  });
 });

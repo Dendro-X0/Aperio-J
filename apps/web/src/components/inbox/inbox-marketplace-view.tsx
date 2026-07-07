@@ -19,6 +19,7 @@ import {
   filterInboxItems,
   useInboxFilters,
 } from "@/components/inbox/use-inbox-filters";
+import { inboxCityFilterOptions } from "@/lib/inbox-city-filter";
 import { EngineActivityPanel } from "@/components/engine/engine-activity-panel";
 import { FetchErrorLine } from "@/components/inbox/fetch-error-line";
 import type { MatchRunInboxPayload } from "@/lib/match-run-client";
@@ -35,6 +36,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 export interface InboxProfileSummary {
   city: string;
+  cities: string[];
   roles: string[];
   industries: string[];
   remoteOnly: boolean;
@@ -77,7 +79,7 @@ export function InboxMarketplaceView({
   cnRemoteFirst = false,
   remoteFirst = false,
 }: InboxMarketplaceViewProps) {
-  const { dateLocale } = useI18n();
+  const { dateLocale, locale } = useI18n();
   const { t } = useTranslations("inbox");
   const { t: tMarket } = useTranslations("inbox.marketplace");
 
@@ -124,11 +126,23 @@ export function InboxMarketplaceView({
     searchFacetIds,
     togglePreset,
     resetFilters,
-  } = useInboxFilters(items, profileSummary.industries);
+  } = useInboxFilters(items, profileSummary.industries, profileSummary.cities);
+
+  const cityFilterOptions = useMemo(
+    () => inboxCityFilterOptions(profileSummary.cities, locale),
+    [profileSummary.cities, locale],
+  );
 
   const filteredExcluded = useMemo(
-    () => filterInboxItems(excludedItems, filters, availablePresetIds, searchFacetIds),
-    [excludedItems, filters, availablePresetIds, searchFacetIds],
+    () =>
+      filterInboxItems(
+        excludedItems,
+        filters,
+        availablePresetIds,
+        searchFacetIds,
+        profileSummary.cities,
+      ),
+    [excludedItems, filters, availablePresetIds, searchFacetIds, profileSummary.cities],
   );
   const filterHiddenCount = items.length - filteredItems.length;
   const totalPages = totalPagesForCount(filteredItems.length);
@@ -303,6 +317,8 @@ export function InboxMarketplaceView({
         onTogglePreset={togglePreset}
         onPosterTypeChange={(posterType) => setFilters((prev) => ({ ...prev, posterType }))}
         onWorkModeChange={(workMode) => setFilters((prev) => ({ ...prev, workMode }))}
+        cityOptions={cityFilterOptions}
+        onCityChange={(city) => setFilters((prev) => ({ ...prev, city }))}
         onMinScoreChange={(minScore) => setFilters((prev) => ({ ...prev, minScore }))}
         onSortChange={(sort) => setFilters((prev) => ({ ...prev, sort }))}
         onResetFilters={resetFilters}

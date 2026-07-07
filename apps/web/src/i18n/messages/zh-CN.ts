@@ -49,8 +49,8 @@ export const messages = {
   },
   locale: {
     label: "语言",
-    zhCN: "简体中文",
     en: "English",
+    zhCN: "简体中文",
     es: "Español",
   },
   common: {
@@ -257,6 +257,7 @@ export const messages = {
       workModeAll: "全部",
       workModeRemote: "远程",
       workModeOnsite: "到岗",
+      cityFilterAll: "全部城市",
       searchFacetsLabel: "在当前搜索结果中细化",
       posterType: "发布方",
       posterAll: "全部",

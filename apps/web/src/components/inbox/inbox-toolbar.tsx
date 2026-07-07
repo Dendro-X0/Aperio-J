@@ -4,6 +4,7 @@ import { ChevronDown, Filter, Search } from "lucide-react";
 import type { InboxFilters, InboxSearchFacet, PosterFilter } from "@/components/inbox/use-inbox-filters";
 import { countActiveFilters } from "@/components/inbox/use-inbox-filters";
 import type { InboxWorkModeFilter } from "@/lib/inbox-work-mode";
+import type { InboxCityFilter } from "@/lib/inbox-city-filter";
 import {
   INBOX_PRESET_OTHER,
   inboxFilterPresetLabel,
@@ -36,6 +37,8 @@ interface InboxToolbarProps {
   onTogglePreset: (presetId: string) => void;
   onPosterTypeChange: (posterType: PosterFilter) => void;
   onWorkModeChange: (workMode: InboxWorkModeFilter) => void;
+  cityOptions?: Array<{ value: string; label: string }>;
+  onCityChange?: (city: InboxCityFilter) => void;
   onMinScoreChange: (minScore: number) => void;
   onSortChange: (sort: InboxFilters["sort"]) => void;
   onResetFilters: () => void;
@@ -53,6 +56,8 @@ export function InboxToolbar({
   onTogglePreset,
   onPosterTypeChange,
   onWorkModeChange,
+  cityOptions = [],
+  onCityChange,
   onMinScoreChange,
   onSortChange,
   onResetFilters,
@@ -204,6 +209,36 @@ export function InboxToolbar({
             </Button>
           ))}
         </div>
+
+        {cityOptions.length > 1 && onCityChange && (
+          <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+            <Button
+              type="button"
+              size="sm"
+              variant={filters.city === "all" ? "default" : "outline"}
+              className="shrink-0"
+              onClick={() => onCityChange("all")}
+            >
+              {tMarket("cityFilterAll")}
+            </Button>
+            {cityOptions.map((option) => (
+              <Button
+                key={option.value}
+                type="button"
+                size="sm"
+                variant={filters.city === option.value ? "default" : "outline"}
+                className="shrink-0"
+                onClick={() =>
+                  onCityChange(
+                    filters.city === option.value ? "all" : option.value,
+                  )
+                }
+              >
+                {option.label}
+              </Button>
+            ))}
+          </div>
+        )}
 
         {searching && facetChips.length > 0 && (
           <p className="text-xs text-muted-foreground">{tMarket("searchFacetsLabel")}</p>
