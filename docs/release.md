@@ -31,6 +31,10 @@ pnpm build:android   # requires Android SDK + preflight
    - `apps/web/.env.example` for new runtime flags/secrets
 4. Commit: `chore: release vX.Y.Z`
 
+## Web deploy (browser + Android)
+
+See [deployment.md](./deployment.md) for self-hosted web setup (Docker or standalone) before sharing a URL.
+
 ## Publish
 
 **Rolling installers (every push to main):** CI publishes to the `latest` GitHub prerelease automatically.

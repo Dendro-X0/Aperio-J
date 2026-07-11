@@ -1,0 +1,34 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+#
+# Free tier notes:
+# - Web service spins down after ~15 min idle → cold start 30–90 s (normal on free).
+# - Ephemeral disk: SQLite at file:/data is LOST on sleep/redeploy.
+# - For a friend who keeps their profile: set DATABASE_URL to libsql://… + TURSO_AUTH_TOKEN (Turso free).
+# - For true file SQLite: upgrade to Starter + uncomment disk: below.
+#
+# Region: singapore — lower latency for friends in mainland China vs US/EU.
+
+services:
+  - type: web
+    name: aperio-j
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOSTNAME
+        value: 0.0.0.0
+      - key: DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false
+      - key: CRON_SECRET
+        generateValue: true
+    # Starter plan only — persistent SQLite file (uncomment after upgrading plan):
+    # disk:
+    #   name: aperio-j-data
+    #   mountPath: /data
+    #   sizeGB: 1

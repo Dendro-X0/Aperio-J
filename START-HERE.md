@@ -16,6 +16,7 @@ Forked conceptually from [Aperio](../aperio/docs/vision.md) (freelance/OSS clue 
 | 6 | [docs/desktop-mobile.md](./docs/desktop-mobile.md) | Tauri v2 desktop + mobile shells |
 | 7 | [CHANGELOG.md](./CHANGELOG.md) | Release history |
 | 8 | [docs/release.md](./docs/release.md) | Pre-release checklist |
+| 9 | [docs/deployment.md](./docs/deployment.md) | Render / self-host web (share with friends) |
 
 ## Repo layout
 

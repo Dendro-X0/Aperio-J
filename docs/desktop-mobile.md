@@ -73,11 +73,32 @@ Artifacts: `apps/desktop/src-tauri/target/release/bundle/`
 
 ### Android
 
+Release APKs are a **thin shell** that open your **self-hosted** web URL (`APERIO_J_WEB_URL`). The engine and SQLite file stay on your server — same local-first model as desktop.
+
+**1. Self-host the web app** (see [deployment.md](./deployment.md)):
+
 ```bash
+docker compose up -d --build
+# or pnpm build:selfhost && node apps/web/.next/standalone/apps/web/server.js
+```
+
+**2. Build an APK pointed at your instance:**
+
+```bash
+export APERIO_J_WEB_URL="http://192.168.1.42:3010"   # LAN
+# export APERIO_J_WEB_URL="https://aperio.example.com"  # HTTPS
+
 pnpm build:android
 ```
 
-Release APK/AAB is signed when `src-tauri/gen/android/keystore.properties` exists (see self-signing below). CI uses the committed upload keystore at `apps/desktop/signing/android-upload.jks` and publishes **signed release APKs** to [GitHub Releases](https://github.com/Dendro-X0/Aperio-J/releases/latest) on every `main` push.
+`APERIO_J_WEB_URL` is baked into the embedded launcher at build time. Rebuild when the URL changes.
+
+- **HTTP on LAN:** cleartext is enabled automatically for `http://` URLs.
+- **Emulator dev only:** `APERIO_J_ANDROID_ALLOW_LOCALHOST=1` embeds `http://127.0.0.1:3010` (not for distributing to friends).
+
+Artifacts: `apps/desktop/src-tauri/gen/android/app/build/outputs/apk/`
+
+CI: set GitHub secret `APERIO_J_WEB_URL` to your public self-host URL before Android builds on `main`.
 
 ### iOS
 
@@ -87,9 +108,16 @@ pnpm build:ios
 
 Requires macOS. Ad-hoc / development signing uses `APPLE_DEVELOPMENT_TEAM`.
 
-### Mobile release limitation (current)
+### Mobile release (Android)
 
-The employment engine still runs in the **Next.js + Prisma** server. That stack is bundled for **desktop only** via the Node sidecar. Mobile **release** builds ship the Tauri shell without an embedded engine — use **dev mode** against a local/self-hosted web instance, or wait for a future Rust-native engine port (roadmap 5.5+).
+The employment engine runs in the **Next.js + Prisma** server. That stack is bundled for **desktop only** via the Node sidecar. Android **release** APKs embed a launcher that opens **`APERIO_J_WEB_URL`** — your self-hosted instance — so profile and SQLite stay on hardware you control.
+
+```bash
+export APERIO_J_WEB_URL="https://your-self-host.example.com"
+pnpm build:android
+```
+
+See [deployment.md](./deployment.md) for self-host setup and [desktop-mobile.md](./desktop-mobile.md) for signing.
 
 ## OSS-friendly self-signing
 

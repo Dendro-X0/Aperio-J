@@ -1,0 +1,16 @@
+services:
+  aperio-j:
+    build: .
+    ports:
+      - "${APERIO_J_PORT:-3010}:3010"
+    volumes:
+      - aperio-j-data:/data
+    environment:
+      DATABASE_URL: file:/data/aperio-j.db
+      CRON_SECRET: ${CRON_SECRET:-change-me-in-production}
+      HOSTNAME: 0.0.0.0
+      PORT: "3010"
+    restart: unless-stopped
+
+volumes:
+  aperio-j-data:

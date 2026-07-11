@@ -6,6 +6,8 @@
   "scripts": {
     "build": "pnpm -r --filter \"./packages/*\" build",
     "build:web": "pnpm --filter @aperio-j/web build",
+    "build:vercel": "pnpm -r --filter \"./packages/*\" build && pnpm --filter @aperio-j/web build",
+    "build:selfhost": "node scripts/build-selfhost.mjs",
     "typecheck": "pnpm -r --filter \"./packages/*\" build && pnpm --filter @aperio-j/web typecheck",
     "test": "pnpm --filter \"./packages/*\" build && pnpm -r --filter \"./packages/*\" test",
     "fixture:run": "pnpm build && node scripts/fixture-run.mjs",
@@ -24,6 +26,7 @@
     "db:push": "dotenv -c -- pnpm --filter @aperio-j/db push",
     "db:generate": "dotenv -c -- pnpm --filter @aperio-j/db generate",
     "metro:generate": "node scripts/generate-metro-catalog.mjs",
+    "turso:schema": "node scripts/turso-schema-sql.mjs",
     "postinstall": "node scripts/rebuild-native-modules.mjs",
     "native:rebuild": "node scripts/rebuild-native-modules.mjs"
   },

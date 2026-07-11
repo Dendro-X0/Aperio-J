@@ -11,7 +11,7 @@
     "prepare:server": "node scripts/prepare-server.mjs",
     "dev:android": "tauri android dev",
     "dev:ios": "tauri ios dev",
-    "build:android": "node scripts/ensure-node-sidecar.mjs && node scripts/signing/setup-ci-signing.mjs && node scripts/signing/patch-android-release-signing.mjs && tauri android build",
+    "build:android": "node scripts/prepare-android-frontend.mjs && node scripts/patch-android-cleartext.mjs && node scripts/ensure-node-sidecar.mjs && node scripts/signing/setup-ci-signing.mjs && node scripts/signing/patch-android-release-signing.mjs && pnpm exec tauri android build --config src-tauri/tauri.android.release.json",
     "preflight:android": "bash ../../scripts/android-preflight.sh",
     "build:ios": "tauri ios build",
     "android:init": "tauri android init --ci",

@@ -4,6 +4,10 @@ const DEFAULT_DATABASE_URL = "file:../../data/aperio-j.db";
 
 /** Resolve relative SQLite file URLs against process.cwd() for driver adapters. */
 export function resolveDatabaseUrl(raw = process.env.DATABASE_URL ?? DEFAULT_DATABASE_URL): string {
+  if (raw.startsWith("libsql://")) {
+    return raw;
+  }
+
   if (!raw.startsWith("file:")) {
     return raw;
   }

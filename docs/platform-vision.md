@@ -39,7 +39,7 @@ aperio-j 的长期形态：**自托管、本地优先、隐私可控** 的就业
 | 桌面 + 移动一套代码 | Tauri v2 + 现有 Next/web 或 Vite 前端 |
 | 轻量安装包 | Tauri 原生壳 + 内嵌 Next standalone + Node sidecar |
 | 本地 cron | 系统调度或 Tauri 后台任务调用 match pipeline |
-| 自托管 | 可选：仅 Tauri 单机；高级用户仍可用 `pnpm dev` Web |
+| 自托管 | Tauri 单机 **或** 自托管 Web（Docker / standalone + 本地 SQLite 文件） |
 
 **Desktop shell (`apps/desktop`):**
 

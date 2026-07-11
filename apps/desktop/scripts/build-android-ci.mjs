@@ -14,7 +14,9 @@ const logPath = resolve(repoRoot, "android-build.log");
 const excerptPath = resolve(repoRoot, "android-build-failure.txt");
 
 const tauriArgs = process.argv.slice(2);
-const command = `pnpm exec tauri android build ${tauriArgs.join(" ")}`.trim();
+const buildCommand =
+  "pnpm exec tauri android build --config src-tauri/tauri.android.release.json " +
+  tauriArgs.join(" ");
 
 function runStep(label, cmd, cwd = desktopRoot) {
   console.log(`build-android-ci: ${label}`);
@@ -23,14 +25,16 @@ function runStep(label, cmd, cwd = desktopRoot) {
 
 try {
   runStep("preflight", "bash ../../scripts/android-preflight.sh");
+  runStep("prepare android frontend", "node scripts/prepare-android-frontend.mjs");
+  runStep("patch cleartext HTTP", "node scripts/patch-android-cleartext.mjs");
   runStep("ensure sidecar + frontend dist", "node scripts/ensure-node-sidecar.mjs");
   runStep("setup release signing", "node scripts/signing/setup-ci-signing.mjs");
   runStep("patch release signing", "node scripts/signing/patch-android-release-signing.mjs");
 
   mkdirSync(dirname(logPath), { recursive: true });
-  writeFileSync(logPath, `build-android-ci: ${command}\n\n`, "utf8");
+  writeFileSync(logPath, `build-android-ci: ${buildCommand}\n\n`, "utf8");
 
-  execSync(`set -o pipefail; ${command} 2>&1 | tee -a "${logPath}"`, {
+  execSync(`set -o pipefail; ${buildCommand} 2>&1 | tee -a "${logPath}"`, {
     cwd: desktopRoot,
     stdio: "inherit",
     shell: "/bin/bash",
