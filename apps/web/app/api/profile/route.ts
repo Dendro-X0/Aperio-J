@@ -125,7 +125,8 @@ export async function POST(request: Request) {
       discoveryReady,
       locationChanged,
     });
-  } catch {
+  } catch (error) {
+    console.error("POST /api/profile failed", error);
     return NextResponse.json({ error: t("api.profileSaveFailed") }, { status: 500 });
   }
 }

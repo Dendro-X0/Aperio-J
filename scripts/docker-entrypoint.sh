@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-if echo "$DATABASE_URL" | grep -q '^libsql://'; then
+if echo "$DATABASE_URL" | grep -qE '^libsql://|https://[^/]+\.turso\.io'; then
   echo "docker-entrypoint: remote libSQL (Turso) — skipping local schema bootstrap"
   exec node apps/web/server.js
 fi

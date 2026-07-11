@@ -50,8 +50,8 @@ turso db shell aperio-j < schema.sql
 
    | Key | Value |
    |-----|--------|
-   | `DATABASE_URL` | `libsql://your-db-….turso.io` |
-   | `TURSO_AUTH_TOKEN` | Turso token |
+   | `DATABASE_URL` | `libsql://your-db-….turso.io` (from Turso **Connect**; `https://…turso.io` also works) |
+   | `TURSO_AUTH_TOKEN` | Turso token (required; not optional) |
    | `CRON_SECRET` | auto-generated or your own |
 
 4. Deploy → copy `https://aperio-j-xxxx.onrender.com`
@@ -62,7 +62,16 @@ Send the Render URL → **Chrome** on Android → optional **Add to Home screen*
 
 Cold start: first open after ~15 min idle may take **30–90 seconds** on free tier — normal for Render.
 
-### Optional: wake before friend uses
+### Troubleshooting profile save (`保存 Profile 失败`)
+
+1. Open **`https://your-app.onrender.com/api/health/db`** after deploying the latest code. You want `{"ok":true,"backend":"turso",...}`.
+2. In Render → **Environment**, confirm:
+   - `DATABASE_URL` = `libsql://your-db-….turso.io` (from Turso **Connect** tab — not the HTTP URL unless you also set the token)
+   - `TURSO_AUTH_TOKEN` = long token from `turso db tokens create` (required)
+3. In Turso → **SQL console**, run `SELECT COUNT(*) FROM SeekerProfileRecord;` — if this errors, re-apply `pnpm turso:schema > schema.sql` and paste into the console.
+4. **Manual Deploy** on Render after changing env vars (or push to `main` if auto-deploy is on).
+
+---
 
 Use [UptimeRobot](https://uptimerobot.com) (free) to ping `/` every 14 minutes and reduce cold starts.
 

@@ -30,6 +30,11 @@
     "postinstall": "node scripts/rebuild-native-modules.mjs",
     "native:rebuild": "node scripts/rebuild-native-modules.mjs"
   },
+  "pnpm": {
+    "overrides": {
+      "@libsql/client": "0.17.4"
+    }
+  },
   "engines": {
     "node": ">=24"
   },
