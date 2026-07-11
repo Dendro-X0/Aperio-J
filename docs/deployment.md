@@ -38,8 +38,10 @@ turso db show aperio-j --url          # copy libsql://…
 turso db tokens create aperio-j       # copy token
 
 pnpm turso:schema > schema.sql
-turso db shell aperio-j < schema.sql
+turso db shell aperio-j < schema.sql   # optional — Render auto-applies schema on first boot
 ```
+
+If you paste into the Turso **SQL console** instead, use only the `CREATE TABLE` / `CREATE INDEX` lines (no `◇` log lines). Or skip manual schema entirely: the Docker entrypoint runs `ensure-turso-schema.mjs` on startup when tables are missing.
 
 ### 2. Render (once, ~5 min)
 

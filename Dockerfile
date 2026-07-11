@@ -31,6 +31,7 @@ ENV DATABASE_URL=file:/data/aperio-j.db
 COPY --from=build /app/apps/web/.next/standalone ./
 COPY --from=build /app/schema.sql ./schema.sql
 COPY scripts/docker-entrypoint.sh /entrypoint.sh
+COPY scripts/ensure-turso-schema.mjs ./scripts/ensure-turso-schema.mjs
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 10000
