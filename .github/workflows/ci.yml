@@ -72,11 +72,16 @@ jobs:
         run: |
           mkdir -p release
           EXE=$(find release-assets -name '*.exe' | head -1)
-          APK=$(find release-assets -name '*.apk' | head -1)
           test -n "$EXE" || { echo "Windows installer missing"; exit 1; }
-          test -n "$APK" || { echo "Android APK missing"; exit 1; }
           cp "$EXE" release/Aperio-J-windows-setup.exe
-          cp "$APK" release/Aperio-J-android.apk
+          APK=$(find release-assets -name '*.apk' | head -1)
+          if [ -n "$APK" ]; then
+            cp "$APK" release/Aperio-J-android.apk
+            echo "has_apk=true" >> "$GITHUB_ENV"
+          else
+            echo "has_apk=false" >> "$GITHUB_ENV"
+            echo "No Android APK — set repository secret APERIO_J_WEB_URL to enable."
+          fi
           ls -la release/
 
       - name: Publish rolling latest release
@@ -91,11 +96,10 @@ jobs:
 
             | Platform | File | Notes |
             |----------|------|-------|
-            | Windows | `Aperio-J-windows-setup.exe` | NSIS installer |
-            | Android | `Aperio-J-android.apk` | Self-signed release APK — enable “Install unknown apps” on device |
+            | Windows | `Aperio-J-windows-setup.exe` | NSIS installer — local SQLite, works offline |
+            | Android | `Aperio-J-android.apk` | Only when `APERIO_J_WEB_URL` secret is set; otherwise use the hosted web URL in Chrome |
 
-            Android builds use the repo upload key for sideloading without an app store.
+            For Android friends without the APK: open your Render URL in Chrome (Add to Home screen).
           files: |
-            release/Aperio-J-windows-setup.exe
-            release/Aperio-J-android.apk
+            release/*
           overwrite_files: true

@@ -105,12 +105,26 @@ jobs:
 
       - run: cp .env.example .env && cp apps/web/.env.example apps/web/.env
 
+      - name: Check Android web URL configured
+        id: android_web
+        env:
+          WEB_URL: ${{ secrets.APERIO_J_WEB_URL }}
+        run: |
+          if [ -z "$WEB_URL" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "APERIO_J_WEB_URL not set — skipping Android APK (friend can use the web URL)."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Preflight Android toolchain
+        if: steps.android_web.outputs.skip != 'true'
         run: bash scripts/android-preflight.sh
         env:
           NDK_HOME: ${{ steps.ndk.outputs.path }}
 
       - name: Build Android APK (signed release)
+        if: steps.android_web.outputs.skip != 'true'
         working-directory: apps/desktop
         run: node scripts/build-android-ci.mjs --target aarch64 --apk
         env:
@@ -122,7 +136,7 @@ jobs:
           APERIO_J_ANDROID_KEY_PASSWORD: ${{ secrets.APERIO_J_ANDROID_KEY_PASSWORD }}
 
       - name: Upload Android build log on failure
-        if: failure()
+        if: failure() && steps.android_web.outputs.skip != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: aperio-j-android-build-log
@@ -132,6 +146,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Upload Android installer
+        if: steps.android_web.outputs.skip != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: aperio-j-android

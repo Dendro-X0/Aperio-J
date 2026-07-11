@@ -16,7 +16,7 @@ const repoRoot = resolve(__dirname, "..");
 const dbRoot = resolve(repoRoot, "packages/db");
 
 const sql = execSync(
-  "pnpm exec prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script",
+  "pnpm exec prisma migrate diff --from-empty --to-schema prisma/schema.prisma --script",
   { cwd: dbRoot, encoding: "utf8" },
 );
 

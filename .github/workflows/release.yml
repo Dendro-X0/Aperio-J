@@ -55,16 +55,16 @@ jobs:
         run: |
           mkdir -p release
           EXE=$(find release-assets -name '*.exe' | head -1)
-          APK=$(find release-assets -name '*.apk' | head -1)
           test -n "$EXE" || { echo "Windows installer missing"; exit 1; }
-          test -n "$APK" || { echo "Android APK missing"; exit 1; }
           cp "$EXE" release/Aperio-J-windows-setup.exe
-          cp "$APK" release/Aperio-J-android.apk
+          APK=$(find release-assets -name '*.apk' | head -1)
+          if [ -n "$APK" ]; then
+            cp "$APK" release/Aperio-J-android.apk
+          fi
 
       - name: Create release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            release/Aperio-J-windows-setup.exe
-            release/Aperio-J-android.apk
+            release/*
           generate_release_notes: true
