@@ -1,10 +1,14 @@
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { PrismaClient } from "@prisma/client";
+import { bootstrapTursoSchemaIfNeeded } from "./bootstrap-turso-schema.js";
 import { resolveDatabaseUrl } from "./resolve-database-url.js";
 import { isTursoDatabaseUrl, resolveTursoConfig } from "./turso.js";
 
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+const globalForPrisma = globalThis as unknown as {
+  prisma?: PrismaClient;
+  dbReady?: Promise<void>;
+};
 
 function createPrismaClient() {
   const rawUrl = process.env.DATABASE_URL ?? "file:../../data/aperio-j.db";
@@ -35,6 +39,21 @@ function createPrismaClient() {
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 globalForPrisma.prisma = prisma;
+
+export function ensureDbReady(): Promise<void> {
+  if (!globalForPrisma.dbReady) {
+    globalForPrisma.dbReady = bootstrapTursoSchemaIfNeeded().catch((error) => {
+      globalForPrisma.dbReady = undefined;
+      throw error;
+    });
+  }
+
+  return globalForPrisma.dbReady;
+}
+
+if (isTursoDatabaseUrl(process.env.DATABASE_URL ?? "")) {
+  void ensureDbReady();
+}
 
 if (!isTursoDatabaseUrl(process.env.DATABASE_URL ?? "")) {
   void prisma.$executeRawUnsafe("PRAGMA synchronous = NORMAL").catch(() => undefined);

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { ensureDbReady } from "@aperio-j/db";
 import { cookies } from "next/headers";
 import {
   PROFILE_COOKIE,
@@ -21,6 +22,7 @@ import { profileLocationChanged } from "@/lib/profile-location";
 import { getRequestTranslator } from "@/lib/request-i18n";
 
 export async function GET() {
+  await ensureDbReady();
   const profileId = await getProfileIdFromCookies();
   if (!profileId) {
     return NextResponse.json({ profile: null });
@@ -45,6 +47,7 @@ export async function POST(request: Request) {
   const { t } = await getRequestTranslator();
 
   try {
+    await ensureDbReady();
     const body = (await request.json()) as {
       form?: ProfileSettingsForm;
       profileId?: string;

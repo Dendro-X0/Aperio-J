@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma, isTursoDatabaseUrl, resolveTursoAuthToken } from "@aperio-j/db";
+import { prisma, ensureDbReady, isTursoDatabaseUrl, resolveTursoAuthToken } from "@aperio-j/db";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +8,7 @@ export async function GET() {
   const turso = isTursoDatabaseUrl(databaseUrl);
 
   try {
+    await ensureDbReady();
     const count = await prisma.seekerProfileRecord.count();
     return NextResponse.json({
       ok: true,
