@@ -23,4 +23,11 @@ describe("classifyRoleCategories — tech roles", () => {
     const factory = classifyRoleCategories("深圳电子厂IQC质检员 普工");
     assert.ok(factory.includes("qc") || factory.includes("production-line"));
   });
+
+  it("classifies remote ops roles", () => {
+    assert.ok(classifyRoleCategories("电商运营专员 店铺运营").includes("ecommerce-ops"));
+    assert.ok(classifyRoleCategories("直播运营助理 带货").includes("livestream-ops"));
+    assert.ok(classifyRoleCategories("Remote Customer Support Specialist").includes("customer-support"));
+    assert.ok(classifyRoleCategories("社群运营 新媒体").some((cat) => cat === "community-ops" || cat === "content-ops"));
+  });
 });

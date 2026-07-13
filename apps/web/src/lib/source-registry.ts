@@ -9,7 +9,7 @@ import {
   resolveSignalPacksForProfile,
 } from "@aperio-j/probe/signal-packs/resolve";
 import { loadCommunitySignalPacks } from "@aperio-j/probe/signal-packs/server";
-import { resolveProbePack, isChinaCityProfile, isCnRemoteFirstProfile, REMOTE_REGISTRY_STREAMS } from "@aperio-j/probe";
+import { resolveProbePack, isChinaCityProfile, isCnRemoteFirstProfile, REMOTE_REGISTRY_STREAMS, CN_FREELANCE_REGISTRY_STREAMS, isCnFreelanceIntentProfile } from "@aperio-j/probe";
 import { isRemoteBoardUrl } from "@aperio-j/core";
 import {
   loadCityDiscoveryMemory,
@@ -343,6 +343,46 @@ export async function ensureRemoteRegistryStreams(seekerProfileId: string): Prom
       discoveredVia: `global-remote-trusted:${stream.id}`,
       regionHint: "remote",
       confidence: 0.72,
+      sampleItemCount: 0,
+      lastValidatedAt: now,
+      health: "unknown",
+      validationTier: "candidate",
+    };
+
+    await upsertDiscoveredStream(seekerProfileId, candidate, true);
+    added += 1;
+  }
+
+  return added;
+}
+
+/** Seed experimental CN freelance/gig streams (电鸭 RSS, 猪八戒, 一品威客). */
+export async function ensureCnFreelanceRegistryStreams(
+  seekerProfileId: string,
+  profile: SeekerProfile,
+): Promise<number> {
+  if (!isCnFreelanceIntentProfile(profile)) return 0;
+
+  const existing = await prisma.streamRegistryEntry.findMany({
+    where: { seekerProfileId, enabled: true },
+    select: { seedUrl: true },
+  });
+  const existingUrls = new Set(existing.map((row) => row.seedUrl));
+
+  let added = 0;
+  const now = new Date().toISOString();
+
+  for (const stream of CN_FREELANCE_REGISTRY_STREAMS) {
+    if (existingUrls.has(stream.seedUrl)) continue;
+
+    const candidate: StreamCandidate = {
+      id: `stream-${stream.seedUrl}`,
+      label: stream.label,
+      kind: stream.kind,
+      seedUrl: stream.seedUrl,
+      discoveredVia: `cn-freelance-trusted:${stream.id}`,
+      regionHint: "remote",
+      confidence: stream.kind === "rss" ? 0.68 : 0.52,
       sampleItemCount: 0,
       lastValidatedAt: now,
       health: "unknown",

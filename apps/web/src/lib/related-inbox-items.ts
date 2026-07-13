@@ -21,6 +21,11 @@ const MEANINGFUL_ROLE_CATEGORIES = new Set<RoleCategory>([
   "data-ml",
   "qa-automation",
   "product-design",
+  "ecommerce-ops",
+  "livestream-ops",
+  "customer-support",
+  "content-ops",
+  "community-ops",
 ]);
 
 export interface RelatedInboxItemsOptions {

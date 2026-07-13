@@ -3,8 +3,8 @@ import type { Messages } from "./zh-CN";
 export const messages: Messages = {
   app: {
     name: "Aperio-J",
-    tagline: "Remote job discovery · Profile matching, no ads",
-    description: "Profile-driven remote and tech job matching for freelancers and digital nomads",
+    tagline: "Remote & gig work · Profile matching, no ads",
+    description: "Discover remote jobs, ops/gig roles, and freelance-friendly opportunities with explainable profile matching",
   },
   nav: {
     inbox: "Matches",
@@ -450,14 +450,14 @@ export const messages: Messages = {
     title: "Profile settings",
     firstSetupTitle: "Welcome — let's set you up",
     firstSetupDescription:
-      "Tell us your skills, remote work preference, and optional home city. Remote boards are scanned by default; add cities to mix in local sources.",
+      "Tell us what kind of remote or flexible work you want — e-commerce ops, live stream, customer support, tech, or freelance-friendly roles. On-site CN aggregators run only when you choose on-site only.",
     setupRedirect: {
       title: "Complete your profile to see matches",
       description:
         "Matched opportunities need industry and occupation at minimum. Finish the steps below, then open Inbox from the sidebar.",
     },
     description:
-      "Set your skills, remote preference, and optional cities. Aperio-J scans remote tech boards by default and ranks matches from your profile — no keyword roulette.",
+      "Set your skills, remote or gig preference, and optional cities. Aperio-J scans international remote boards by default — ops, e-commerce, live-stream, support, and tech. Paste job links to add anything else.",
     setupSteps: {
       location: "Location — cities & remote",
       employment: "Employment — work types",
@@ -540,7 +540,7 @@ export const messages: Messages = {
       "What you've done and what you know. e.g. 3 years phone assembly; QC, ESD; display burn-in testing",
     desiredRoles: "Roles to explore",
     desiredRolesHint: "New directions you want to try — can differ from your current role. Used for matching and discovery.",
-    desiredRolesPlaceholder: "QC, warehouse, materials, office admin",
+    desiredRolesPlaceholder: "E-commerce ops, live stream, customer support, content",
     intentVsCurrentHint:
       "Current role is where you are now; list new directions here. e.g. production worker → QC or warehouse.",
     targetRoleSuggestions: "Suggested transitions",
@@ -563,6 +563,14 @@ export const messages: Messages = {
       previewBackground: "Experience summary",
       previewEmployment: "Employment types",
       previewFilters: "Quick filters",
+      "remote-ops-gig": {
+        title: "Remote ops & gig",
+        description: "Remote or part-time ops — e-commerce, support, content, community. No degree required.",
+      },
+      "remote-ecommerce-live": {
+        title: "E-commerce & live stream",
+        description: "Shop ops, live-stream assistant, content — remote or flexible, room to grow.",
+      },
       "remote-developer": {
         title: "Remote software engineer",
         description: "Remote-only; backend, full-stack, DevOps targets from international tech boards.",
@@ -589,11 +597,11 @@ export const messages: Messages = {
       },
       "digital-nomad": {
         title: "Digital nomad / freelancer",
-        description: "Remote-only; contract-friendly roles across dev, design, and async-friendly teams.",
+        description: "Remote-only; contract-friendly ops, content, support, and async-friendly teams.",
       },
       "factory-upgrade": {
-        title: "Easier role off the line",
-        description: "Line worker → QC, warehouse, materials; excludes line work, night shifts, and delivery gigs.",
+        title: "On-site factory transition",
+        description: "On-site only: line worker → QC, warehouse, materials. Not for remote browsing.",
       },
       "flexible-hours": {
         title: "More flexible schedule",

@@ -551,6 +551,89 @@
         "figma",
         "user research"
       ]
+    },
+    {
+      "id": "subSector:ecommerce-ops",
+      "kind": "subSector",
+      "parentId": "industry:internet-platform",
+      "roleCategory": "ecommerce-ops",
+      "labels": { "zh-CN": "电商运营", "en": "E-commerce operations" },
+      "matchTerms": [
+        "电商运营",
+        "店铺运营",
+        "e-commerce operations",
+        "ecommerce operations",
+        "marketplace operations",
+        "shop operations",
+        "amazon seller",
+        "shopee",
+        "tiktok shop"
+      ]
+    },
+    {
+      "id": "subSector:livestream-ops",
+      "kind": "subSector",
+      "parentId": "industry:internet-platform",
+      "roleCategory": "livestream-ops",
+      "labels": { "zh-CN": "直播运营", "en": "Live stream operations" },
+      "matchTerms": [
+        "直播运营",
+        "直播助理",
+        "主播助理",
+        "带货",
+        "live stream",
+        "livestream",
+        "stream operations",
+        "live commerce"
+      ]
+    },
+    {
+      "id": "subSector:customer-support",
+      "kind": "subSector",
+      "parentId": "industry:internet-platform",
+      "roleCategory": "customer-support",
+      "labels": { "zh-CN": "客服 / 支持", "en": "Customer support" },
+      "matchTerms": [
+        "客服",
+        "客户支持",
+        "customer support",
+        "customer service",
+        "customer success",
+        "help desk",
+        "call center",
+        "live chat agent"
+      ]
+    },
+    {
+      "id": "subSector:content-ops",
+      "kind": "subSector",
+      "parentId": "industry:internet-platform",
+      "roleCategory": "content-ops",
+      "labels": { "zh-CN": "内容运营", "en": "Content operations" },
+      "matchTerms": [
+        "内容运营",
+        "新媒体",
+        "content operations",
+        "content moderator",
+        "copywriter",
+        "content creator",
+        "social media content"
+      ]
+    },
+    {
+      "id": "subSector:community-ops",
+      "kind": "subSector",
+      "parentId": "industry:internet-platform",
+      "roleCategory": "community-ops",
+      "labels": { "zh-CN": "社群运营", "en": "Community operations" },
+      "matchTerms": [
+        "社群运营",
+        "community manager",
+        "community operations",
+        "social media manager",
+        "discord moderator",
+        "forum moderator"
+      ]
     }
   ]
 }

@@ -27,6 +27,13 @@ describe("profile-intent-suggestions", () => {
     assert.ok(suggestions.some((label) => /质检|仓储/.test(label)));
   });
 
+  it("applies remote-ops-gig preset", () => {
+    const next = applyProfileIntentPreset(EMPTY_PROFILE_FORM, "remote-ops-gig", "zh-CN");
+    assert.equal(next.remotePreference, "remote-only");
+    assert.match(next.desiredRolesText, /电商运营|客服/);
+    assert.ok(next.employmentTypes.includes("part-time"));
+  });
+
   it("applies remote-developer preset", () => {
     const next = applyProfileIntentPreset(EMPTY_PROFILE_FORM, "remote-developer", "en");
     assert.equal(next.remotePreference, "remote-only");
@@ -52,6 +59,7 @@ describe("profile-intent-suggestions", () => {
     );
 
     assert.deepEqual(next.cities, ["深圳"]);
+    assert.equal(next.remotePreference, "onsite-only");
     assert.equal(next.excludeProductionLine, true);
     assert.match(next.desiredRolesText, /质检/);
     assert.match(next.avoidText, /夜班|流水线/);

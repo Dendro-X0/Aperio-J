@@ -268,6 +268,14 @@ export const messages: Messages = {
       previewBackground: "Resumen de experiencia",
       previewEmployment: "Tipos de empleo",
       previewFilters: "Filtros rápidos",
+      "remote-ops-gig": {
+        title: "Operaciones remoto / gig",
+        description: "Ops remoto o a tiempo parcial — e-commerce, soporte, contenido.",
+      },
+      "remote-ecommerce-live": {
+        title: "E-commerce y live stream",
+        description: "Tienda online, asistente de directo, contenido — remoto o flexible.",
+      },
       "remote-developer": {
         title: "Ingeniero de software remoto",
         description: "Solo remoto; backend, full-stack, DevOps desde tableros internacionales.",

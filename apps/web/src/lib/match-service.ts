@@ -7,9 +7,10 @@ import { fetchAllStreamsWithCache } from "./fetch-streams-cached";
 import type { StreamConfig } from "@aperio-j/discovery/fetch-streams";
 import { filterCnFeedItemsForProfile } from "@aperio-j/discovery/cn-feed-quality";
 import { filterRemoteTechFeedItemsForProfile } from "@aperio-j/discovery/remote-tech-feed-quality";
+import { filterRemoteOpsFeedItemsForProfile } from "@aperio-j/discovery/remote-ops-feed-quality";
 import { shouldRunInitialScrapeDiscoveryForProfile, shouldRunScrapeDiscoveryForProfile } from "@aperio-j/discovery/discovery-fallback";
 import { throwIfAborted } from "@aperio-j/discovery/discovery-abort";
-import { isChinaCityProfile, isCnLocalFirstOccupation, isCnRemoteFirstProfile, isRemoteFirstProfile, isRemoteTechProfile } from "@aperio-j/probe";
+import { isChinaCityProfile, isCnLocalFirstOccupation, isCnRemoteFirstProfile, isCnFreelanceIntentProfile, isRemoteFirstProfile, isRemoteOpsProfile, isRemoteTechProfile } from "@aperio-j/probe";
 import { localizeOpportunity, parseOpportunities } from "@aperio-j/discovery/parse-opportunity";
 import { FIXTURE_FEED_ITEMS, partitionOpportunityMatches } from "@aperio-j/matcher";
 import { findRelatedInboxItems } from "@/lib/related-inbox-items";
@@ -26,6 +27,7 @@ import {
   sanitizeRemoteBoardRegistryStreams,
   ensureCnCityRegistryStreams,
   ensureRemoteRegistryStreams,
+  ensureCnFreelanceRegistryStreams,
   ensureCnRemoteRegistryStreams,
 } from "./source-registry";
 import { applyStreamFetchResults, countHealthyStreams } from "./stream-health";
@@ -346,6 +348,9 @@ export async function runMatchPipeline(
   }
   if (cnRemoteFirst || isRemoteFirstProfile(profile)) {
     await ensureRemoteRegistryStreams(profile.id);
+  }
+  if (isCnFreelanceIntentProfile(profile)) {
+    await ensureCnFreelanceRegistryStreams(profile.id, profile);
   } else if (cnCaptureFirst) {
     await sanitizeRemoteBoardRegistryStreams(profile.id);
     await sanitizeCnRegistryStreams(profile.id, profile.constraints.primaryCity);
@@ -444,6 +449,8 @@ export async function runMatchPipeline(
 
   if (cnCaptureFirst) {
     rssItems = filterCnFeedItemsForProfile(rssItems, profile);
+  } else if (isRemoteOpsProfile(profile)) {
+    rssItems = filterRemoteOpsFeedItemsForProfile(rssItems, profile);
   } else if (isRemoteTechProfile(profile)) {
     rssItems = filterRemoteTechFeedItemsForProfile(rssItems, profile);
   }

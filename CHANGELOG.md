@@ -4,6 +4,19 @@ All notable changes to Aperio-J are documented here. Format follows [Keep a Chan
 
 ## [Unreleased]
 
+### Added
+
+- Experimental CN freelance / gig probe pack (`cn-freelance-packs.ts`): 电鸭 RSS, 电鸭远程招聘, 猪八戒需求大厅, 一品威客
+- Profile presets **远程运营 / 零工** and **电商 & 直播运营** with ops-aware match filtering
+- `APERO_J_CN_FREELANCE_EXPERIMENTAL=false` to disable 威客源 seeding
+- Ops role taxonomy: `ecommerce-ops`, `livestream-ops`, `customer-support`, `content-ops`, `community-ops`
+- Remote ops profiles filter pure developer listings from international feeds
+
+### Changed
+
+- CN profiles with remote/hybrid preference no longer auto-scrape BOSS/智联; onsite-only keeps local aggregators
+- Product positioning: remote / gig / freelance-first (Work Best style), not on-site factory hiring
+
 ## [0.3.0] — 2026-07-06
 
 ### Added

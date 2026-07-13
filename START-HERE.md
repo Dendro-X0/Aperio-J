@@ -1,6 +1,8 @@
 # aperio-j — start here
 
-**Remote-first job discovery** for tech professionals, freelancers, and digital nomads: aggregate public remote feeds, match to your profile and intent, rank with explainable scores. No ads, no pay-to-rank. Optional city tags add hybrid local sources.
+**Remote-first and gig-friendly job discovery:** aggregate international remote feeds, match to your profile and intent, rank with explainable scores. Ops, e-commerce, live stream, support, tech, and contract-friendly roles — no ads, no pay-to-rank.
+
+On-site CN aggregators are **opt-in** (`on-site only` + city tag); cloud deploys use server IP, not the user's phone.
 
 Forked conceptually from [Aperio](../aperio/docs/vision.md) (freelance/OSS clue engine), but profile intake and matching target **employment** (full-time, contract, part-time).
 

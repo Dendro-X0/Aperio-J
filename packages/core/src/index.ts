@@ -38,6 +38,11 @@ export type RoleCategory =
   | "data-ml"
   | "qa-automation"
   | "product-design"
+  | "ecommerce-ops"
+  | "livestream-ops"
+  | "customer-support"
+  | "content-ops"
+  | "community-ops"
   | "other";
 
 export interface GeoProfile {

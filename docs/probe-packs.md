@@ -64,6 +64,23 @@ Future: `eastern-europe` sphere (Yandex) can extend `SEARCH_SPHERE_ENGINES` with
 
 Extend `CITY_SLUG_ALIASES` in `probe-packs.ts` or contribute a JSON pack.
 
+## CN freelance / gig experiment (威客)
+
+Built-in streams in `packages/probe/src/cn-freelance-packs.ts` seed when Profile intent matches remote ops / gig keywords (电商运营, 直播, 自由职业, freelance, …):
+
+| Stream | URL | Kind |
+|--------|-----|------|
+| 电鸭社区·RSS | `https://eleduck.com/feed/latest.xml` | `rss` |
+| 电鸭社区·远程招聘 | `https://eleduck.com/jobs-channel` | `list_page` |
+| 猪八戒·需求大厅 | `https://www.zbj.com/xq/` | `list_page` |
+| 一品威客 | `https://www.epwk.com/` | `list_page` |
+
+- Enabled by default for matching profiles; set `APERO_J_CN_FREELANCE_EXPERIMENTAL=false` to disable.
+- RSS (电鸭) is the most reliable from overseas; list pages may need China IP or Playwright.
+- Not a replacement for 猪八戒/电鸭 apps — experimental intake for Aperio-J matching.
+
+Ops role taxonomy (`ecommerce-ops`, `livestream-ops`, `customer-support`, `content-ops`, `community-ops`) lives in `nodes.json` and `role-categories.ts`. Remote ops profiles filter out pure developer listings during match runs.
+
 ## Adding a stream
 
 ```typescript

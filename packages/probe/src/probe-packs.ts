@@ -653,13 +653,12 @@ export function isCnLocalFirstOccupation(
   return false;
 }
 
-/** CN city profile that should run local search → scan → match (not international remote boards). */
+/** CN city profile that should run local aggregator scrape (onsite-only). Hybrid/remote use remote boards. */
 export function isCnLocalFirstProfile(profile: SeekerProfile): boolean {
   if (!isChinaCityProfile(profile.constraints.primaryCity, profile.constraints.acceptableCities)) {
     return false;
   }
-  if (profile.constraints.remotePreference === "onsite-only") return true;
-  return isCnLocalFirstOccupation(profile);
+  return profile.constraints.remotePreference === "onsite-only";
 }
 
 /** CN city profile that accepts remote/hybrid — Work Best-style intake (remote boards first). */
@@ -688,6 +687,23 @@ export function isRemoteFirstProfile(profile: SeekerProfile): boolean {
 
 const REMOTE_TECH_INTENT =
   /\b(developer|engineer|programmer|devops|full[- ]?stack|software|frontend|backend|sre|platform engineer|data engineer|machine learning|product manager|ux designer|ui designer|qa engineer|sdet)\b|开发工程师|程序员|软件工程师|前端开发|后端开发|全栈|运维工程师|数据工程师|算法工程师|产品经理|测试工程师/i;
+
+const REMOTE_OPS_INTENT =
+  /\b(?:operations|ops|customer\s+(?:support|success|service)|community\s+manager|social\s+media|content\s+(?:creator|moderator|operations)|e-?commerce|ecommerce|live\s*stream|livestream|virtual\s+assistant|moderator|copywriter|growth|marketing\s+assistant|community\s+operations)\b|运营|电商|直播|客服|内容运营|社群|新媒体|店铺运营|带货|主播助理|风控运营/iu;
+
+/** Profile targets remote ops, gig, or e-commerce/live roles (non-developer). */
+export function isRemoteOpsProfile(profile: SeekerProfile): boolean {
+  if (profile.constraints.remotePreference === "onsite-only") return false;
+  const corpus = profileIntentCorpus(profile);
+  if (!corpus.trim()) return false;
+
+  const opsIntent = REMOTE_OPS_INTENT.test(corpus);
+  const techRoleIntent = REMOTE_TECH_INTENT.test(corpus);
+
+  if (opsIntent && !techRoleIntent) return true;
+  if (techRoleIntent || isRemoteTechProfile(profile)) return false;
+  return opsIntent;
+}
 
 /** Profile targets remote tech roles (engineering, product, data). */
 export function isRemoteTechProfile(profile: SeekerProfile): boolean {

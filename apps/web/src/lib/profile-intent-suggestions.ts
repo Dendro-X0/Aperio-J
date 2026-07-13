@@ -6,13 +6,15 @@ import { resolveIndustryGroupFromLabel } from "@/lib/industry-options";
 import { roleSuggestionsForIndustries } from "@/lib/role-options";
 
 export type ProfileIntentPresetId =
+  | "remote-ops-gig"
+  | "remote-ecommerce-live"
+  | "digital-nomad"
   | "remote-developer"
   | "remote-frontend"
   | "remote-backend"
   | "devops-platform"
   | "product-ux"
   | "data-ml"
-  | "digital-nomad"
   | "factory-upgrade"
   | "flexible-hours";
 
@@ -23,6 +25,21 @@ export interface ProfileIntentPreset {
 }
 
 export const PROFILE_INTENT_PRESETS: ProfileIntentPreset[] = [
+  {
+    id: "remote-ops-gig",
+    titleKey: "presets.remote-ops-gig.title",
+    descriptionKey: "presets.remote-ops-gig.description",
+  },
+  {
+    id: "remote-ecommerce-live",
+    titleKey: "presets.remote-ecommerce-live.title",
+    descriptionKey: "presets.remote-ecommerce-live.description",
+  },
+  {
+    id: "digital-nomad",
+    titleKey: "presets.digital-nomad.title",
+    descriptionKey: "presets.digital-nomad.description",
+  },
   {
     id: "remote-developer",
     titleKey: "presets.remote-developer.title",
@@ -52,11 +69,6 @@ export const PROFILE_INTENT_PRESETS: ProfileIntentPreset[] = [
     id: "data-ml",
     titleKey: "presets.data-ml.title",
     descriptionKey: "presets.data-ml.description",
-  },
-  {
-    id: "digital-nomad",
-    titleKey: "presets.digital-nomad.title",
-    descriptionKey: "presets.digital-nomad.description",
   },
   {
     id: "factory-upgrade",
@@ -99,10 +111,21 @@ export function isManufacturingLikeProfile(form: Pick<ProfileSettingsForm, "indu
   });
 }
 
+export function isOpsLikeProfile(form: Pick<ProfileSettingsForm, "industries" | "occupations" | "desiredRolesText">): boolean {
+  const corpus = [...form.industries, ...form.occupations, ...splitProfileList(form.desiredRolesText)].join(" ");
+  return /运营|电商|直播|客服|内容|社群|新媒体|e-?commerce|operations|customer\s+support|community|social\s+media|live\s*stream/iu.test(
+    corpus,
+  );
+}
+
 export function targetRoleSuggestionsForProfile(
-  form: Pick<ProfileSettingsForm, "industries">,
+  form: Pick<ProfileSettingsForm, "industries" | "occupations" | "desiredRolesText">,
   locale: string,
 ): string[] {
+  if (isOpsLikeProfile(form)) {
+    return opsRoleSuggestions(locale);
+  }
+
   const fromTaxonomy = roleSuggestionsForIndustries(form.industries, locale);
   if (!isManufacturingLikeProfile(form)) return fromTaxonomy.slice(0, 10);
 
@@ -118,6 +141,21 @@ export function targetRoleSuggestionsForProfile(
   return [...new Set([...manufacturing, ...fromTaxonomy])].slice(0, 10);
 }
 
+function opsRoleSuggestions(locale: string): string[] {
+  if (locale === "zh-CN") {
+    return ["电商运营", "直播运营", "客服", "内容运营", "社群运营", "店铺运营", "新媒体助理"];
+  }
+  return [
+    "E-commerce operations",
+    "Live stream operations",
+    "Customer support",
+    "Content operations",
+    "Community manager",
+    "Social media",
+    "Virtual assistant",
+  ];
+}
+
 const AVOID_PHRASES: Record<string, string[]> = {
   "zh-CN": [
     "流水线",
@@ -128,14 +166,14 @@ const AVOID_PHRASES: Record<string, string[]> = {
     "劳务中介",
     "骑手",
     "配送",
-    "销售",
+    "电话销售",
   ],
   en: [
     "night shift",
     "production line",
     "agency fee",
     "delivery rider",
-    "sales",
+    "cold calling",
     "heavy labor",
   ],
 };
@@ -156,10 +194,19 @@ const TECH_BACKGROUND_EXAMPLES: Record<string, string> = {
   en: "e.g. 3 years backend experience with TypeScript, Node.js, and PostgreSQL; B2B SaaS APIs and CI/CD. Looking for remote-friendly full-time roles.",
 };
 
+const OPS_BACKGROUND_EXAMPLES: Record<string, string> = {
+  "zh-CN":
+    "例如：熟悉淘宝/抖音店铺后台，做过客服回复、上架与活动页维护；能配合直播排品与售后。希望找远程或兼职的运营类岗位，不限学历。",
+  en: "e.g. E-commerce shop admin, customer replies, listing updates, live-stream prep. Looking for remote or part-time ops roles — no degree required.",
+};
+
 export function backgroundPlaceholderForProfile(
-  form: Pick<ProfileSettingsForm, "industries" | "occupations">,
+  form: Pick<ProfileSettingsForm, "industries" | "occupations" | "desiredRolesText">,
   locale: string,
 ): string {
+  if (isOpsLikeProfile(form)) {
+    return OPS_BACKGROUND_EXAMPLES[locale] ?? OPS_BACKGROUND_EXAMPLES.en!;
+  }
   if (isManufacturingLikeProfile(form)) {
     return BACKGROUND_EXAMPLES[locale] ?? BACKGROUND_EXAMPLES.en!;
   }
@@ -195,6 +242,7 @@ function applyRemoteRolePreset(
     industry: string;
     background: string;
     avoid?: string[];
+    employmentTypes?: EmploymentType[];
   },
 ): ProfileSettingsForm {
   return {
@@ -207,12 +255,36 @@ function applyRemoteRolePreset(
       form.avoidText,
       config.avoid ??
         (locale === "zh-CN"
-          ? ["销售", "客服", "驻场外包"]
-          : ["sales", "call center", "onsite body shop"]),
+          ? ["销售", "电话销售", "驻场外包"]
+          : ["sales", "cold calling", "onsite body shop"]),
     ),
     excludeSales: true,
-    employmentTypes: mergeUniqueTags(form.employmentTypes, ["full-time", "contract"]) as EmploymentType[],
+    employmentTypes: mergeUniqueTags(
+      form.employmentTypes,
+      config.employmentTypes ?? (["full-time", "contract"] as EmploymentType[]),
+    ) as EmploymentType[],
     backgroundText: form.backgroundText.trim() || config.background,
+  };
+}
+
+function applyRemoteOpsPreset(
+  form: ProfileSettingsForm,
+  locale: string,
+  config: {
+    occupation: string;
+    roles: string[];
+    industry: string;
+    background: string;
+  },
+): ProfileSettingsForm {
+  return {
+    ...applyRemoteRolePreset(form, locale, {
+      ...config,
+      employmentTypes: ["full-time", "part-time", "contract"],
+      avoid: locale === "zh-CN" ? ["流水线", "夜班", "重体力", "押金"] : ["night shift", "heavy labor", "agency fee"],
+    }),
+    excludeProductionLine: true,
+    excludeSales: false,
   };
 }
 
@@ -222,6 +294,30 @@ export function applyProfileIntentPreset(
   locale: string,
 ): ProfileSettingsForm {
   const avoidBase = avoidPhraseSuggestions(locale);
+
+  if (presetId === "remote-ops-gig") {
+    return applyRemoteOpsPreset(form, locale, {
+      occupation: locale === "zh-CN" ? "运营助理" : "Operations assistant",
+      industry: locale === "zh-CN" ? "电商/互联网" : "E-commerce / Internet",
+      roles: opsRoleSuggestions(locale),
+      background: OPS_BACKGROUND_EXAMPLES[locale] ?? OPS_BACKGROUND_EXAMPLES.en!,
+    });
+  }
+
+  if (presetId === "remote-ecommerce-live") {
+    return applyRemoteOpsPreset(form, locale, {
+      occupation: locale === "zh-CN" ? "直播运营" : "Live stream operations",
+      industry: locale === "zh-CN" ? "电商/新媒体" : "E-commerce / Media",
+      roles:
+        locale === "zh-CN"
+          ? ["直播运营", "电商运营", "店铺运营", "主播助理", "内容运营"]
+          : ["Live stream operations", "E-commerce ops", "Shop operations", "Stream assistant", "Content ops"],
+      background:
+        locale === "zh-CN"
+          ? "例如：协助直播间排品、话术与售后；熟悉抖音/淘宝后台。希望远程或弹性兼职，有成长空间。"
+          : "e.g. Live-stream prep, shop admin, post-sale support on TikTok-style platforms. Remote or flexible part-time.",
+    });
+  }
 
   if (presetId === "remote-developer") {
     return applyRemoteRolePreset(form, locale, {
@@ -289,7 +385,7 @@ export function applyProfileIntentPreset(
         locale === "zh-CN"
           ? "例如：B2B SaaS 产品经验，用户研究、原型与跨职能协作，希望远程产品/设计岗位。"
           : "e.g. B2B SaaS product work — research, prototyping, cross-functional delivery; remote product/design roles.",
-      avoid: locale === "zh-CN" ? ["销售", "电话营销"] : ["sales", "cold calling"],
+      avoid: locale === "zh-CN" ? ["电话销售"] : ["cold calling"],
     });
   }
 
@@ -311,26 +407,25 @@ export function applyProfileIntentPreset(
   if (presetId === "digital-nomad") {
     const nomadRoles =
       locale === "zh-CN"
-        ? ["远程开发", "产品设计", "内容运营", "技术支持"]
-        : ["Remote developer", "Product design", "Content", "Customer success"];
+        ? ["远程运营", "电商运营", "内容运营", "客服", "自由职业项目"]
+        : ["Remote operations", "E-commerce ops", "Content", "Customer support", "Freelance projects"];
     return {
       ...form,
       remotePreference: "remote-only",
-      industries: mergeUniqueTags(
-        form.industries,
-        [locale === "zh-CN" ? "互联网" : "Internet"],
-      ),
+      industries: mergeUniqueTags(form.industries, [locale === "zh-CN" ? "互联网" : "Internet"]),
       occupations:
         form.occupations.length > 0
           ? form.occupations
           : [locale === "zh-CN" ? "自由职业" : "Freelancer"],
       desiredRolesText: mergeCommaList(form.desiredRolesText, nomadRoles),
-      employmentTypes: mergeUniqueTags(form.employmentTypes, ["full-time", "part-time", "contract"]) as EmploymentType[],
+      employmentTypes: mergeUniqueTags(form.employmentTypes, [
+        "full-time",
+        "part-time",
+        "contract",
+      ]) as EmploymentType[],
       backgroundText:
         form.backgroundText.trim() ||
-        (locale === "zh-CN"
-          ? "远程协作经验，熟悉异步沟通与时区友好的交付节奏。希望找可长期远程的合同或全职岗位。"
-          : "Remote collaboration experience; async-friendly delivery. Looking for contract or full-time work from anywhere."),
+        (OPS_BACKGROUND_EXAMPLES[locale] ?? OPS_BACKGROUND_EXAMPLES.en!),
     };
   }
 
@@ -345,7 +440,7 @@ export function applyProfileIntentPreset(
       avoidText: mergeCommaList(form.avoidText, avoidBase),
       excludeProductionLine: true,
       excludeSales: true,
-      remotePreference: form.cities.length > 0 ? "onsite-only" : form.remotePreference,
+      remotePreference: "onsite-only",
       employmentTypes: mergeUniqueTags(form.employmentTypes, ["full-time"]) as EmploymentType[],
       backgroundText:
         form.backgroundText.trim() ||
@@ -373,8 +468,8 @@ export function applyProfileIntentPreset(
       locale === "zh-CN" ? ["夜班", "两班倒", "重体力"] : ["night shift", "heavy labor"],
     ),
     excludeProductionLine: true,
+    remotePreference: "onsite-only",
     employmentTypes: mergeUniqueTags(form.employmentTypes, ["full-time", "part-time"]) as EmploymentType[],
-    remotePreference: form.cities.length > 0 ? "onsite-only" : form.remotePreference,
   };
 }
 

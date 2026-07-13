@@ -8,6 +8,10 @@ import {
   resolveProbePack,
 } from "./probe-packs.js";
 import {
+  CN_FREELANCE_REGISTRY_STREAMS,
+  isCnFreelanceIntentProfile,
+} from "./cn-freelance-packs.js";
+import {
   flattenSignalPackStreams,
   resolveSignalPacksForProfile,
 } from "./signal-packs/resolve.js";
@@ -96,9 +100,18 @@ export function expandSourceProbes(profile: SeekerProfile): SourceProbe[] {
   );
   const cnLocalFirst = isCnLocalFirstProfile(profile);
 
-  // CN dev remote-first: fixed international remote board list (Work Best-style).
+  // CN remote-first: international remote boards + optional CN freelance experiment.
   if (cnRemoteFirst) {
     appendRegistryStreams(probes, REMOTE_REGISTRY_STREAMS, "zh-CN-remote-dev", "remote", intentTerms);
+    if (isCnFreelanceIntentProfile(profile)) {
+      appendRegistryStreams(
+        probes,
+        CN_FREELANCE_REGISTRY_STREAMS,
+        "zh-CN-freelance",
+        "remote",
+        intentTerms,
+      );
+    }
     return probes.slice(0, MAX_PROBES);
   }
 
@@ -144,6 +157,24 @@ export function expandSourceProbes(profile: SeekerProfile): SourceProbe[] {
   // 3. Registry lookup — fallback hints, not the primary discovery path
   if (globalRemote) {
     appendRegistryStreams(probes, pack.registryStreams, pack.id, "remote", intentTerms);
+    if (allowRemoteBoards) {
+      appendRegistryStreams(
+        probes,
+        remoteRegistryStreamsForProfile(profile),
+        pack.id,
+        "remote",
+        intentTerms,
+      );
+    }
+    if (isCnFreelanceIntentProfile(profile)) {
+      appendRegistryStreams(
+        probes,
+        CN_FREELANCE_REGISTRY_STREAMS,
+        "zh-CN-freelance",
+        "remote",
+        intentTerms,
+      );
+    }
   } else if (globalCity && city) {
     appendRegistryStreams(
       probes,

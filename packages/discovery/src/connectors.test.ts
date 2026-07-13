@@ -653,7 +653,7 @@ describe("connectors/resolve-connectors", () => {
     assert.ok(configs.some((row) => row.connectorId === "remoteok"));
   });
 
-  it("skips global remote connectors for Chinese hybrid factory-worker profiles", () => {
+  it("includes global remote connectors for Chinese hybrid factory-worker profiles", () => {
     const configs = resolveConnectorsForProfile(
       minimalProfile({
         constraints: {
@@ -668,8 +668,8 @@ describe("connectors/resolve-connectors", () => {
         },
       }),
     );
-    assert.ok(!configs.some((row) => row.connectorId === "remotive"));
-    assert.ok(!configs.some((row) => row.connectorId === "remoteok"));
+    assert.ok(configs.some((row) => row.connectorId === "remotive"));
+    assert.ok(configs.some((row) => row.connectorId === "remoteok"));
   });
 
   it("skips global remote connectors for Chinese onsite-only profiles", () => {

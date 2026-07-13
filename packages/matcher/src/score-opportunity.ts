@@ -12,6 +12,7 @@ import { clampScore, createEngineTranslator, getTaxonomyNode, taxonomyLabel } fr
 import { buildCapabilityHaystack } from "@aperio-j/discovery/transferable";
 import { shouldDiscardCnFeedItem } from "@aperio-j/discovery/cn-feed-quality";
 import { shouldDiscardRemoteTechFeedItem } from "@aperio-j/discovery/remote-tech-feed-quality";
+import { shouldDiscardRemoteOpsFeedItem } from "@aperio-j/discovery/remote-ops-feed-quality";
 import { countIntentHits, expandIntentTerms } from "@aperio-j/discovery/intent-expansion";
 import { localizeLocationText, locationMatchesProfile } from "@aperio-j/discovery/text-utils";
 import { corpusMatchesDistrict } from "@aperio-j/discovery/text-utils";
@@ -71,6 +72,11 @@ function hasCategoryOverlap(categories: RoleCategory[], avoidLabels: string[]): 
     "data-ml": ["data", "machine learning", "ml"],
     "qa-automation": ["qa", "sdet", "测试"],
     "product-design": ["product", "ux", "ui"],
+    "ecommerce-ops": ["电商运营", "ecommerce-ops", "e-commerce"],
+    "livestream-ops": ["直播运营", "livestream-ops", "live stream"],
+    "customer-support": ["客服", "customer-support", "customer support"],
+    "content-ops": ["内容运营", "content-ops", "content operations"],
+    "community-ops": ["社群运营", "community-ops", "community manager"],
     other: [],
   };
 
@@ -98,6 +104,16 @@ function checkHardGates(
 
   if (
     shouldDiscardCnFeedItem(
+      { title: opportunity.title, body: opportunity.body, url: opportunity.url },
+      profile,
+      { roleCategories: opportunity.roleCategories },
+    )
+  ) {
+    return t("matcher.exclusion.irrelevantListing");
+  }
+
+  if (
+    shouldDiscardRemoteOpsFeedItem(
       { title: opportunity.title, body: opportunity.body, url: opportunity.url },
       profile,
       { roleCategories: opportunity.roleCategories },

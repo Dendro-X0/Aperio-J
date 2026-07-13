@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { SeekerProfile } from "@aperio-j/core";
 import { expandSourceProbes, expandSourceProbesSummary } from "./expand-probes.js";
-import { resolveProbePack } from "./probe-packs.js";
+import { isRemoteOpsProfile, resolveProbePack } from "./probe-packs.js";
 
 function minimalProfile(city: string): SeekerProfile {
   return {
@@ -82,16 +82,35 @@ describe("expandSourceProbes", () => {
     assert.ok(!summary.probes.some((probe) => probe.seed.includes("zhipin.com")));
   });
 
-  it("keeps local search probes for CN hybrid factory-worker profiles", () => {
+  it("uses remote boards for CN hybrid factory-worker profiles (remote-first product default)", () => {
     const profile = minimalProfile("深圳");
     profile.constraints.remotePreference = "hybrid-ok";
     profile.intent.desiredRoles = ["普工"];
     profile.intent.desiredIndustries = ["电子制造"];
     const probes = expandSourceProbes(profile);
-    assert.equal(probes[0]?.kind, "search_discovery");
-    assert.ok(probes.some((probe) => probe.seed.includes("baidu.com/s?")));
-    assert.ok(probes.some((probe) => probe.seed.includes("zhipin.com")));
-    assert.ok(!probes.every((probe) => probe.regionHint === "remote"));
+    assert.ok(probes.some((probe) => probe.seed.includes("weworkremotely")));
+    assert.ok(!probes.some((probe) => probe.kind === "search_discovery"));
+    assert.ok(!probes.some((probe) => probe.seed.includes("zhipin.com")));
+  });
+
+  it("adds CN freelance probes for remote ops profiles without a city", () => {
+    const profile = minimalProfile("");
+    profile.constraints.remotePreference = "remote-only";
+    profile.intent.desiredRoles = ["电商运营", "直播运营"];
+    profile.intent.desiredIndustries = ["互联网"];
+    const probes = expandSourceProbes(profile);
+    assert.ok(probes.some((probe) => probe.seed.includes("eleduck.com/feed/latest.xml")));
+    assert.ok(probes.some((probe) => probe.seed.includes("zbj.com")));
+  });
+
+  it("adds CN freelance probes for CN city remote-ops profiles", () => {
+    const profile = minimalProfile("杭州");
+    profile.constraints.remotePreference = "hybrid-ok";
+    profile.intent.desiredRoles = ["电商运营", "客服"];
+    profile.intent.desiredIndustries = ["互联网"];
+    const probes = expandSourceProbes(profile);
+    assert.ok(probes.some((probe) => probe.seed.includes("eleduck.com/feed/latest.xml")));
+    assert.ok(probes.some((probe) => probe.seed.includes("epwk.com")));
   });
 
   it("keeps local probes for CN onsite-only profiles", () => {
@@ -202,5 +221,13 @@ describe("expandSourceProbes", () => {
     const probes = expandSourceProbes(minimalProfile("Munich"));
     assert.ok(probes.some((probe) => probe.seed.includes("arbeitsagentur.de")));
     assert.ok(probes.some((probe) => probe.seed.includes("de.indeed.com")));
+  });
+
+  it("detects remote ops profiles even with 互联网 industry", () => {
+    const profile = minimalProfile("");
+    profile.constraints.remotePreference = "remote-only";
+    profile.intent.desiredRoles = ["电商运营", "直播运营"];
+    profile.intent.desiredIndustries = ["互联网"];
+    assert.equal(isRemoteOpsProfile(profile), true);
   });
 });

@@ -11,6 +11,7 @@ export {
   isCnRemoteFirstProfile,
   isRemoteFirstProfile,
   isRemoteTechProfile,
+  isRemoteOpsProfile,
   isCnLocalFirstProfile,
   isCnLocalFirstOccupation,
   resolveProbePack,
@@ -21,6 +22,12 @@ export {
   type ProbePack,
   type RegistryStreamDef,
 } from "./probe-packs.js";
+export {
+  CN_FREELANCE_REGISTRY_STREAMS,
+  CN_FREELANCE_ROLE_KEYWORDS,
+  isCnFreelanceIntentProfile,
+  isCnFreelanceStreamUrl,
+} from "./cn-freelance-packs.js";
 export {
   buildCitySearchQueries,
   buildBaiduSearchUrl,

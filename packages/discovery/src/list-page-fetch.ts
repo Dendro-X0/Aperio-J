@@ -14,7 +14,7 @@ const JOB_HINT =
   /招聘|岗位|职位|招考|聘用|诚聘|人才|就业|hiring|career|job opening|vacancy|公示/i;
 
 const JOB_HREF_HINT =
-  /job_detail|jobdetail|\/geek\/job|\/jobs\/|\/position\/|mpost|job\.htm|zhaopin\.com\/job|51job\.com\/jobs/i;
+  /job_detail|jobdetail|\/geek\/job|\/jobs\/|\/position\/|mpost|job\.htm|zhaopin\.com\/job|51job\.com\/jobs|\/posts\/[A-Za-z0-9]+|\/xq\/|zbj\.com\/.*\/\d|epwk\.com\/task/i;
 
 const GOV_LIST_HREF =
   /\/content\/post_|\/tzgg\/|\/zpxx\/|\/xxgk\/|\/cjobs\/|showdw|jobinfo|\/rsj\//i;

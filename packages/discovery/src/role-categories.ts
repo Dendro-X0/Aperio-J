@@ -17,6 +17,15 @@ export const TECH_ROLE_CATEGORIES: RoleCategory[] = [
   "product-design",
 ];
 
+export const OPS_ROLE_CATEGORIES: RoleCategory[] = [
+  "ecommerce-ops",
+  "livestream-ops",
+  "customer-support",
+  "content-ops",
+  "community-ops",
+  "office-admin",
+];
+
 /** Rule-based role classification — auditable, no LLM. */
 export const ROLE_RULES: RoleRule[] = [
   {
@@ -131,6 +140,61 @@ export const ROLE_RULES: RoleRule[] = [
       /交互设计/,
       /视觉设计/,
       /user\s+experience\s+designer/i,
+    ],
+  },
+  {
+    category: "ecommerce-ops",
+    patterns: [
+      /电商运营/,
+      /店铺运营/,
+      /e-?commerce\s+operations/i,
+      /marketplace\s+operations/i,
+      /shop\s+operations/i,
+      /amazon\s+seller/i,
+      /tiktok\s+shop/i,
+    ],
+  },
+  {
+    category: "livestream-ops",
+    patterns: [
+      /直播运营/,
+      /直播助理/,
+      /主播助理/,
+      /带货/,
+      /live\s*stream/i,
+      /livestream/i,
+      /live\s+commerce/i,
+    ],
+  },
+  {
+    category: "customer-support",
+    patterns: [
+      /客服(?!开发)/,
+      /客户支持/,
+      /customer\s+support/i,
+      /customer\s+service(?!\s+engineer)/i,
+      /help\s+desk/i,
+      /live\s+chat\s+agent/i,
+    ],
+  },
+  {
+    category: "content-ops",
+    patterns: [
+      /内容运营/,
+      /新媒体运营/,
+      /content\s+operations/i,
+      /content\s+moderator/i,
+      /social\s+media\s+content/i,
+    ],
+  },
+  {
+    category: "community-ops",
+    patterns: [
+      /社群运营/,
+      /community\s+manager/i,
+      /community\s+operations/i,
+      /social\s+media\s+manager/i,
+      /discord\s+moderator/i,
     ],
   },
   {

@@ -1,8 +1,8 @@
 export const messages = {
   app: {
     name: "Aperio-J",
-    tagline: "远程求职 · Profile 匹配，无广告",
-    description: "面向自由职业者与数字游民的远程/技术岗位发现与匹配",
+    tagline: "远程与零工 · Profile 匹配，无广告",
+    description: "远程岗位、电商/直播运营与自由职业友好机会的发现与匹配",
   },
   nav: {
     inbox: "匹配",
@@ -445,13 +445,13 @@ export const messages = {
     title: "Profile 设置",
     firstSetupTitle: "欢迎 — 开始设置",
     firstSetupDescription:
-      "填写技能、远程偏好与可选的主城市。默认扫描国际远程招聘板；添加城市后可混合本地信号源。",
+      "告诉我们你想找的远程或弹性工作——电商运营、直播、客服、内容，或技术/自由职业方向。默认扫描国际远程招聘板；仅当你选择「仅到岗」时才会扫国内全职聚合站。",
     setupRedirect: {
       title: "请先完成 Profile 才能查看匹配",
       description: "匹配至少需要填写行业与职业。完成下方步骤后，从侧栏进入「匹配机会」。",
     },
     description:
-      "填写技能、远程偏好与可选城市。Aperio-J 默认扫描远程技术招聘板，并根据 Profile 算法匹配——不是关键词碰运气。",
+      "填写技能、远程/零工偏好与可选城市。默认扫描国际远程招聘板——运营、电商、直播、客服与技术岗均可；粘贴职位链接可补充任何来源。",
     setupSteps: {
       location: "定位 — 城市与远程",
       employment: "工作形态 — 全职/兼职等",
@@ -531,7 +531,7 @@ export const messages = {
       "做过什么、会什么。例如：手机组装 3 年；熟悉外观检查、ESD；做过显示器老化测试",
     desiredRoles: "想找的方向",
     desiredRolesHint: "想探索的新岗位，可与当前职业不同。用于匹配与信号源发现。",
-    desiredRolesPlaceholder: "质检, 仓储, 物料, 文员",
+    desiredRolesPlaceholder: "电商运营, 直播运营, 客服, 内容运营",
     intentVsCurrentHint:
       "「当前职业」记录你现在做什么；这里填写你想尝试的新方向。例如产线工人可填质检、仓储。",
     targetRoleSuggestions: "推荐转岗方向",
@@ -554,6 +554,14 @@ export const messages = {
       previewBackground: "经历摘要",
       previewEmployment: "工作形态",
       previewFilters: "快捷排除",
+      "remote-ops-gig": {
+        title: "远程运营 / 零工",
+        description: "远程或兼职运营——电商、客服、内容、社群。多数不限学历，有成长空间。",
+      },
+      "remote-ecommerce-live": {
+        title: "电商 & 直播运营",
+        description: "店铺运营、直播助理、内容维护——远程或弹性时间。",
+      },
       "remote-developer": {
         title: "远程软件工程师",
         description: "仅远程；后端、全栈、DevOps 等方向，扫描国际技术招聘板。",
@@ -580,15 +588,15 @@ export const messages = {
       },
       "digital-nomad": {
         title: "数字游民 / 自由职业",
-        description: "仅远程；开发、设计等异步友好团队，支持合同制岗位。",
+        description: "仅远程；运营、内容、客服等合同制或兼职友好岗位。",
       },
       "factory-upgrade": {
-        title: "产线转更轻松岗位",
-        description: "普工/产线 → 质检、仓储、物料；排除流水线、夜班与骑手岗。",
+        title: "现场产线转岗",
+        description: "仅到岗：普工/产线 → 质检、仓储、物料。不适合远程浏览。",
       },
       "flexible-hours": {
-        title: "更自由的时间",
-        description: "接受全职+兼职，优先仓储/物料等相对灵活的岗位。",
+        title: "更自由的时间（现场）",
+        description: "仅到岗；接受全职+兼职，优先仓储/物料等相对灵活的岗位。",
       },
     },
     tags: {
