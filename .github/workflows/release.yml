@@ -60,7 +60,11 @@ jobs:
           APK=$(find release-assets -name '*.apk' | head -1)
           if [ -n "$APK" ]; then
             cp "$APK" release/Aperio-J-android.apk
+            echo "has_apk=true" >> "$GITHUB_ENV"
+          else
+            echo "has_apk=false" >> "$GITHUB_ENV"
           fi
+          ls -la release/
 
       - name: Create release
         uses: softprops/action-gh-release@v2
@@ -68,3 +72,12 @@ jobs:
           files: |
             release/*
           generate_release_notes: true
+          body: |
+            ## Installers
+
+            | Platform | File | Notes |
+            |----------|------|-------|
+            | Windows | `Aperio-J-windows-setup.exe` | Local SQLite — works offline |
+            | Android | `Aperio-J-android.apk` | Shell opens your hosted web app — only attached when `APERIO_J_WEB_URL` secret or `apps/desktop/release-web-url.txt` is configured |
+
+            Android missing? Set [GitHub secret `APERIO_J_WEB_URL`](https://github.com/${{ github.repository }}/settings/secrets/actions) or commit your Render URL to `apps/desktop/release-web-url.txt`, then re-run the Release workflow.

@@ -97,7 +97,7 @@ jobs:
             | Platform | File | Notes |
             |----------|------|-------|
             | Windows | `Aperio-J-windows-setup.exe` | NSIS installer — local SQLite, works offline |
-            | Android | `Aperio-J-android.apk` | Only when `APERIO_J_WEB_URL` secret is set; otherwise use the hosted web URL in Chrome |
+            | Android | `Aperio-J-android.apk` | When `APERIO_J_WEB_URL` secret or `apps/desktop/release-web-url.txt` is set |
 
             For Android friends without the APK: open your Render URL in Chrome (Add to Home screen).
           files: |

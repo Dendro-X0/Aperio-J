@@ -35,6 +35,8 @@ pnpm build:android   # requires Android SDK + preflight
 
 See [deployment.md](./deployment.md) for self-hosted web setup (Docker or standalone) before sharing a URL.
 
+**Android APK in releases:** set GitHub secret `APERIO_J_WEB_URL` **or** commit your public URL (one line, no `#`) to `apps/desktop/release-web-url.txt`, then tag and push. Without a URL, CI skips the APK and only ships the Windows installer.
+
 ## Publish
 
 **Rolling installers (every push to main):** CI publishes to the `latest` GitHub prerelease automatically.

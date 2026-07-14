@@ -3,7 +3,7 @@
  * Prepare Android release frontend: embed dist/index.html that opens APERIO_J_WEB_URL.
  * Required for every release APK — points the shell at your self-hosted instance.
  */
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -34,6 +34,18 @@ function resolveWebUrl() {
   const fromEnv = process.env.APERIO_J_WEB_URL?.trim();
   if (fromEnv) {
     return normalizeWebUrl(fromEnv);
+  }
+
+  const urlFile = resolve(desktopRoot, "release-web-url.txt");
+  try {
+    const lines = readFileSync(urlFile, "utf8").split(/\r?\n/u);
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      return normalizeWebUrl(trimmed);
+    }
+  } catch {
+    // fall through
   }
 
   if (process.env.APERIO_J_ANDROID_ALLOW_LOCALHOST === "1") {

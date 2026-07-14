@@ -19,6 +19,10 @@ All notable changes to Aperio-J are documented here. Format follows [Keep a Chan
 - Inbox network hint follows profile network environment (not only CN remote-first)
 - RSS fetch routes international boards through relay when configured
 
+### Fixed
+
+- Android release CI reads `APERIO_J_WEB_URL` from repo file when secret unset; bilingual README
+
 ## [0.4.0] — 2026-07-13
 
 ### Added
