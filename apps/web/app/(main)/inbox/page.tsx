@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { inboxProfileSummary, isCnCaptureFirstProfile, isCnRemoteFirstProfileForPage, isRemoteFirstProfileForPage, loadInboxPageData } from "@/lib/page-data";
+import { inboxProfileSummary, isCnCaptureFirstProfile, isCnNetworkContextForPage, isCnRemoteFirstProfileForPage, isRemoteFirstProfileForPage, loadInboxPageData } from "@/lib/page-data";
 import { InboxMarketplaceView } from "@/components/inbox/inbox-marketplace-view";
 
 export const dynamic = "force-dynamic";
@@ -31,6 +31,7 @@ export default async function InboxPage() {
         needsRediscover={discoveryReady && (inbox?.streamCount ?? 0) === 0}
         cnCaptureFirst={isCnCaptureFirstProfile(profile)}
         cnRemoteFirst={isCnRemoteFirstProfileForPage(profile)}
+        cnNetworkContext={isCnNetworkContextForPage(profile)}
         remoteFirst={isRemoteFirstProfileForPage(profile)}
       />
     </Suspense>

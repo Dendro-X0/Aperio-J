@@ -255,7 +255,7 @@ export const messages: Messages = {
     },
     networkContext: {
       cnRemoteHint:
-        "Some international boards may not load from mainland China. CN gig sources (电鸭, 猪八戒) and paste-link capture still work; disable unreachable sources on Sources.",
+        "Some international boards may not load from your network. CN-friendly sources (电鸭, 猪八戒) and paste-link capture still work — adjust Network environment in Profile or disable unreachable sources on Sources.",
     },
     errors: {
       refreshFailed: "Refresh failed",
@@ -530,6 +530,15 @@ export const messages: Messages = {
       detectFailed: "Could not detect city from your IP",
       detectNoCity: "No city found for your IP",
       removeCity: "Remove {city}",
+      networkEnvironment: {
+        label: "Network environment",
+        sectionDesc:
+          "How job feeds are fetched. Mainland China often cannot reach some international RSS boards directly.",
+        hint: "Auto follows your city tags. Override if you use a VPN or deploy with a relay.",
+        auto: "Auto",
+        "mainland-cn": "Mainland China",
+        overseas: "Overseas",
+      },
     },
     industry: "Industry *",
     industryPlaceholder: "Select your industry",

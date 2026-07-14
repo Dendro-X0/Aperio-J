@@ -15,6 +15,7 @@ import {
 } from "@/lib/local-settings-store";
 import { listSourcesForProfile } from "@/lib/sources-page-data";
 import { getLatestSourceDiscoverySummary } from "@/lib/source-registry";
+import { isCnNetworkContext } from "@aperio-j/discovery/profile-network-context";
 import { isChinaCityProfile, isCnRemoteFirstProfile, isRemoteFirstProfile } from "@aperio-j/probe";
 
 export async function loadSettingsPageData() {
@@ -87,6 +88,10 @@ export function isCnRemoteFirstProfileForPage(profile: SeekerProfile): boolean {
 
 export function isRemoteFirstProfileForPage(profile: SeekerProfile): boolean {
   return isRemoteFirstProfile(profile);
+}
+
+export function isCnNetworkContextForPage(profile: SeekerProfile): boolean {
+  return isCnNetworkContext(profile);
 }
 
 export async function loadSourcesPageData() {

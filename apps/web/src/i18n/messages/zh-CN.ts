@@ -251,7 +251,7 @@ export const messages = {
     },
     networkContext: {
       cnRemoteHint:
-        "部分国际招聘源在大陆可能无法加载。国内零工源（电鸭、猪八戒等）和粘贴链接抓取仍可用；可在「信号源」关闭无法访问的源。",
+        "部分国际源在当前网络下可能无法加载。国内可访问源（电鸭、猪八戒等）和粘贴链接抓取仍可用 — 可在档案设置中调整「网络环境」，或在「信号源」关闭无法访问的源。",
     },
     errors: {
       refreshFailed: "刷新失败",
@@ -522,6 +522,14 @@ export const messages = {
       detectFailed: "无法根据 IP 识别城市",
       detectNoCity: "未能从 IP 解析出城市",
       removeCity: "移除 {city}",
+      networkEnvironment: {
+        label: "网络环境",
+        sectionDesc: "影响招聘源的拉取策略。大陆网络常无法直接访问部分国际 RSS。",
+        hint: "自动模式根据城市标签推断。使用 VPN 或部署了中继时可手动覆盖。",
+        auto: "自动",
+        "mainland-cn": "中国大陆",
+        overseas: "海外",
+      },
     },
     industry: "行业 *",
     industryPlaceholder: "选择你的行业",

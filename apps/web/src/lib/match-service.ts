@@ -11,6 +11,7 @@ import { filterRemoteOpsFeedItemsForProfile } from "@aperio-j/discovery/remote-o
 import { sanitizeRawFeedItems } from "@aperio-j/discovery/feed-text-quality";
 import { shouldRunInitialScrapeDiscoveryForProfile, shouldRunScrapeDiscoveryForProfile } from "@aperio-j/discovery/discovery-fallback";
 import { throwIfAborted } from "@aperio-j/discovery/discovery-abort";
+import { isCnNetworkContext } from "@aperio-j/discovery/profile-network-context";
 import { isChinaCityProfile, isCnLocalFirstOccupation, isCnRemoteFirstProfile, isCnFreelanceIntentProfile, isRemoteFirstProfile, isRemoteOpsProfile, isRemoteTechProfile } from "@aperio-j/probe";
 import { localizeOpportunity, parseOpportunities } from "@aperio-j/discovery/parse-opportunity";
 import { FIXTURE_FEED_ITEMS, partitionOpportunityMatches } from "@aperio-j/matcher";
@@ -259,6 +260,7 @@ export interface InboxPayload {
   usedFixtureFallback: boolean;
   cnCaptureFirst?: boolean;
   cnRemoteFirst?: boolean;
+  cnNetworkContext?: boolean;
   remoteFirst?: boolean;
 }
 
@@ -344,10 +346,7 @@ export async function runMatchPipeline(
       profile.constraints.primaryCity,
       profile.constraints.acceptableCities,
     ) && !cnRemoteFirst;
-  const cnNetworkContext =
-    cnRemoteFirst ||
-    cnCaptureFirst ||
-    isChinaCityProfile(profile.constraints.primaryCity, profile.constraints.acceptableCities);
+  const cnNetworkContext = isCnNetworkContext(profile);
 
   if (cnRemoteFirst) {
     await sanitizeCnRemoteFirstRegistryStreams(profile.id);
@@ -541,6 +540,7 @@ export async function runMatchPipeline(
     usedFixtureFallback,
     cnCaptureFirst,
     cnRemoteFirst,
+    cnNetworkContext,
     remoteFirst: isRemoteFirstProfile(profile),
   };
 }
@@ -605,6 +605,7 @@ export async function loadLatestInbox(
         profile,
       ),
     remoteFirst: isRemoteFirstProfile(profile),
+    cnNetworkContext: isCnNetworkContext(profile),
   };
 }
 

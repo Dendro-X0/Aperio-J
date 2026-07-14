@@ -3,6 +3,8 @@ import { isChinaCityProfile, isCnLocalFirstProfile, isCnRemoteFirstProfile } fro
 import type { ConnectorId } from "@aperio-j/discovery/connectors/types";
 import { resolveConnectorsForProfile } from "@aperio-j/discovery/connectors/resolve-connectors";
 import { seedUrlMatchesCityProfile, prepareCnStreamFetchUrl } from "@aperio-j/discovery/cn-sources";
+import { isCnNetworkContext } from "@aperio-j/discovery/profile-network-context";
+import { sortByNetworkReach } from "@aperio-j/discovery/network-region";
 import type { ConnectorStreamConfig } from "@aperio-j/discovery/connectors/types";
 import type { StreamConfig } from "@aperio-j/discovery/fetch-streams";
 import type { StreamRow } from "@/components/sources/types";
@@ -106,7 +108,7 @@ export function mergeStreamConfigsForProfile(
     merged.push({ ...row, url, regionHint: row.regionHint ?? city });
   }
 
-  return merged;
+  return sortByNetworkReach(merged, { preferCn: isCnNetworkContext(profile) });
 }
 
 export function connectorSourceMeta(config: ConnectorStreamConfig): {

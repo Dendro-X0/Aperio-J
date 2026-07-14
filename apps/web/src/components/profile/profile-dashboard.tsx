@@ -16,6 +16,7 @@ import { AutocompleteTagsInput } from "@/components/profile/autocomplete-tags-in
 import { IndustryCatalogDialog } from "@/components/profile/industry-catalog-dialog";
 import { ProfileFieldCard } from "@/components/profile/profile-field-card";
 import { RemotePreferenceField } from "@/components/profile/remote-preference-field";
+import { NetworkEnvironmentField } from "@/components/profile/network-environment-field";
 import { LocalDataPanel } from "@/components/profile/local-data-panel";
 import { ConnectorSettingsPanel } from "@/components/profile/connector-settings-panel";
 import { CnSessionSettingsPanel } from "@/components/profile/cn-session-settings-panel";
@@ -598,6 +599,15 @@ export function ProfileDashboard({
               <p className="text-xs text-muted-foreground">
                 {t("location.districtsGuardrail")}
               </p>
+            </ProfileFieldCard>
+            <ProfileFieldCard
+              title={t("location.networkEnvironment.label")}
+              description={t("location.networkEnvironment.sectionDesc")}
+            >
+              <NetworkEnvironmentField
+                value={form.networkEnvironment}
+                onChange={(networkEnvironment) => updateField("networkEnvironment", networkEnvironment)}
+              />
             </ProfileFieldCard>
             {form.cities.length > 0 && (
               <ProfileFieldCard

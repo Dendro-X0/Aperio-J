@@ -4,6 +4,7 @@ import {
   classifySourceNetworkReach,
   isIntlRemoteBoardUrl,
   isLikelyRegionalNetworkFailure,
+  sortByNetworkReach,
 } from "./network-region.js";
 
 describe("network-region", () => {
@@ -27,5 +28,17 @@ describe("network-region", () => {
       isLikelyRegionalNetworkFailure("HTTP 401 Unauthorized", "https://dynamitejobs.com/feed"),
       false,
     );
+  });
+
+  it("sorts CN-friendly sources first when preferCn", () => {
+    const rows = sortByNetworkReach(
+      [
+        { seedUrl: "https://weworkremotely.com/remote-jobs.rss" },
+        { seedUrl: "https://eleduck.com/posts/index.xml" },
+        { seedUrl: "https://zhubajie.com/" },
+      ],
+      { preferCn: true },
+    );
+    assert.match(rows[0]!.seedUrl, /eleduck|zhubajie/);
   });
 });

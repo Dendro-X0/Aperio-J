@@ -3,6 +3,7 @@ import type {
   EmploymentType,
   EvidenceArtifact,
   IndustryProximity,
+  NetworkEnvironment,
   RemotePreference,
   SeekerProfile,
 } from "@aperio-j/core";
@@ -15,6 +16,7 @@ export interface ProfileSettingsForm {
   /** Optional neighborhood / district preferences within selected metros. */
   districts: string[];
   remotePreference: RemotePreference;
+  networkEnvironment: NetworkEnvironment;
   employmentTypes: EmploymentType[];
   /** Taxonomy industry labels or custom text — required for discovery. */
   industries: string[];
@@ -47,6 +49,7 @@ export const EMPTY_PROFILE_FORM: ProfileSettingsForm = {
   cities: [],
   districts: [],
   remotePreference: "remote-only",
+  networkEnvironment: "auto",
   employmentTypes: ["full-time"],
   industries: [],
   occupations: [],
@@ -143,6 +146,7 @@ export function buildSeekerProfileFromSettings(
       acceptableCities: cities.slice(1),
       preferredDistricts: districts,
       remotePreference,
+      networkEnvironment: form.networkEnvironment,
       employmentTypes:
         form.employmentTypes.length > 0 ? form.employmentTypes : ["full-time"],
       allowAgencyPostings: form.allowAgencyPostings,
@@ -203,6 +207,7 @@ export function settingsFormFromProfile(profile: SeekerProfile): ProfileSettings
     cities,
     districts: profile.constraints.preferredDistricts?.map((value) => value.trim()).filter(Boolean) ?? [],
     remotePreference: profile.constraints.remotePreference,
+    networkEnvironment: profile.constraints.networkEnvironment ?? "auto",
     employmentTypes: profile.constraints.employmentTypes.filter(
       (t) => t !== "unknown",
     ) as EmploymentType[],

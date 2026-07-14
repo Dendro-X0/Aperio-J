@@ -15,6 +15,7 @@ export interface MatchRunInboxPayload {
   usedFixtureFallback?: boolean;
   cnCaptureFirst?: boolean;
   cnRemoteFirst?: boolean;
+  cnNetworkContext?: boolean;
   remoteFirst?: boolean;
 }
 

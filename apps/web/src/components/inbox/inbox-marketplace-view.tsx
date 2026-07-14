@@ -59,6 +59,7 @@ export interface InboxMarketplaceViewProps {
   needsRediscover?: boolean;
   cnCaptureFirst?: boolean;
   cnRemoteFirst?: boolean;
+  cnNetworkContext?: boolean;
   remoteFirst?: boolean;
 }
 
@@ -78,6 +79,7 @@ export function InboxMarketplaceView({
   needsRediscover = false,
   cnCaptureFirst = false,
   cnRemoteFirst = false,
+  cnNetworkContext = false,
   remoteFirst = false,
 }: InboxMarketplaceViewProps) {
   const { dateLocale, locale } = useI18n();
@@ -98,6 +100,7 @@ export function InboxMarketplaceView({
     usedFixtureFallback,
     cnCaptureFirst,
     cnRemoteFirst,
+    cnNetworkContext,
     remoteFirst,
   });
   const matchRun = useMatchRun();
@@ -192,6 +195,7 @@ export function InboxMarketplaceView({
       usedFixtureFallback: payload.usedFixtureFallback ?? false,
       cnCaptureFirst: payload.cnCaptureFirst ?? cnCaptureFirst,
       cnRemoteFirst: payload.cnRemoteFirst ?? cnRemoteFirst,
+      cnNetworkContext: payload.cnNetworkContext ?? cnNetworkContext,
       remoteFirst: payload.remoteFirst ?? remoteFirst,
     });
   }
@@ -201,7 +205,7 @@ export function InboxMarketplaceView({
     if (appliedResultAt.current === matchRun.completedAt) return;
     appliedResultAt.current = matchRun.completedAt;
     applyInboxPayload(matchRun.result);
-  }, [matchRun.status, matchRun.result, matchRun.completedAt, cnCaptureFirst, cnRemoteFirst, remoteFirst]);
+  }, [matchRun.status, matchRun.result, matchRun.completedAt, cnCaptureFirst, cnRemoteFirst, cnNetworkContext, remoteFirst]);
 
   async function refresh() {
     if (matchRun.isRunning) return;
@@ -420,7 +424,7 @@ export function InboxMarketplaceView({
 
       <FetchErrorsBanner errors={meta.fetchErrors} />
 
-      {meta.cnRemoteFirst && meta.fetchErrors.length > 0 && (
+      {meta.cnNetworkContext && meta.fetchErrors.length > 0 && (
         <Card className="border-muted bg-muted/30">
           <CardContent className="py-3 text-sm text-muted-foreground">
             {t("networkContext.cnRemoteHint")}

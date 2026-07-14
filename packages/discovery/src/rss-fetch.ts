@@ -41,13 +41,15 @@ export function parseRssXml(xml: string, sourceId: string): RawFeedItem[] {
 }
 
 import { buildSessionAuthHeaders, type StreamSessionAuth } from "./stream-auth.js";
+import { resolveRelayFetchUrl } from "./fetch-relay.js";
 
 export async function fetchRssFeed(
   url: string,
   sourceId: string,
   sessionAuth?: StreamSessionAuth,
 ): Promise<RawFeedItem[]> {
-  const response = await fetch(url, {
+  const fetchUrl = resolveRelayFetchUrl(url);
+  const response = await fetch(fetchUrl, {
     headers: buildSessionAuthHeaders(sessionAuth, {
       Accept: "application/rss+xml, application/xml, text/xml, */*",
       "User-Agent": "aperio-j/0.2 (+source-discovery)",

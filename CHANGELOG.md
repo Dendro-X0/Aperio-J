@@ -4,20 +4,20 @@ All notable changes to Aperio-J are documented here. Format follows [Keep a Chan
 
 ## [Unreleased]
 
+## [0.4.1] — 2026-07-13
+
 ### Added
 
-- Experimental CN freelance / gig probe pack (`cn-freelance-packs.ts`): 电鸭 RSS, 电鸭远程招聘, 猪八戒需求大厅, 一品威客
-- Profile presets **远程运营 / 零工** and **电商 & 直播运营** with ops-aware match filtering
-- `APERO_J_CN_FREELANCE_EXPERIMENTAL=false` to disable 威客源 seeding
-- Ops role taxonomy: `ecommerce-ops`, `livestream-ops`, `customer-support`, `content-ops`, `community-ops`
-- Remote ops profiles filter pure developer listings from international feeds
-- Role-family source packs: ops/support seed WWR Customer Support & Sales boards; tech-heavy boards disabled for ops profiles
-- Inbox **Role family** chips (ops / support / design / product / tech) for remote profiles
+- Profile **Network environment** setting: Auto / Mainland China / Overseas (overrides city-only inference)
+- `profile-network-context` resolver for stream health and fetch error handling
+- Sources and match fetch order: CN-friendly streams sorted first for mainland profiles
+- Deploy-side international RSS relay via `APERO_J_RSS_RELAY_URL` (Singapore worker / reverse proxy)
+- Documented `APERO_J_SEARXNG_URL` in `.env.example` for self-hosted search probes
 
 ### Changed
 
-- CN profiles with remote/hybrid preference no longer auto-scrape BOSS/智联; onsite-only keeps local aggregators
-- Product positioning: remote / gig / freelance-first (Work Best style), not on-site factory hiring
+- Inbox network hint follows profile network environment (not only CN remote-first)
+- RSS fetch routes international boards through relay when configured
 
 ## [0.4.0] — 2026-07-13
 

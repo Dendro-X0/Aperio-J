@@ -4,6 +4,9 @@ export type EmploymentType = "full-time" | "part-time" | "contract" | "unknown";
 
 export type RemotePreference = "remote-only" | "hybrid-ok" | "onsite-only";
 
+/** How feeds should be fetched given Great Firewall / regional reachability. */
+export type NetworkEnvironment = "auto" | "mainland-cn" | "overseas";
+
 export type IndustryProximity =
   | "same-industry-non-production"
   | "adjacent-industries"
@@ -58,6 +61,8 @@ export interface SeekerConstraints {
   acceptableCities: string[];
   preferredDistricts?: string[];
   remotePreference: RemotePreference;
+  /** Defaults to auto (infer from city tags). */
+  networkEnvironment?: NetworkEnvironment;
   maxCommuteMinutes?: number;
   employmentTypes: EmploymentType[];
   minMonthlySalaryCny?: number;

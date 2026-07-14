@@ -34,6 +34,35 @@ export function classifySourceNetworkReach(url: string): SourceNetworkReach {
   return "global";
 }
 
+function networkReachRank(url: string, preferCn: boolean): number {
+  if (!preferCn) return 0;
+  const reach = classifySourceNetworkReach(url);
+  if (reach === "cn") return 0;
+  if (reach === "global") return 1;
+  return 2;
+}
+
+export function compareSourceNetworkReach(
+  urlA: string,
+  urlB: string,
+  options?: { preferCn?: boolean },
+): number {
+  if (!options?.preferCn) return 0;
+  return networkReachRank(urlA, true) - networkReachRank(urlB, true);
+}
+
+export function sortByNetworkReach<T extends { seedUrl?: string; url?: string }>(
+  rows: readonly T[],
+  options?: { preferCn?: boolean },
+): T[] {
+  if (!options?.preferCn || rows.length < 2) return [...rows];
+  return [...rows].sort((a, b) => {
+    const urlA = a.seedUrl ?? a.url ?? "";
+    const urlB = b.seedUrl ?? b.url ?? "";
+    return compareSourceNetworkReach(urlA, urlB, options);
+  });
+}
+
 /** True when an error likely reflects regional network reachability, not a dead credential or source. */
 export function isLikelyRegionalNetworkFailure(error: string, url?: string): boolean {
   const normalized = error.trim().toLowerCase();
