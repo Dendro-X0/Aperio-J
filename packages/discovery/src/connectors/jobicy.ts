@@ -9,6 +9,7 @@ import {
 } from "./normalize.js";
 import { loadConnectorFixture, useConnectorFixtures } from "./fixtures.js";
 import { resolveJobicyGeo } from "./geo.js";
+import { formatSalaryRange } from "../salary-format.js";
 import type { ConnectorDefinition, ConnectorQuery } from "./types.js";
 
 const JOBICY_API = "https://jobicy.com/api/v2/remote-jobs";
@@ -40,13 +41,8 @@ interface JobicyResponse {
 function formatJobicySalary(job: JobicyJob): string | null {
   const min = job.annualSalaryMin ?? job.salaryMin;
   const max = job.annualSalaryMax ?? job.salaryMax;
-  if (min == null && max == null) return null;
   const currency = job.salaryCurrency ?? "USD";
-  if (min != null && max != null) {
-    return `Salary: ${currency} ${min.toLocaleString()} – ${max.toLocaleString()}`;
-  }
-  if (min != null) return `Salary: from ${currency} ${min.toLocaleString()}`;
-  return `Salary: up to ${currency} ${max!.toLocaleString()}`;
+  return formatSalaryRange(min, max, { currency: `${currency} `, prefix: "Salary" });
 }
 
 function normalizeJobicyJob(

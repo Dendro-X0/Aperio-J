@@ -9,7 +9,19 @@ import {
   resolveSignalPacksForProfile,
 } from "@aperio-j/probe/signal-packs/resolve";
 import { loadCommunitySignalPacks } from "@aperio-j/probe/signal-packs/server";
-import { resolveProbePack, isChinaCityProfile, isCnRemoteFirstProfile, REMOTE_REGISTRY_STREAMS, CN_FREELANCE_REGISTRY_STREAMS, isCnFreelanceIntentProfile } from "@aperio-j/probe";
+import {
+  resolveProbePack,
+  isChinaCityProfile,
+  isCnRemoteFirstProfile,
+  REMOTE_REGISTRY_STREAMS,
+  CN_FREELANCE_REGISTRY_STREAMS,
+  isCnFreelanceIntentProfile,
+  selectRemoteRegistryStreams,
+  streamIdForRemoteSeedUrl,
+  isTechHeavyRemoteStreamId,
+  resolveRoleFamilies,
+  isRemoteOpsProfile,
+} from "@aperio-j/probe";
 import { isRemoteBoardUrl } from "@aperio-j/core";
 import {
   loadCityDiscoveryMemory,
@@ -322,19 +334,29 @@ export async function sanitizeCnRemoteFirstRegistryStreams(seekerProfileId: stri
   return disabled;
 }
 
-/** Seed international remote RSS boards when profile accepts remote work. */
-export async function ensureRemoteRegistryStreams(seekerProfileId: string): Promise<number> {
+/**
+ * Seed role-family remote RSS boards for the profile.
+ * Adds missing family streams even when some remote boards already exist.
+ */
+export async function ensureRemoteRegistryStreams(
+  seekerProfileId: string,
+  profile?: SeekerProfile,
+): Promise<number> {
+  const streams = profile ? selectRemoteRegistryStreams(profile) : REMOTE_REGISTRY_STREAMS;
+  if (streams.length === 0) return 0;
+
   const existing = await prisma.streamRegistryEntry.findMany({
     where: { seekerProfileId, enabled: true },
     select: { seedUrl: true },
   });
-  const hasRemoteBoard = existing.some((row) => isRemoteBoardUrl(row.seedUrl));
-  if (hasRemoteBoard) return 0;
+  const existingUrls = new Set(existing.map((row) => row.seedUrl));
 
   let added = 0;
   const now = new Date().toISOString();
 
-  for (const stream of REMOTE_REGISTRY_STREAMS) {
+  for (const stream of streams) {
+    if (existingUrls.has(stream.seedUrl)) continue;
+
     const candidate: StreamCandidate = {
       id: `stream-${stream.seedUrl}`,
       label: stream.label,
@@ -354,6 +376,43 @@ export async function ensureRemoteRegistryStreams(seekerProfileId: string): Prom
   }
 
   return added;
+}
+
+/**
+ * Disable tech-heavy remote boards for ops/support-first profiles.
+ * Keeps user-custom streams enabled.
+ */
+export async function sanitizeRemoteStreamsForRoleFamily(
+  seekerProfileId: string,
+  profile: SeekerProfile,
+): Promise<number> {
+  if (!isRemoteOpsProfile(profile)) return 0;
+
+  const families = resolveRoleFamilies(profile);
+  const allowTech = families.includes("tech");
+  if (allowTech) return 0;
+
+  const rows = await prisma.streamRegistryEntry.findMany({
+    where: { seekerProfileId, enabled: true },
+    select: { id: true, seedUrl: true, discoveredVia: true },
+  });
+
+  let disabled = 0;
+  for (const row of rows) {
+    if (isUserCustomStream(row.discoveredVia)) continue;
+    if (!isRemoteBoardUrl(row.seedUrl)) continue;
+
+    const streamId = streamIdForRemoteSeedUrl(row.seedUrl);
+    if (!streamId || !isTechHeavyRemoteStreamId(streamId)) continue;
+
+    await prisma.streamRegistryEntry.update({
+      where: { id: row.id },
+      data: { enabled: false, health: "dead" },
+    });
+    disabled += 1;
+  }
+
+  return disabled;
 }
 
 /** Seed experimental CN freelance/gig streams (电鸭 RSS, 猪八戒, 一品威客). */
@@ -397,8 +456,11 @@ export async function ensureCnFreelanceRegistryStreams(
 }
 
 /** @deprecated Use ensureRemoteRegistryStreams */
-export async function ensureCnRemoteRegistryStreams(seekerProfileId: string): Promise<number> {
-  return ensureRemoteRegistryStreams(seekerProfileId);
+export async function ensureCnRemoteRegistryStreams(
+  seekerProfileId: string,
+  profile?: SeekerProfile,
+): Promise<number> {
+  return ensureRemoteRegistryStreams(seekerProfileId, profile);
 }
 
 /** Seed city-scoped CN aggregator/gov streams when registry lacks valid local sources. */

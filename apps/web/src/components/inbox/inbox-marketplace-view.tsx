@@ -21,7 +21,7 @@ import {
 } from "@/components/inbox/use-inbox-filters";
 import { inboxCityFilterOptions } from "@/lib/inbox-city-filter";
 import { EngineActivityPanel } from "@/components/engine/engine-activity-panel";
-import { FetchErrorLine } from "@/components/inbox/fetch-error-line";
+import { FetchErrorsBanner } from "@/components/inbox/fetch-errors-banner";
 import type { MatchRunInboxPayload } from "@/lib/match-run-client";
 import { getMatchRunState } from "@/lib/match-run-client";
 import { useMatchRun } from "@/components/match/match-run-provider";
@@ -127,11 +127,14 @@ export function InboxMarketplaceView({
     searchFacetIds,
     togglePreset,
     resetFilters,
+    setRoleFamily,
   } = useInboxFilters(
     items,
     profileSummary.industries,
     profileSummary.cities,
     profileSummary.districts,
+    profileSummary.roles,
+    profileSummary.remoteOnly,
   );
 
   const cityFilterOptions = useMemo(
@@ -280,7 +283,7 @@ export function InboxMarketplaceView({
         )}
       </div>
 
-      {needsRediscover && discoveryReady && (
+      {needsRediscover && discoveryReady && meta.streamCount === 0 && items.length === 0 && (
         <Card className="border-primary/30 bg-primary/5">
           <CardContent className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
@@ -327,8 +330,10 @@ export function InboxMarketplaceView({
         filters={filters}
         presetIds={availablePresetIds}
         searchFacets={searchFacets}
+        showRoleFamilies={Boolean(remoteFirst || cnRemoteFirst || profileSummary.remoteOnly)}
         onQueryChange={(query) => setFilters((prev) => ({ ...prev, query }))}
         onTogglePreset={togglePreset}
+        onRoleFamilyChange={setRoleFamily}
         onPosterTypeChange={(posterType) => setFilters((prev) => ({ ...prev, posterType }))}
         onWorkModeChange={(workMode) => setFilters((prev) => ({ ...prev, workMode }))}
         cityOptions={cityFilterOptions}
@@ -413,15 +418,12 @@ export function InboxMarketplaceView({
         </Card>
       )}
 
-      {meta.fetchErrors.length > 0 && (
-        <Card className="border-amber-500/30 bg-amber-500/5">
-          <CardContent className="text-sm text-amber-900 dark:text-amber-200">
-            <p className="font-medium">{t("fetchErrorsTitle")}</p>
-            <ul className="mt-2 list-disc pl-5">
-              {meta.fetchErrors.map((item) => (
-                <FetchErrorLine key={item} raw={item} />
-              ))}
-            </ul>
+      <FetchErrorsBanner errors={meta.fetchErrors} />
+
+      {meta.cnRemoteFirst && meta.fetchErrors.length > 0 && (
+        <Card className="border-muted bg-muted/30">
+          <CardContent className="py-3 text-sm text-muted-foreground">
+            {t("networkContext.cnRemoteHint")}
           </CardContent>
         </Card>
       )}

@@ -11,6 +11,7 @@ import {
   CN_FREELANCE_REGISTRY_STREAMS,
   isCnFreelanceIntentProfile,
 } from "./cn-freelance-packs.js";
+import { selectRemoteRegistryStreams } from "./role-family-packs.js";
 import {
   flattenSignalPackStreams,
   resolveSignalPacksForProfile,
@@ -23,13 +24,8 @@ const HYBRID_REMOTE_PROBE_CAP = 8;
 function remoteRegistryStreamsForProfile(
   profile: SeekerProfile,
 ): typeof REMOTE_REGISTRY_STREAMS {
-  const city = profile.constraints.primaryCity.trim();
-  const preference = profile.constraints.remotePreference;
-
-  if (preference === "onsite-only") return [];
-  if (!city) return REMOTE_REGISTRY_STREAMS;
-  if (preference === "remote-only") return REMOTE_REGISTRY_STREAMS;
-  return REMOTE_REGISTRY_STREAMS.slice(0, HYBRID_REMOTE_PROBE_CAP);
+  if (profile.constraints.remotePreference === "onsite-only") return [];
+  return selectRemoteRegistryStreams(profile, { hybridCap: HYBRID_REMOTE_PROBE_CAP });
 }
 
 function probeId(prefix: string, seed: string): string {
@@ -100,9 +96,15 @@ export function expandSourceProbes(profile: SeekerProfile): SourceProbe[] {
   );
   const cnLocalFirst = isCnLocalFirstProfile(profile);
 
-  // CN remote-first: international remote boards + optional CN freelance experiment.
+  // CN remote-first: role-family remote boards + optional CN freelance experiment.
   if (cnRemoteFirst) {
-    appendRegistryStreams(probes, REMOTE_REGISTRY_STREAMS, "zh-CN-remote-dev", "remote", intentTerms);
+    appendRegistryStreams(
+      probes,
+      remoteRegistryStreamsForProfile(profile),
+      "zh-CN-remote-dev",
+      "remote",
+      intentTerms,
+    );
     if (isCnFreelanceIntentProfile(profile)) {
       appendRegistryStreams(
         probes,
@@ -156,7 +158,6 @@ export function expandSourceProbes(profile: SeekerProfile): SourceProbe[] {
 
   // 3. Registry lookup — fallback hints, not the primary discovery path
   if (globalRemote) {
-    appendRegistryStreams(probes, pack.registryStreams, pack.id, "remote", intentTerms);
     if (allowRemoteBoards) {
       appendRegistryStreams(
         probes,

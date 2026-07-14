@@ -241,11 +241,21 @@ export const messages: Messages = {
       "Live sources returned no data; demo samples are shown so you can preview matching.",
     discoveryErrorsTitle: "Some discovery probes failed (skipped)",
     fetchErrorsTitle: "Some sources could not be fetched",
+    fetchErrorsBanner: {
+      summary: "{count} source fetch issues — click to expand",
+    },
     fetchErrors: {
       auth: "Auth",
       rate_limit: "Rate limit",
       empty: "Empty",
+      network: "Network",
       other: "Error",
+      networkDetail:
+        "May be blocked or slow from mainland China — disable on Sources or use CN gig feeds / paste-link capture",
+    },
+    networkContext: {
+      cnRemoteHint:
+        "Some international boards may not load from mainland China. CN gig sources (电鸭, 猪八戒) and paste-link capture still work; disable unreachable sources on Sources.",
     },
     errors: {
       refreshFailed: "Refresh failed",
@@ -262,6 +272,14 @@ export const messages: Messages = {
       workModeRemote: "Remote",
       workModeOnsite: "On-site",
       cityFilterAll: "All cities",
+      roleFamilyLabel: "Role family",
+      roleFamily: {
+        ops: "Ops & gig",
+        support: "Support",
+        design: "Design",
+        product: "Product",
+        tech: "Tech",
+      },
       searchFacetsLabel: "Refine these search results",
       posterType: "Poster type",
       posterAll: "All",
@@ -300,6 +318,11 @@ export const messages: Messages = {
       "data-ml": "Data / ML",
       "qa-automation": "QA",
       "product-design": "Product / UX",
+      "ecommerce-ops": "E-commerce ops",
+      "livestream-ops": "Live stream",
+      "customer-support": "Customer support",
+      "content-ops": "Content ops",
+      "community-ops": "Community ops",
       "food-service": "Food service",
       "general-labor": "General labor",
       other: "Other",
@@ -333,6 +356,10 @@ export const messages: Messages = {
       kindHint: "How listings are fetched: API connector, RSS, scraped page, or your custom URL",
       healthHint: "Whether the last fetch succeeded",
       confidenceHint: "How well this source matches your city and roles",
+      suggestDisable: "Consider disabling",
+      networkReach: "Reach",
+      networkReachCn: "CN-friendly",
+      networkReachIntl: "International",
     },
     category: {
       label: "Work arrangement",

@@ -5,6 +5,7 @@ import {
   analyzeDiscoveryGap,
   buildGapFocusedSearchQueries,
   isBlockedDomain,
+  isHardStreamFetchFailure,
   nextEmptyFetchCount,
   nextLearningWeight,
   shouldMarkStreamDead,
@@ -49,6 +50,24 @@ describe("stream-learning", () => {
     assert.equal(nextEmptyFetchCount(2, 0, false), 3);
     assert.equal(shouldMarkStreamDead(3), true);
     assert.equal(nextEmptyFetchCount(2, 4, false), 0);
+  });
+
+  it("fast-tracks dead on hard auth/not-found fetch failures", () => {
+    assert.equal(isHardStreamFetchFailure("HTTP 403 Forbidden"), true);
+    assert.equal(isHardStreamFetchFailure("HTTP 404 Not Found"), true);
+    assert.equal(isHardStreamFetchFailure("HTTP 429 Too Many Requests"), false);
+    assert.equal(nextEmptyFetchCount(0, 0, true, { hardFailure: true }), 3);
+    assert.equal(shouldMarkStreamDead(nextEmptyFetchCount(0, 0, true, { hardFailure: true })), true);
+  });
+
+  it("softens intl board 403 for CN network context", () => {
+    assert.equal(
+      isHardStreamFetchFailure("HTTP 403 Forbidden", {
+        url: "https://dynamitejobs.com/remote-jobs.rss",
+        cnNetworkContext: true,
+      }),
+      false,
+    );
   });
 
   it("lowers weight when opportunities never match and raises when they do", () => {

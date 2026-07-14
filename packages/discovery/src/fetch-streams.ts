@@ -97,13 +97,21 @@ export async function fetchAllStreams(
       if (result.error) {
         errors.push(
           formatClassifiedStreamFetchError(
-            classifyStreamFetchFailure(result.label, result.error, stream),
+            classifyStreamFetchFailure(result.label, result.error, {
+              kind: stream.kind,
+              connectorId: stream.connectorId,
+              url: stream.url,
+            }),
           ),
         );
       } else if (result.items.length === 0) {
         errors.push(
           formatClassifiedStreamFetchError(
-            classifyStreamFetchFailure(result.label, "0 items", stream),
+            classifyStreamFetchFailure(result.label, "0 items", {
+              kind: stream.kind,
+              connectorId: stream.connectorId,
+              url: stream.url,
+            }),
           ),
         );
       }

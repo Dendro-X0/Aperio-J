@@ -1,6 +1,7 @@
 import type { RawFeedItem } from "@aperio-j/core";
 import { capItems, connectorMaxItems, joinBodyParts } from "./normalize.js";
 import { loadConnectorFixture, useConnectorFixtures } from "./fixtures.js";
+import { stripEmptySalaryLines } from "../salary-format.js";
 import type { ConnectorDefinition, ConnectorQuery } from "./types.js";
 
 const REMOTIVE_API = "https://remotive.com/api/remote-jobs";
@@ -21,6 +22,14 @@ interface RemotiveResponse {
   jobs?: RemotiveJob[];
 }
 
+function normalizeRemotiveSalary(salary?: string): string | null {
+  const trimmed = salary?.trim();
+  if (!trimmed) return null;
+  const line = `Salary: ${trimmed}`;
+  const cleaned = stripEmptySalaryLines(line);
+  return cleaned || null;
+}
+
 function normalizeRemotiveJob(job: RemotiveJob, streamId: string, fetchedAt: string): RawFeedItem | null {
   const title = job.title?.trim();
   const url = job.url?.trim();
@@ -32,7 +41,7 @@ function normalizeRemotiveJob(job: RemotiveJob, streamId: string, fetchedAt: str
       job.company_name ? `Company: ${job.company_name}` : null,
       job.candidate_required_location ? `Location: ${job.candidate_required_location}` : null,
       job.job_type ? `Type: ${job.job_type}` : null,
-      job.salary ? `Salary: ${job.salary}` : null,
+      normalizeRemotiveSalary(job.salary),
       job.description,
     ]),
     url,

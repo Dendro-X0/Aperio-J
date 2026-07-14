@@ -38,12 +38,38 @@ export function isBlockedDomain(url: string, blockedDomains: ReadonlySet<string>
   return false;
 }
 
+import {
+  isIntlRemoteBoardUrl,
+  isLikelyRegionalNetworkFailure,
+} from "./network-region.js";
+
+export function isHardStreamFetchFailure(
+  error: string,
+  options?: { url?: string; cnNetworkContext?: boolean },
+): boolean {
+  const normalized = error.trim().toLowerCase();
+  if (
+    options?.cnNetworkContext &&
+    options.url &&
+    isIntlRemoteBoardUrl(options.url) &&
+    isLikelyRegionalNetworkFailure(error, options.url)
+  ) {
+    return false;
+  }
+  return (
+    /\b(401|403|404|410)\b/.test(normalized) ||
+    /forbidden|unauthorized|not found|invalid credentials|access denied/.test(normalized)
+  );
+}
+
 export function nextEmptyFetchCount(
   current: number,
   itemCount: number,
   failed: boolean,
+  options?: { hardFailure?: boolean },
 ): number {
   if (itemCount > 0) return 0;
+  if (options?.hardFailure) return EMPTY_FETCH_DEAD_THRESHOLD;
   if (failed || itemCount === 0) return current + 1;
   return current;
 }

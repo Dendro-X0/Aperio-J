@@ -20,6 +20,20 @@ export const INTENT_SYNONYMS: Record<string, string[]> = {
   文职: ["文职", "文员", "行政", "跟单", "资料员", "office", "admin"],
   行政: ["行政", "后勤", "文职", "admin"],
   跟单: ["跟单", "文员", "coordinator"],
+  客服: ["客服", "客户支持", "customer support", "customer service", "help desk", "chat agent"],
+  电商运营: [
+    "电商运营",
+    "店铺运营",
+    "e-commerce",
+    "ecommerce",
+    "marketplace operations",
+    "shop operations",
+    "tiktok shop",
+  ],
+  直播运营: ["直播运营", "直播助理", "主播助理", "带货", "livestream", "live stream", "live commerce"],
+  内容运营: ["内容运营", "新媒体", "content operations", "content creator", "copywriter"],
+  社群运营: ["社群运营", "community manager", "community operations", "social media manager"],
+  运营: ["运营", "operations", "ops", "growth", "运营助理"],
 };
 
 export function expandIntentTerms(terms: string[]): string[] {

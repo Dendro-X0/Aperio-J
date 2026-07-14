@@ -237,11 +237,21 @@ export const messages = {
     fixtureFallback: "在线信号源暂未返回数据，当前列表含演示样本以便预览匹配效果。",
     discoveryErrorsTitle: "源发现部分 probe 未成功（已跳过）",
     fetchErrorsTitle: "部分信号源未能拉取",
+    fetchErrorsBanner: {
+      summary: "{count} 个信号源拉取异常 — 点击展开",
+    },
     fetchErrors: {
       auth: "认证",
       rate_limit: "限流",
       empty: "空结果",
+      network: "网络",
       other: "错误",
+      networkDetail:
+        "可能因大陆网络无法访问或较慢 — 可在信号源页关闭，或使用国内零工源 / 粘贴链接抓取",
+    },
+    networkContext: {
+      cnRemoteHint:
+        "部分国际招聘源在大陆可能无法加载。国内零工源（电鸭、猪八戒等）和粘贴链接抓取仍可用；可在「信号源」关闭无法访问的源。",
     },
     errors: {
       refreshFailed: "刷新失败",
@@ -258,6 +268,14 @@ export const messages = {
       workModeRemote: "远程",
       workModeOnsite: "到岗",
       cityFilterAll: "全部城市",
+      roleFamilyLabel: "角色族",
+      roleFamily: {
+        ops: "运营 / 零工",
+        support: "客服支持",
+        design: "设计",
+        product: "产品",
+        tech: "技术",
+      },
       searchFacetsLabel: "在当前搜索结果中细化",
       posterType: "发布方",
       posterAll: "全部",
@@ -296,6 +314,11 @@ export const messages = {
       "data-ml": "数据 / 机器学习",
       "qa-automation": "测试 / 自动化",
       "product-design": "产品 / 设计",
+      "ecommerce-ops": "电商运营",
+      "livestream-ops": "直播运营",
+      "customer-support": "客服 / 支持",
+      "content-ops": "内容运营",
+      "community-ops": "社群运营",
       "food-service": "餐饮",
       "general-labor": "通用劳务",
       other: "其他",
@@ -329,6 +352,10 @@ export const messages = {
       kindHint: "RSS 或 HTML 列表页",
       healthHint: "上次抓取是否成功",
       confidenceHint: "该源与你的城市和意向的契合程度",
+      suggestDisable: "建议关闭",
+      networkReach: "网络",
+      networkReachCn: "国内可访问",
+      networkReachIntl: "国际源",
     },
     category: {
       label: "工作形式",

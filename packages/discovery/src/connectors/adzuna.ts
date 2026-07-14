@@ -2,6 +2,7 @@ import type { RawFeedItem } from "@aperio-j/core";
 import { capItems, connectorMaxItems, joinBodyParts, parseIsoDate } from "./normalize.js";
 import { loadConnectorFixture, useConnectorFixtures } from "./fixtures.js";
 import { isAdzunaCountrySupported, normalizeCityForApi, resolveAdzunaCountry } from "./geo.js";
+import { isMeaningfulSalaryAmount } from "../salary-format.js";
 import type { ConnectorDefinition, ConnectorQuery } from "./types.js";
 
 const ADZUNA_API = "https://api.adzuna.com/v1/api/jobs";
@@ -32,9 +33,11 @@ function adzunaCredentials(): { appId: string; appKey: string } | null {
 }
 
 function formatSalary(min?: number, max?: number): string | null {
-  if (min == null && max == null) return null;
-  if (min != null && max != null) return `Salary: ${min} – ${max}`;
-  if (min != null) return `Salary from: ${min}`;
+  const minOk = isMeaningfulSalaryAmount(min);
+  const maxOk = isMeaningfulSalaryAmount(max);
+  if (!minOk && !maxOk) return null;
+  if (minOk && maxOk) return `Salary: ${min} – ${max}`;
+  if (minOk) return `Salary from: ${min}`;
   return `Salary up to: ${max}`;
 }
 

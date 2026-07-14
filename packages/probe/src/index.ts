@@ -29,6 +29,19 @@ export {
   isCnFreelanceStreamUrl,
 } from "./cn-freelance-packs.js";
 export {
+  ROLE_FAMILY_IDS,
+  ROLE_FAMILY_CATEGORIES,
+  ROLE_FAMILY_INBOX_PRESETS,
+  resolveRoleFamilies,
+  selectRemoteRegistryStreams,
+  streamIdForRemoteSeedUrl,
+  isTechHeavyRemoteStreamId,
+  inboxPresetIdsForRoleFamilies,
+  opportunityMatchesRoleFamily,
+  remoteStreamIdsForFamilies,
+  type RoleFamilyId,
+} from "./role-family-packs.js";
+export {
   buildCitySearchQueries,
   buildBaiduSearchUrl,
   buildRegionalSearchQueries,

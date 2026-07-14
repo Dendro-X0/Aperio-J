@@ -1,5 +1,11 @@
 import type { RoleCategory } from "@aperio-j/core";
 import { getTaxonomyNode, taxonomyLabel } from "@aperio-j/core";
+import {
+  inboxPresetIdsForRoleFamilies,
+  opportunityMatchesRoleFamily,
+  resolveRoleFamilies,
+  type RoleFamilyId,
+} from "@aperio-j/probe";
 import type { InboxItem } from "@/lib/match-service";
 import {
   resolveIndustryGroupFromLabel,
@@ -40,6 +46,17 @@ const TECHNOLOGY_PRESET_IDS = [
   INBOX_PRESET_OTHER,
 ] as const;
 
+const OPS_PRESET_IDS = [
+  "subSector:ecommerce-ops",
+  "subSector:livestream-ops",
+  "subSector:customer-support",
+  "subSector:content-ops",
+  "subSector:community-ops",
+  "subSector:sales",
+  "subSector:office-admin",
+  INBOX_PRESET_OTHER,
+] as const;
+
 const SERVICES_PRESET_IDS = [
   "subSector:office-admin",
   "subSector:sales",
@@ -66,13 +83,12 @@ const GROUP_PRESET_IDS: Record<Exclude<IndustryGroupId, "all">, readonly string[
 /** Industry-specific overrides when a catalog industry needs a tailored chip row. */
 const INDUSTRY_PRESET_OVERRIDES: Record<string, readonly string[]> = {
   "industry:it-software": TECHNOLOGY_PRESET_IDS,
-  "industry:internet-platform": [
-    "subSector:frontend-dev",
-    "subSector:backend-dev",
-    "subSector:fullstack-dev",
-    "subSector:devops",
-    "subSector:mobile-dev",
-    "subSector:data-ml",
+  "industry:internet-platform": OPS_PRESET_IDS,
+  "industry:retail-ecommerce": OPS_PRESET_IDS,
+  "industry:media-creative": [
+    "subSector:content-ops",
+    "subSector:community-ops",
+    "subSector:product-design",
     "subSector:sales",
     INBOX_PRESET_OTHER,
   ],
@@ -117,6 +133,62 @@ export function resolveInboxFilterPresetIdsForIndustries(industryLabels: string[
   }
 
   return presetIds;
+}
+
+/** Prefer role-family chips when profile intent is clear (ops / tech / design…). */
+export function resolveInboxFilterPresetIdsForProfile(input: {
+  industries: string[];
+  roles: string[];
+  remoteOnly?: boolean;
+}): string[] {
+  const families = resolveRoleFamilies({
+    id: "inbox-presets",
+    constraints: {
+      primaryCity: "",
+      acceptableCities: [],
+      remotePreference: input.remoteOnly === false ? "hybrid-ok" : "remote-only",
+      employmentTypes: ["full-time", "part-time", "contract"],
+      allowAgencyPostings: true,
+      hideRedFlagListings: true,
+      preferDirectHire: false,
+    },
+    intent: {
+      desiredRoles: input.roles,
+      desiredIndustries: input.industries,
+      avoidRoles: [],
+      avoidPhrases: [],
+      industryProximity: "open-to-any",
+      excludeProductionLine: false,
+      excludeSales: false,
+      excludeFoodService: false,
+    },
+    artifacts: [],
+    skillTokens: [],
+    certificates: [],
+    experienceYears: 0,
+    educationLevel: "high-school",
+    languages: [],
+    inferredCapabilities: [],
+    seekerDigest: "",
+  });
+
+  if (families.length > 0 && families.length < 5) {
+    const familyPresets = inboxPresetIdsForRoleFamilies(families);
+    if (familyPresets.length > 0) {
+      return [...familyPresets, INBOX_PRESET_OTHER];
+    }
+  }
+
+  const fromIndustry = resolveInboxFilterPresetIdsForIndustries(input.industries);
+  if (fromIndustry.length > 0) return fromIndustry;
+  return [...OPS_PRESET_IDS];
+}
+
+export function inboxItemMatchesRoleFamily(
+  item: InboxItem,
+  family: RoleFamilyId,
+): boolean {
+  return opportunityMatchesRoleFamily(item.opportunity.roleCategories, family);
 }
 
 export function inboxFilterPresetLabel(presetId: string, locale: string): string | null {

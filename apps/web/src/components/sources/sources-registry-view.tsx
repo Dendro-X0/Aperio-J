@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ChevronDown, FileUp, MoreHorizontal, Plus, Radio, Trash2 } from "lucide-react";
 import { useI18n, useTranslations } from "@/i18n/provider";
 import { profileLocationLabelFromCityField } from "@/lib/profile-location-display";
+import { classifySourceNetworkReach } from "@aperio-j/discovery/network-region";
 import { StreamHealthBadge } from "@/components/sources/stream-health-badge";
 import { SessionAuthFields, type SessionAuthMode } from "@/components/sources/session-auth-fields";
 import { SourcesTableSkeleton } from "@/components/sources/sources-table-skeleton";
@@ -823,6 +824,15 @@ export function SourcesRegistryView({
                             {t("intake.alwaysOn")}
                           </Badge>
                         )}
+                        {(() => {
+                          const reach = classifySourceNetworkReach(stream.seedUrl);
+                          if (reach === "global") return null;
+                          return (
+                            <Badge variant="outline" className="text-[0.65rem] text-muted-foreground">
+                              {reach === "cn" ? t("table.networkReachCn") : t("table.networkReachIntl")}
+                            </Badge>
+                          );
+                        })()}
                       </div>
                       {stream.seedUrl.startsWith("connector://") ? (
                         <span className="block truncate text-xs text-muted-foreground">
@@ -861,7 +871,15 @@ export function SourcesRegistryView({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <StreamHealthBadge health={stream.health} />
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <StreamHealthBadge health={stream.health} />
+                      {stream.enabled &&
+                        (stream.health === "dead" || stream.health === "stale") && (
+                          <Badge variant="outline" className="text-[0.65rem] text-muted-foreground">
+                            {t("table.suggestDisable")}
+                          </Badge>
+                        )}
+                    </div>
                   </TableCell>
                   <TableCell className="hidden tabular-nums sm:table-cell">
                     {Math.round(stream.confidence * 100)}%

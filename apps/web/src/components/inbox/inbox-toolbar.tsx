@@ -1,7 +1,13 @@
 "use client";
 
 import { ChevronDown, Filter, Search } from "lucide-react";
-import type { InboxFilters, InboxSearchFacet, PosterFilter } from "@/components/inbox/use-inbox-filters";
+import type { RoleFamilyId } from "@aperio-j/probe";
+import type {
+  InboxFilters,
+  InboxRoleFamilyFilter,
+  InboxSearchFacet,
+  PosterFilter,
+} from "@/components/inbox/use-inbox-filters";
 import { countActiveFilters } from "@/components/inbox/use-inbox-filters";
 import type { InboxWorkModeFilter } from "@/lib/inbox-work-mode";
 import type { InboxCityFilter } from "@/lib/inbox-city-filter";
@@ -9,6 +15,14 @@ import {
   INBOX_PRESET_OTHER,
   inboxFilterPresetLabel,
 } from "@/lib/inbox-filter-presets";
+
+const ROLE_FAMILY_OPTIONS: RoleFamilyId[] = [
+  "ops",
+  "support",
+  "design",
+  "product",
+  "tech",
+];
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,8 +47,10 @@ interface InboxToolbarProps {
   filters: InboxFilters;
   presetIds: string[];
   searchFacets: InboxSearchFacet[];
+  showRoleFamilies?: boolean;
   onQueryChange: (query: string) => void;
   onTogglePreset: (presetId: string) => void;
+  onRoleFamilyChange?: (family: InboxRoleFamilyFilter) => void;
   onPosterTypeChange: (posterType: PosterFilter) => void;
   onWorkModeChange: (workMode: InboxWorkModeFilter) => void;
   cityOptions?: Array<{ value: string; label: string }>;
@@ -52,8 +68,10 @@ export function InboxToolbar({
   filters,
   presetIds,
   searchFacets,
+  showRoleFamilies = false,
   onQueryChange,
   onTogglePreset,
+  onRoleFamilyChange,
   onPosterTypeChange,
   onWorkModeChange,
   cityOptions = [],
@@ -237,6 +255,31 @@ export function InboxToolbar({
                 {option.label}
               </Button>
             ))}
+          </div>
+        )}
+
+        {showRoleFamilies && onRoleFamilyChange && !searching && (
+          <div className="space-y-1.5">
+            <p className="text-xs text-muted-foreground">{tMarket("roleFamilyLabel")}</p>
+            <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+              {ROLE_FAMILY_OPTIONS.map((family) => {
+                const selected = filters.roleFamily === family;
+                return (
+                  <Toggle
+                    key={family}
+                    pressed={selected}
+                    onPressedChange={() => onRoleFamilyChange(family)}
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "shrink-0 data-[state=on]:border-primary data-[state=on]:bg-primary/10 data-[state=on]:text-primary",
+                    )}
+                  >
+                    {tMarket(`roleFamily.${family}`)}
+                  </Toggle>
+                );
+              })}
+            </div>
           </div>
         )}
 

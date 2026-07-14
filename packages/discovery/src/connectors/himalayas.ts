@@ -9,6 +9,7 @@ import {
 } from "./normalize.js";
 import { loadConnectorFixture, useConnectorFixtures } from "./fixtures.js";
 import { resolveAdzunaCountry } from "./geo.js";
+import { formatSalaryRange } from "../salary-format.js";
 import type { ConnectorDefinition, ConnectorQuery } from "./types.js";
 
 const HIMALAYAS_SEARCH_API = "https://himalayas.app/jobs/api/search";
@@ -39,17 +40,6 @@ function himalayasJobUrl(job: HimalayasJob): string | null {
   return job.applicationLink?.trim() || job.guid?.trim() || null;
 }
 
-function formatSalary(job: HimalayasJob): string | null {
-  if (job.minSalary == null && job.maxSalary == null) return null;
-  const currency = job.currency ?? "USD";
-  const period = job.salaryPeriod ? ` (${job.salaryPeriod})` : "";
-  if (job.minSalary != null && job.maxSalary != null) {
-    return `Salary: ${currency} ${job.minSalary.toLocaleString()} – ${job.maxSalary.toLocaleString()}${period}`;
-  }
-  if (job.minSalary != null) return `Salary: from ${currency} ${job.minSalary.toLocaleString()}${period}`;
-  return `Salary: up to ${currency} ${job.maxSalary!.toLocaleString()}${period}`;
-}
-
 function normalizeHimalayasJob(
   job: HimalayasJob,
   streamId: string,
@@ -73,7 +63,10 @@ function normalizeHimalayasJob(
       location ? `Location: ${location}` : null,
       job.employmentType ? `Type: ${job.employmentType}` : null,
       job.seniority?.length ? `Seniority: ${job.seniority.join(", ")}` : null,
-      formatSalary(job),
+      formatSalaryRange(job.minSalary, job.maxSalary, {
+        currency: job.currency ?? "USD",
+        prefix: `Salary${job.salaryPeriod ? ` (${job.salaryPeriod})` : ""}`,
+      }),
       job.excerpt,
       job.description,
     ]),

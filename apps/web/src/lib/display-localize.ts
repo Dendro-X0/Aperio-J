@@ -1,4 +1,5 @@
 import { getTaxonomyNode, taxonomyLabel, type TaxonomyKind, type TaxonomyRef } from "@aperio-j/core";
+import { isGarbledText } from "@aperio-j/discovery/feed-text-quality";
 import type { Locale } from "@/i18n/translate";
 
 const REMOTE_LOCATION_PATTERN = /^(远程|remote|work from home|wfh)$/i;
@@ -72,7 +73,7 @@ export function sanitizeDisplayText(
   if (!value?.trim()) return "";
   const maxLength = options?.maxLength ?? 80;
   const text = stripHtml(value);
-  if (!text || HTML_GARBAGE_PATTERN.test(value)) return "";
+  if (!text || HTML_GARBAGE_PATTERN.test(value) || isGarbledText(text)) return "";
   if (text.length > maxLength) return `${text.slice(0, maxLength).trim()}…`;
   return text;
 }
@@ -80,7 +81,7 @@ export function sanitizeDisplayText(
 export function bodyExcerpt(body: string, title: string, max = 100): string {
   const text = stripScrapeMetadata(stripHtml(body.trim()));
   const cleanTitle = stripHtml(title.trim());
-  if (!text || text === cleanTitle) return "";
+  if (!text || text === cleanTitle || isGarbledText(text)) return "";
   if (text.length <= max) return text;
   return `${text.slice(0, max).trim()}…`;
 }

@@ -1,7 +1,8 @@
 import type { ConnectorId } from "./connectors/types.js";
 import type { StreamConfig } from "./fetch-streams.js";
+import { isIntlRemoteBoardUrl, isLikelyRegionalNetworkFailure } from "./network-region.js";
 
-export type StreamFetchErrorKind = "auth" | "rate_limit" | "empty" | "other";
+export type StreamFetchErrorKind = "auth" | "rate_limit" | "empty" | "network" | "other";
 
 export interface ClassifiedStreamFetchError {
   label: string;
@@ -16,13 +17,25 @@ function normalizeMessage(message: string): string {
 export function classifyStreamFetchFailure(
   label: string,
   message: string,
-  config?: Pick<StreamConfig, "kind" | "connectorId">,
+  config?: Pick<StreamConfig, "kind" | "connectorId"> & { url?: string },
 ): ClassifiedStreamFetchError {
   const normalized = normalizeMessage(message);
   const connectorId = config?.connectorId;
+  const sourceUrl = config?.url;
 
   if (/^0 items$/.test(normalized) || normalized.endsWith(": 0 items")) {
     return { label, kind: "empty", detail: "No listings returned" };
+  }
+
+  if (
+    isLikelyRegionalNetworkFailure(message, sourceUrl) ||
+    (sourceUrl && isIntlRemoteBoardUrl(sourceUrl) && /\b403\b/.test(normalized))
+  ) {
+    return {
+      label,
+      kind: "network",
+      detail: message,
+    };
   }
 
   if (
@@ -65,7 +78,7 @@ export function formatClassifiedStreamFetchError(error: ClassifiedStreamFetchErr
 }
 
 export function parseClassifiedStreamFetchError(raw: string): ClassifiedStreamFetchError | null {
-  const match = /^(.*) \[(auth|rate_limit|empty|other)\]: (.*)$/.exec(raw);
+  const match = /^(.*) \[(auth|rate_limit|empty|network|other)\]: (.*)$/.exec(raw);
   if (!match) return null;
   return {
     label: match[1]!,

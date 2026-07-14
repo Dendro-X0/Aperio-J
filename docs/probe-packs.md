@@ -81,6 +81,18 @@ Built-in streams in `packages/probe/src/cn-freelance-packs.ts` seed when Profile
 
 Ops role taxonomy (`ecommerce-ops`, `livestream-ops`, `customer-support`, `content-ops`, `community-ops`) lives in `nodes.json` and `role-categories.ts`. Remote ops profiles filter out pure developer listings during match runs.
 
+## Role-family source packs
+
+`packages/probe/src/role-family-packs.ts` maps Profile intent to families (`ops`, `support`, `design`, `product`, `tech`) and selects matching remote RSS boards:
+
+| Family | Example boards |
+|--------|----------------|
+| ops / support | WWR Customer Support, Sales & Marketing, All other |
+| design / product | WWR Design, Product |
+| tech | WWR Programming, DevOps, Remotive, Remote OK, HN |
+
+Ops profiles seed support/marketing boards and auto-disable tech-heavy boards on refresh. Inbox shows **Role family** chips plus ops taxonomy chips for remote profiles.
+
 ## Adding a stream
 
 ```typescript

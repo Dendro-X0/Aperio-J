@@ -19,7 +19,7 @@ export function FetchErrorLine({ raw }: { raw: string }) {
         {t(parsed.kind)}
       </span>
       {": "}
-      {parsed.detail}
+      {parsed.kind === "network" ? t("networkDetail") : parsed.detail}
     </li>
   );
 }

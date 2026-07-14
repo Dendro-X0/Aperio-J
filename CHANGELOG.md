@@ -11,11 +11,30 @@ All notable changes to Aperio-J are documented here. Format follows [Keep a Chan
 - `APERO_J_CN_FREELANCE_EXPERIMENTAL=false` to disable 威客源 seeding
 - Ops role taxonomy: `ecommerce-ops`, `livestream-ops`, `customer-support`, `content-ops`, `community-ops`
 - Remote ops profiles filter pure developer listings from international feeds
+- Role-family source packs: ops/support seed WWR Customer Support & Sales boards; tech-heavy boards disabled for ops profiles
+- Inbox **Role family** chips (ops / support / design / product / tech) for remote profiles
 
 ### Changed
 
 - CN profiles with remote/hybrid preference no longer auto-scrape BOSS/智联; onsite-only keeps local aggregators
 - Product positioning: remote / gig / freelance-first (Work Best style), not on-site factory hiring
+
+## [0.4.0] — 2026-07-13
+
+### Added
+
+- Feed text quality: garbled/mojibake detection and cleanup before matching
+- Salary formatting helper that hides zero-valued ranges (`$0 - $0`)
+- Collapsible fetch-error banner in Inbox (compact by default)
+- Sources table **Consider disabling** hint for stale/dead streams still enabled
+- Hard fetch failures (403/404/auth) auto-disable streams on first miss
+- **Network region awareness:** classify intl board failures as `network` (not auth); CN profiles get softer auto-disable for blocked intl RSS; Sources badges **CN-friendly** / **International**; Inbox hint for CN remote users when fetches fail
+
+### Changed
+
+- Match pipeline sanitizes raw feed items before parsing
+- Connectors (RemoteOK, Himalayas, Adzuna, Jobicy, Remotive) skip empty salary lines
+- Inbox “no sources” banner hidden when matches already exist
 
 ## [0.3.0] — 2026-07-06
 

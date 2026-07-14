@@ -167,6 +167,9 @@ export const messages: Messages = {
       remoteTitle: "Escaneando tableros remotos",
     },
     fetchErrorsTitle: "No se pudieron obtener algunas fuentes",
+    fetchErrorsBanner: {
+      summary: "{count} fuentes con error — clic para expandir",
+    },
     errors: {
       refreshFailed: "Error al actualizar",
       captureFailed: "Error al capturar",

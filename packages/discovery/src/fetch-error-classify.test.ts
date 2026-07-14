@@ -30,6 +30,15 @@ describe("fetch-error-classify", () => {
     assert.equal(error.kind, "rate_limit");
   });
 
+  it("classifies intl board network blocks", () => {
+    const error = classifyStreamFetchFailure(
+      "Dynamite Jobs",
+      "HTTP 403 Forbidden",
+      { kind: "rss", url: "https://dynamitejobs.com/remote-jobs.rss" },
+    );
+    assert.equal(error.kind, "network");
+  });
+
   it("round-trips formatted errors", () => {
     const formatted = formatClassifiedStreamFetchError({
       label: "Adzuna API",

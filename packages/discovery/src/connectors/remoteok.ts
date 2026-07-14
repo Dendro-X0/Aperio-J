@@ -8,6 +8,7 @@ import {
   withConnectorSearchFallback,
 } from "./normalize.js";
 import { loadConnectorFixture, useConnectorFixtures } from "./fixtures.js";
+import { formatSalaryRange } from "../salary-format.js";
 import type { ConnectorDefinition, ConnectorQuery } from "./types.js";
 
 const REMOTEOK_API = "https://remoteok.com/api";
@@ -40,15 +41,6 @@ function remoteOkJobUrl(job: RemoteOkJob): string | null {
   return null;
 }
 
-function formatSalary(min?: number, max?: number): string | null {
-  if (typeof min === "number" && typeof max === "number") {
-    return `Salary: $${min.toLocaleString()} - $${max.toLocaleString()}`;
-  }
-  if (typeof min === "number") return `Salary: from $${min.toLocaleString()}`;
-  if (typeof max === "number") return `Salary: up to $${max.toLocaleString()}`;
-  return null;
-}
-
 function isRemoteOkLegalNotice(row: RemoteOkJob): boolean {
   return Boolean(row.legal) || !row.position?.trim();
 }
@@ -67,7 +59,7 @@ function normalizeRemoteOkJob(
     body: joinBodyParts([
       job.company ? `Company: ${job.company}` : null,
       job.location ? `Location: ${job.location.trim()}` : "Location: Remote",
-      formatSalary(job.salary_min, job.salary_max),
+      formatSalaryRange(job.salary_min, job.salary_max),
       job.tags?.length ? `Tags: ${job.tags.slice(0, 8).join(", ")}` : null,
       job.description,
     ]),

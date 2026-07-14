@@ -4,6 +4,7 @@ import type { StreamFetchResult } from "@aperio-j/discovery/fetch-streams";
 import {
   nextEmptyFetchCount,
   shouldMarkStreamDead,
+  isHardStreamFetchFailure,
 } from "@aperio-j/discovery/stream-learning";
 
 function nextHealth(current: StreamHealth, itemCount: number, failed: boolean): StreamHealth {
@@ -17,7 +18,10 @@ function nextHealth(current: StreamHealth, itemCount: number, failed: boolean): 
   return "dead";
 }
 
-export async function applyStreamFetchResults(results: StreamFetchResult[]): Promise<void> {
+export async function applyStreamFetchResults(
+  results: StreamFetchResult[],
+  options?: { cnNetworkContext?: boolean },
+): Promise<void> {
   for (const result of results) {
     const entry = await prisma.streamRegistryEntry.findUnique({
       where: { id: result.streamId },
@@ -25,9 +29,23 @@ export async function applyStreamFetchResults(results: StreamFetchResult[]): Pro
     if (!entry) continue;
 
     const failed = Boolean(result.error);
+    const hardFailure =
+      failed &&
+      Boolean(
+        result.error &&
+          isHardStreamFetchFailure(result.error, {
+            url: entry.seedUrl,
+            cnNetworkContext: options?.cnNetworkContext,
+          }),
+      );
     const promoted = result.items.length > 0 && entry.validationTier === "candidate";
     const isDeferredCandidate = entry.validationTier === "candidate" && !entry.enabled;
-    const emptyFetchCount = nextEmptyFetchCount(entry.emptyFetchCount, result.items.length, failed);
+    const emptyFetchCount = nextEmptyFetchCount(
+      entry.emptyFetchCount,
+      result.items.length,
+      failed,
+      { hardFailure },
+    );
     const markDead = shouldMarkStreamDead(emptyFetchCount);
 
     let health: StreamHealth;

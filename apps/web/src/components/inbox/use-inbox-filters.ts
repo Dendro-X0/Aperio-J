@@ -2,10 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { PosterType } from "@aperio-j/core";
+import type { RoleFamilyId } from "@aperio-j/probe";
 import type { InboxItem } from "@/lib/match-service";
 import {
   inboxItemMatchesPreset,
-  resolveInboxFilterPresetIdsForIndustries,
+  inboxItemMatchesRoleFamily,
+  resolveInboxFilterPresetIdsForProfile,
 } from "@/lib/inbox-filter-presets";
 import {
   deriveInboxSearchFacets,
@@ -20,10 +22,12 @@ import { matchesCityFilter, type InboxCityFilter } from "@/lib/inbox-city-filter
 
 export type InboxSort = "score" | "recent";
 export type PosterFilter = PosterType | "all";
+export type InboxRoleFamilyFilter = RoleFamilyId | "all";
 
 export interface InboxFilters {
   query: string;
   presets: string[];
+  roleFamily: InboxRoleFamilyFilter;
   posterType: PosterFilter;
   workMode: InboxWorkModeFilter;
   city: InboxCityFilter;
@@ -34,6 +38,7 @@ export interface InboxFilters {
 export const DEFAULT_INBOX_FILTERS: InboxFilters = {
   query: "",
   presets: [],
+  roleFamily: "all",
   posterType: "all",
   workMode: "all",
   city: "all",
@@ -76,6 +81,12 @@ export function filterInboxItems(
       return false;
     }
     if (item.match.breakdown.finalScore < filters.minScore) return false;
+    if (
+      filters.roleFamily !== "all" &&
+      !inboxItemMatchesRoleFamily(item, filters.roleFamily)
+    ) {
+      return false;
+    }
     if (filters.presets.length > 0) {
       if (filters.query.trim()) {
         if (!itemMatchesSearchFacets(item, filters.presets, activeFacetIds)) return false;
@@ -102,10 +113,17 @@ export function useInboxFilters(
   industryLabels: string[],
   profileCities: string[] = [],
   profileDistricts: string[] = [],
+  roleLabels: string[] = [],
+  remoteOnly = true,
 ) {
   const availablePresetIds = useMemo(
-    () => resolveInboxFilterPresetIdsForIndustries(industryLabels),
-    [industryLabels],
+    () =>
+      resolveInboxFilterPresetIdsForProfile({
+        industries: industryLabels,
+        roles: roleLabels,
+        remoteOnly,
+      }),
+    [industryLabels, roleLabels, remoteOnly],
   );
 
   const [filters, setFilters] = useState<InboxFilters>(DEFAULT_INBOX_FILTERS);
@@ -162,6 +180,13 @@ export function useInboxFilters(
     });
   }
 
+  function setRoleFamily(roleFamily: InboxRoleFamilyFilter) {
+    setFilters((prev) => ({
+      ...prev,
+      roleFamily: prev.roleFamily === roleFamily ? "all" : roleFamily,
+    }));
+  }
+
   function resetFilters() {
     setFilters(DEFAULT_INBOX_FILTERS);
   }
@@ -174,6 +199,7 @@ export function useInboxFilters(
     searchFacets,
     searchFacetIds,
     togglePreset,
+    setRoleFamily,
     resetFilters,
   };
 }
@@ -182,6 +208,7 @@ export function countActiveFilters(filters: InboxFilters): number {
   let count = 0;
   if (filters.query.trim()) count += 1;
   if (filters.presets.length > 0) count += 1;
+  if (filters.roleFamily !== "all") count += 1;
   if (filters.posterType !== "all") count += 1;
   if (filters.workMode !== "all") count += 1;
   if (filters.city !== "all") count += 1;

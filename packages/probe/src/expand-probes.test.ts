@@ -101,6 +101,8 @@ describe("expandSourceProbes", () => {
     const probes = expandSourceProbes(profile);
     assert.ok(probes.some((probe) => probe.seed.includes("eleduck.com/feed/latest.xml")));
     assert.ok(probes.some((probe) => probe.seed.includes("zbj.com")));
+    assert.ok(probes.some((probe) => probe.seed.includes("remote-customer-support-jobs")));
+    assert.ok(!probes.some((probe) => probe.seed.includes("remote-programming-jobs")));
   });
 
   it("adds CN freelance probes for CN city remote-ops profiles", () => {
@@ -111,6 +113,7 @@ describe("expandSourceProbes", () => {
     const probes = expandSourceProbes(profile);
     assert.ok(probes.some((probe) => probe.seed.includes("eleduck.com/feed/latest.xml")));
     assert.ok(probes.some((probe) => probe.seed.includes("epwk.com")));
+    assert.ok(probes.some((probe) => probe.seed.includes("remote-sales-and-marketing-jobs")));
   });
 
   it("keeps local probes for CN onsite-only profiles", () => {

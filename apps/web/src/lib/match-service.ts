@@ -8,6 +8,7 @@ import type { StreamConfig } from "@aperio-j/discovery/fetch-streams";
 import { filterCnFeedItemsForProfile } from "@aperio-j/discovery/cn-feed-quality";
 import { filterRemoteTechFeedItemsForProfile } from "@aperio-j/discovery/remote-tech-feed-quality";
 import { filterRemoteOpsFeedItemsForProfile } from "@aperio-j/discovery/remote-ops-feed-quality";
+import { sanitizeRawFeedItems } from "@aperio-j/discovery/feed-text-quality";
 import { shouldRunInitialScrapeDiscoveryForProfile, shouldRunScrapeDiscoveryForProfile } from "@aperio-j/discovery/discovery-fallback";
 import { throwIfAborted } from "@aperio-j/discovery/discovery-abort";
 import { isChinaCityProfile, isCnLocalFirstOccupation, isCnRemoteFirstProfile, isCnFreelanceIntentProfile, isRemoteFirstProfile, isRemoteOpsProfile, isRemoteTechProfile } from "@aperio-j/probe";
@@ -27,6 +28,7 @@ import {
   sanitizeRemoteBoardRegistryStreams,
   ensureCnCityRegistryStreams,
   ensureRemoteRegistryStreams,
+  sanitizeRemoteStreamsForRoleFamily,
   ensureCnFreelanceRegistryStreams,
   ensureCnRemoteRegistryStreams,
 } from "./source-registry";
@@ -342,12 +344,17 @@ export async function runMatchPipeline(
       profile.constraints.primaryCity,
       profile.constraints.acceptableCities,
     ) && !cnRemoteFirst;
+  const cnNetworkContext =
+    cnRemoteFirst ||
+    cnCaptureFirst ||
+    isChinaCityProfile(profile.constraints.primaryCity, profile.constraints.acceptableCities);
 
   if (cnRemoteFirst) {
     await sanitizeCnRemoteFirstRegistryStreams(profile.id);
   }
   if (cnRemoteFirst || isRemoteFirstProfile(profile)) {
-    await ensureRemoteRegistryStreams(profile.id);
+    await ensureRemoteRegistryStreams(profile.id, profile);
+    await sanitizeRemoteStreamsForRoleFamily(profile.id, profile);
   }
   if (isCnFreelanceIntentProfile(profile)) {
     await ensureCnFreelanceRegistryStreams(profile.id, profile);
@@ -396,7 +403,7 @@ export async function runMatchPipeline(
 
     const registryResults = fetched.results.filter((row) => registryStreamIds.has(row.streamId));
     if (registryResults.length > 0) {
-      await applyStreamFetchResults(registryResults);
+      await applyStreamFetchResults(registryResults, { cnNetworkContext });
       await recordFetchMemoryFromResults(profile, registryResults);
     }
 
@@ -431,7 +438,7 @@ export async function runMatchPipeline(
           retryRegistryIds.has(row.streamId),
         );
         if (retryRegistryResults.length > 0) {
-          await applyStreamFetchResults(retryRegistryResults);
+          await applyStreamFetchResults(retryRegistryResults, { cnNetworkContext });
           await recordFetchMemoryFromResults(profile, retryRegistryResults);
         }
       }
@@ -446,6 +453,8 @@ export async function runMatchPipeline(
     rssItems = [...FIXTURE_FEED_ITEMS];
     usedFixtureFallback = true;
   }
+
+  rssItems = sanitizeRawFeedItems(rssItems);
 
   if (cnCaptureFirst) {
     rssItems = filterCnFeedItemsForProfile(rssItems, profile);
