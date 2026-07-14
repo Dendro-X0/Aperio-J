@@ -1,5 +1,2 @@
-# Public HTTPS URL baked into Android release APKs (opens in the app shell).
-# Used when GitHub secret APERIO_J_WEB_URL is not set.
-# Replace with your Render / self-host URL before tagging a release:
-#
-# https://aperio-j-xxxx.onrender.com
+# Public URL baked into Android release APKs.
+https://aperio-j.onrender.com
