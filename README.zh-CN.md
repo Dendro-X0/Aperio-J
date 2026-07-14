@@ -15,6 +15,8 @@
 | 平台 | 文件 | 体积 | 说明 |
 |------|------|------|------|
 | Windows | `Aperio-J-windows-setup.exe` | ~12–18 MB | 轻量壳 → 打开 [aperio-j.onrender.com](https://aperio-j.onrender.com) |
+| Linux | `Aperio-J-linux-x86_64.AppImage` | ~12–18 MB | 同上；`chmod +x` 后运行 |
+| macOS | `Aperio-J-macos-aarch64.dmg` / `Aperio-J-macos-x64.dmg` | ~12–18 MB | 临时签名 — 首次启动请右键「打开」 |
 | Android | `Aperio-J-android.apk` | ~15 MB | 同上，移动端壳 |
 | 浏览器 | 任意现代浏览器 | — | **推荐给国内用户** — 无需安装 |
 

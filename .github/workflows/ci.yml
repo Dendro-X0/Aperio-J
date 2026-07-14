@@ -70,13 +70,8 @@ jobs:
 
       - name: Prepare release filenames
         run: |
-          mkdir -p release
-          EXE=$(find release-assets -name '*.exe' | head -1)
-          test -n "$EXE" || { echo "Windows installer missing"; exit 1; }
-          cp "$EXE" release/Aperio-J-windows-setup.exe
-          APK=$(find release-assets -name '*.apk' | head -1)
-          if [ -n "$APK" ]; then
-            cp "$APK" release/Aperio-J-android.apk
+          node scripts/prepare-release-installers.mjs release-assets release
+          if [ -f release/Aperio-J-android.apk ]; then
             echo "has_apk=true" >> "$GITHUB_ENV"
           else
             echo "has_apk=false" >> "$GITHUB_ENV"
@@ -97,6 +92,9 @@ jobs:
             | Platform | File | Notes |
             |----------|------|-------|
             | Windows | `Aperio-J-windows-setup.exe` | Thin shell (~15 MB) when release URL configured |
+            | Linux | `Aperio-J-linux-x86_64.AppImage` | Thin shell; make executable (`chmod +x`) if needed |
+            | macOS (Apple Silicon) | `Aperio-J-macos-aarch64.dmg` | Ad-hoc signed — right-click → Open on first launch |
+            | macOS (Intel) | `Aperio-J-macos-x64.dmg` | Same as arm64 build |
             | Android | `Aperio-J-android.apk` | When `APERIO_J_WEB_URL` secret or `apps/desktop/release-web-url.txt` is set |
 
             For Android friends without the APK: open your Render URL in Chrome (Add to Home screen).

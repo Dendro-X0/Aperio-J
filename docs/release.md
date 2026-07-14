@@ -35,7 +35,7 @@ pnpm build:android   # requires Android SDK + preflight
 
 See [deployment.md](./deployment.md) for self-hosted web setup (Docker or standalone) before sharing a URL.
 
-**Android APK in releases:** set GitHub secret `APERIO_J_WEB_URL` **or** commit your public URL (one line, no `#`) to `apps/desktop/release-web-url.txt`, then tag and push. Without a URL, CI skips the APK and only ships the Windows installer.
+**Android APK in releases:** set GitHub secret `APERIO_J_WEB_URL` **or** commit your public URL (one line, no `#`) to `apps/desktop/release-web-url.txt`, then tag and push. Without a URL, CI skips the APK; desktop builds still ship (Windows, Linux AppImage, macOS dmg).
 
 ## Publish
 
@@ -48,7 +48,7 @@ git tag vX.Y.Z
 git push origin vX.Y.Z
 ```
 
-`.github/workflows/release.yml` builds Windows `.exe` + Android `.apk` and creates a GitHub Release with generated notes.
+`.github/workflows/release.yml` builds Windows `.exe`, Linux AppImage, macOS `.dmg` (Apple Silicon + Intel), and Android `.apk` when configured, then creates a GitHub Release with generated notes.
 
 ## Post-release
 

@@ -127,7 +127,7 @@ See [deployment.md](./deployment.md) for self-host setup and [desktop-mobile.md]
 
 No paid certificates are required for local distribution or GitHub Releases.
 
-**CI (automatic):** Every push to `main` builds installers and publishes them to the rolling [`latest` release](https://github.com/Dendro-X0/Aperio-J/releases/latest) — `Aperio-J-windows-setup.exe` and `Aperio-J-android.apk` (signed release APK for sideload).
+**CI (automatic):** Every push to `main` builds installers and publishes them to the rolling [`latest` release](https://github.com/Dendro-X0/Aperio-J/releases/latest) — Windows `.exe`, Linux AppImage, macOS `.dmg` (arm64 + x64), and signed Android APK when `APERIO_J_WEB_URL` is configured.
 
 Copy `apps/desktop/.env.signing.example` → `.env.signing` (gitignored) and export variables before local release builds.
 

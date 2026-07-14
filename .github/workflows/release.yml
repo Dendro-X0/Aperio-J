@@ -53,17 +53,7 @@ jobs:
 
       - name: Prepare release filenames
         run: |
-          mkdir -p release
-          EXE=$(find release-assets -name '*.exe' | head -1)
-          test -n "$EXE" || { echo "Windows installer missing"; exit 1; }
-          cp "$EXE" release/Aperio-J-windows-setup.exe
-          APK=$(find release-assets -name '*.apk' | head -1)
-          if [ -n "$APK" ]; then
-            cp "$APK" release/Aperio-J-android.apk
-            echo "has_apk=true" >> "$GITHUB_ENV"
-          else
-            echo "has_apk=false" >> "$GITHUB_ENV"
-          fi
+          node scripts/prepare-release-installers.mjs release-assets release
           ls -la release/
 
       - name: Create release
@@ -78,6 +68,9 @@ jobs:
             | Platform | File | Notes |
             |----------|------|-------|
             | Windows | `Aperio-J-windows-setup.exe` | Thin shell (~15 MB) when release URL configured; full local ~50 MB otherwise |
+            | Linux | `Aperio-J-linux-x86_64.AppImage` | Thin shell; `chmod +x` then run |
+            | macOS (Apple Silicon) | `Aperio-J-macos-aarch64.dmg` | Ad-hoc signed — right-click → Open on first launch |
+            | macOS (Intel) | `Aperio-J-macos-x64.dmg` | Same thin shell as other desktop builds |
             | Android | `Aperio-J-android.apk` | Shell opens your hosted web app — only attached when `APERIO_J_WEB_URL` secret or `apps/desktop/release-web-url.txt` is configured |
 
             Android missing? Set [GitHub secret `APERIO_J_WEB_URL`](https://github.com/${{ github.repository }}/settings/secrets/actions) or commit your Render URL to `apps/desktop/release-web-url.txt`, then re-run the Release workflow.

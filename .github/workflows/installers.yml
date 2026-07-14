@@ -60,6 +60,7 @@ jobs:
         run: node scripts\build-desktop-ci.mjs
         working-directory: X:\apps\desktop
         env:
+          APERO_J_DESKTOP_PLATFORM: windows
           APERO_J_WEB_URL: ${{ steps.release_web.outputs.url }}
           DATABASE_URL: file:../../data/aperio-j-ci.db
           TAURI_BUILD: "1"
@@ -75,6 +76,140 @@ jobs:
       - name: Remove drive subst
         if: always()
         run: 'subst X: /d'
+
+  desktop-linux:
+    name: Desktop installer (Linux)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: apps/desktop/src-tauri -> target
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - run: cp .env.example .env && cp apps/web/.env.example apps/web/.env
+
+      - name: Resolve release web URL
+        id: release_web
+        env:
+          WEB_URL: ${{ secrets.APERIO_J_WEB_URL || vars.APERIO_J_WEB_URL }}
+        run: |
+          URL="$WEB_URL"
+          if [ -z "$URL" ]; then
+            URL=$(node scripts/resolve-release-web-url.mjs 2>/dev/null || true)
+          fi
+          if [ -n "$URL" ]; then
+            echo "url=$URL" >> "$GITHUB_OUTPUT"
+            echo "Desktop thin shell URL: $URL"
+          else
+            echo "No release web URL — building full local desktop (~50MB)"
+          fi
+
+      - name: Build desktop AppImage
+        working-directory: apps/desktop
+        run: node scripts/build-desktop-ci.mjs
+        env:
+          APERO_J_DESKTOP_PLATFORM: linux
+          APERO_J_WEB_URL: ${{ steps.release_web.outputs.url }}
+          DATABASE_URL: file:../../data/aperio-j-ci.db
+          TAURI_BUILD: "1"
+
+      - name: Upload Linux AppImage
+        uses: actions/upload-artifact@v4
+        with:
+          name: aperio-j-desktop-linux
+          path: apps/desktop/src-tauri/target/release/bundle/appimage/*.AppImage
+          if-no-files-found: error
+
+  desktop-macos:
+    name: Desktop installer (macOS ${{ matrix.arch }})
+    runs-on: macos-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: aarch64-apple-darwin
+            arch: arm64
+          - target: x86_64-apple-darwin
+            arch: x64
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: apps/desktop/src-tauri -> target
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - run: cp .env.example .env && cp apps/web/.env.example apps/web/.env
+
+      - name: Resolve release web URL
+        id: release_web
+        env:
+          WEB_URL: ${{ secrets.APERIO_J_WEB_URL || vars.APERIO_J_WEB_URL }}
+        run: |
+          URL="$WEB_URL"
+          if [ -z "$URL" ]; then
+            URL=$(node scripts/resolve-release-web-url.mjs 2>/dev/null || true)
+          fi
+          if [ -n "$URL" ]; then
+            echo "url=$URL" >> "$GITHUB_OUTPUT"
+            echo "Desktop thin shell URL: $URL"
+          else
+            echo "No release web URL — building full local desktop (~50MB)"
+          fi
+
+      - name: Build desktop dmg
+        working-directory: apps/desktop
+        run: node scripts/build-desktop-ci.mjs
+        env:
+          APERO_J_DESKTOP_PLATFORM: macos
+          APERO_J_WEB_URL: ${{ steps.release_web.outputs.url }}
+          TAURI_BUILD_TARGET: ${{ matrix.target }}
+          DATABASE_URL: file:../../data/aperio-j-ci.db
+          TAURI_BUILD: "1"
+
+      - name: Upload macOS dmg
+        uses: actions/upload-artifact@v4
+        with:
+          name: aperio-j-desktop-macos-${{ matrix.arch }}
+          path: apps/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
+          if-no-files-found: error
 
   android:
     name: Mobile installer (Android)

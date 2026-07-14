@@ -15,6 +15,8 @@ Pre-built installers are on [GitHub Releases](https://github.com/Dendro-X0/Aperi
 | Platform | File | Size | Notes |
 |----------|------|------|-------|
 | Windows | `Aperio-J-windows-setup.exe` | ~12–18 MB | Thin shell → opens [aperio-j.onrender.com](https://aperio-j.onrender.com) |
+| Linux | `Aperio-J-linux-x86_64.AppImage` | ~12–18 MB | Same hosted URL; `chmod +x` then run |
+| macOS | `Aperio-J-macos-aarch64.dmg` / `Aperio-J-macos-x64.dmg` | ~12–18 MB | Ad-hoc signed — right-click → Open on first launch |
 | Android | `Aperio-J-android.apk` | ~15 MB | Same hosted URL in a mobile shell |
 | Browser | any modern browser | — | Best for China — no install |
 
