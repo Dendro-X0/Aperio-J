@@ -46,8 +46,22 @@ if (appImage) {
 }
 
 const dmgPaths = walk(assetsDir, (path) => path.endsWith(".dmg"));
-const dmgArm = pickFirst(dmgPaths.filter((path) => path.includes("aarch64-apple-darwin")));
-const dmgX64 = pickFirst(dmgPaths.filter((path) => path.includes("x86_64-apple-darwin")));
+const dmgArm = pickFirst(
+  dmgPaths.filter(
+    (path) =>
+      path.includes("aarch64-apple-darwin") ||
+      /_aarch64\.dmg$/i.test(path) ||
+      /arm64/i.test(basename(path)),
+  ),
+);
+const dmgX64 = pickFirst(
+  dmgPaths.filter(
+    (path) =>
+      path.includes("x86_64-apple-darwin") ||
+      /_x64\.dmg$/i.test(path) ||
+      /x86_64/i.test(basename(path)),
+  ),
+);
 const dmgFallback = pickFirst(dmgPaths);
 
 if (dmgArm) {

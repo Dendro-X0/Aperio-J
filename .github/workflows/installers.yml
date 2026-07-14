@@ -61,7 +61,7 @@ jobs:
         working-directory: X:\apps\desktop
         env:
           APERO_J_DESKTOP_PLATFORM: windows
-          APERO_J_WEB_URL: ${{ steps.release_web.outputs.url }}
+          APERIO_J_WEB_URL: ${{ steps.release_web.outputs.url }}
           DATABASE_URL: file:../../data/aperio-j-ci.db
           TAURI_BUILD: "1"
 
@@ -102,7 +102,7 @@ jobs:
       - name: Install Linux build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf xdg-utils libfuse2
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -130,15 +130,26 @@ jobs:
         run: node scripts/build-desktop-ci.mjs
         env:
           APERO_J_DESKTOP_PLATFORM: linux
-          APERO_J_WEB_URL: ${{ steps.release_web.outputs.url }}
+          APERIO_J_WEB_URL: ${{ steps.release_web.outputs.url }}
           DATABASE_URL: file:../../data/aperio-j-ci.db
           TAURI_BUILD: "1"
+
+      - name: Locate Linux AppImage
+        id: linux_artifact
+        run: |
+          set -euo pipefail
+          echo "Bundle tree:"
+          find apps/desktop/src-tauri/target -type d -name bundle -print 2>/dev/null || true
+          APPIMAGE=$(find apps/desktop/src-tauri/target -type f -name '*.AppImage' | head -1)
+          test -n "$APPIMAGE" || { echo "No AppImage produced"; find apps/desktop/src-tauri/target -type f | head -80; exit 1; }
+          echo "Found: $APPIMAGE"
+          echo "path=$APPIMAGE" >> "$GITHUB_OUTPUT"
 
       - name: Upload Linux AppImage
         uses: actions/upload-artifact@v4
         with:
           name: aperio-j-desktop-linux
-          path: apps/desktop/src-tauri/target/release/bundle/appimage/*.AppImage
+          path: ${{ steps.linux_artifact.outputs.path }}
           if-no-files-found: error
 
   desktop-macos:
@@ -199,16 +210,27 @@ jobs:
         run: node scripts/build-desktop-ci.mjs
         env:
           APERO_J_DESKTOP_PLATFORM: macos
-          APERO_J_WEB_URL: ${{ steps.release_web.outputs.url }}
+          APERIO_J_WEB_URL: ${{ steps.release_web.outputs.url }}
           TAURI_BUILD_TARGET: ${{ matrix.target }}
           DATABASE_URL: file:../../data/aperio-j-ci.db
           TAURI_BUILD: "1"
+
+      - name: Locate macOS dmg
+        id: macos_artifact
+        run: |
+          set -euo pipefail
+          echo "Bundle tree:"
+          find apps/desktop/src-tauri/target -type d -name bundle -print 2>/dev/null || true
+          DMG=$(find apps/desktop/src-tauri/target -type f -name '*.dmg' | head -1)
+          test -n "$DMG" || { echo "No dmg produced"; find apps/desktop/src-tauri/target -type f | head -80; exit 1; }
+          echo "Found: $DMG"
+          echo "path=$DMG" >> "$GITHUB_OUTPUT"
 
       - name: Upload macOS dmg
         uses: actions/upload-artifact@v4
         with:
           name: aperio-j-desktop-macos-${{ matrix.arch }}
-          path: apps/desktop/src-tauri/target/${{ matrix.target }}/release/bundle/dmg/*.dmg
+          path: ${{ steps.macos_artifact.outputs.path }}
           if-no-files-found: error
 
   android:
