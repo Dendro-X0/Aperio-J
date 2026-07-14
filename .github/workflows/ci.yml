@@ -96,7 +96,7 @@ jobs:
 
             | Platform | File | Notes |
             |----------|------|-------|
-            | Windows | `Aperio-J-windows-setup.exe` | NSIS installer — local SQLite, works offline |
+            | Windows | `Aperio-J-windows-setup.exe` | Thin shell (~15 MB) when release URL configured |
             | Android | `Aperio-J-android.apk` | When `APERIO_J_WEB_URL` secret or `apps/desktop/release-web-url.txt` is set |
 
             For Android friends without the APK: open your Render URL in Chrome (Add to Home screen).

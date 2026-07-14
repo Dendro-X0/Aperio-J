@@ -4,6 +4,10 @@ All notable changes to Aperio-J are documented here. Format follows [Keep a Chan
 
 ## [Unreleased]
 
+### Changed
+
+- GitHub Release **Windows installer** uses thin Tauri shell (~15 MB) when `release-web-url.txt` is set; full local bundle remains available via `APERO_J_DESKTOP_LOCAL=1`
+
 ## [0.4.1] — 2026-07-13
 
 ### Added

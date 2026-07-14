@@ -12,11 +12,15 @@
 
 预构建安装包见 [GitHub Releases](https://github.com/Dendro-X0/Aperio-J/releases)。
 
-| 平台 | 文件 | 说明 |
-|------|------|------|
-| Windows | `Aperio-J-windows-setup.exe` | 本地 SQLite，可离线使用 |
-| Android | `Aperio-J-android.apk` | 壳应用，打开你托管的 Web 地址 |
-| 浏览器 | 任意现代浏览器 | **推荐给国内朋友** — 无需侧载 APK |
+| 平台 | 文件 | 体积 | 说明 |
+|------|------|------|------|
+| Windows | `Aperio-J-windows-setup.exe` | ~12–18 MB | 轻量壳 → 打开 [aperio-j.onrender.com](https://aperio-j.onrender.com) |
+| Android | `Aperio-J-android.apk` | ~15 MB | 同上，移动端壳 |
+| 浏览器 | 任意现代浏览器 | — | **推荐给国内用户** — 无需安装 |
+
+**完整本地桌面版**（离线 + SQLite 存于 `%AppData%`，约 50 MB）：`APERO_J_DESKTOP_LOCAL=1 pnpm build:desktop`
+
+**GitHub 发布包**在配置了 `release-web-url.txt` 或 `APERIO_J_WEB_URL` 时使用 **轻量壳**，不打包 Node/Next 服务端（与 Android 相同）。
 
 **Android APK** 会打开你的自托管实例（`APERIO_J_WEB_URL`）。发布前请在 GitHub Secret 中设置 `APERIO_J_WEB_URL`，或将公网 URL 写入 [`apps/desktop/release-web-url.txt`](./apps/desktop/release-web-url.txt)。朋友也可直接在 Chrome 打开 Render 链接并 **添加到主屏幕**。
 

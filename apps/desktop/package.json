@@ -8,6 +8,7 @@
     "dev": "tauri dev",
     "prebuild": "node scripts/ensure-node-sidecar.mjs",
     "build": "tauri build",
+    "build:release": "node scripts/build-desktop-ci.mjs",
     "prepare:server": "node scripts/prepare-server.mjs",
     "dev:android": "tauri android dev",
     "dev:ios": "tauri ios dev",

@@ -31,17 +31,33 @@ fn wait_for_server(port: u16) -> Result<(), String> {
 }
 
 #[cfg(not(mobile))]
-fn spawn_sidecar(app: &tauri::App, port: u16) -> Result<CommandChild, String> {
+fn bundled_server_entry(app: &tauri::App) -> Result<std::path::PathBuf, String> {
   let resource_dir = app
     .path()
     .resource_dir()
-    .map_err(|error| error.to_string())?
-    .join("server");
+    .map_err(|error| error.to_string())?;
+  Ok(resource_dir.join("server").join("apps").join("web").join("server.js"))
+}
 
-  let server_js = resource_dir.join("apps").join("web").join("server.js");
+#[cfg(not(mobile))]
+fn has_bundled_local_server(app: &tauri::App) -> bool {
+  bundled_server_entry(app)
+    .ok()
+    .is_some_and(|path| path.is_file())
+}
+
+#[cfg(not(mobile))]
+fn spawn_sidecar(app: &tauri::App, port: u16) -> Result<CommandChild, String> {
+  let server_js = bundled_server_entry(app)?;
   if !server_js.is_file() {
     return Err(format!("Missing bundled server entry: {}", server_js.display()));
   }
+
+  let resource_dir = server_js
+    .parent()
+    .and_then(|web| web.parent())
+    .and_then(|apps| apps.parent())
+    .ok_or_else(|| "Invalid bundled server path".to_string())?;
 
   let app_data_dir = app
     .path()
@@ -74,6 +90,11 @@ fn spawn_sidecar(app: &tauri::App, port: u16) -> Result<CommandChild, String> {
 
 #[cfg(not(mobile))]
 fn setup_desktop_release(app: &tauri::App) -> Result<(), String> {
+  if !has_bundled_local_server(app) {
+    log::info!("Thin desktop shell — loading hosted web UI (no local sidecar)");
+    return Ok(());
+  }
+
   let child = spawn_sidecar(app, SERVER_PORT)?;
   wait_for_server(SERVER_PORT)?;
 

@@ -4,7 +4,7 @@ Single Tauri project at **`apps/desktop`** wraps the same **`apps/web`** Next.js
 
 | Target | Command | Engine backend |
 |--------|---------|----------------|
-| Desktop (Win/macOS/Linux) | `pnpm dev:desktop` / `pnpm build:desktop` | Bundled Next standalone + Node sidecar + SQLite in app data dir |
+| Desktop (Win/macOS/Linux) | `pnpm dev:desktop` / `pnpm build:desktop` | Dev: Next dev server · **Release:** thin shell → hosted URL · **Local:** `APERO_J_DESKTOP_LOCAL=1` bundles Node + SQLite |
 | Android | `pnpm dev:android` / `pnpm build:android` | Dev: Next dev server · Release: shell only (see below) |
 | iOS | `pnpm dev:ios` / `pnpm build:ios` | Dev: Next dev server · Release: shell only (macOS + Xcode required) |
 
@@ -63,8 +63,12 @@ pnpm dev:ios       # simulator or device (macOS)
 
 ### Desktop
 
+**GitHub Release (thin shell, ~15 MB):** opens your hosted URL — same as Android. Configured via `apps/desktop/release-web-url.txt` or `APERIO_J_WEB_URL`. CI runs `build-desktop-ci.mjs` automatically.
+
+**Full local build (~50 MB, offline SQLite):**
+
 ```bash
-pnpm build:desktop
+APERO_J_DESKTOP_LOCAL=1 pnpm build:desktop
 ```
 
 Runs `prepare:server` (Next standalone + Prisma engines + Node sidecar), then `tauri build`. SQLite lives under the OS app data directory.

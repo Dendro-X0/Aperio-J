@@ -12,11 +12,15 @@ Optional **city tags** add local sources only when you choose **on-site only**. 
 
 Pre-built installers are on [GitHub Releases](https://github.com/Dendro-X0/Aperio-J/releases).
 
-| Platform | File | Notes |
-|----------|------|-------|
-| Windows | `Aperio-J-windows-setup.exe` | Local SQLite — works offline |
-| Android | `Aperio-J-android.apk` | Thin shell that opens your hosted web URL |
-| Browser | any modern browser | Best for friends in China — no APK sideload |
+| Platform | File | Size | Notes |
+|----------|------|------|-------|
+| Windows | `Aperio-J-windows-setup.exe` | ~12–18 MB | Thin shell → opens [aperio-j.onrender.com](https://aperio-j.onrender.com) |
+| Android | `Aperio-J-android.apk` | ~15 MB | Same hosted URL in a mobile shell |
+| Browser | any modern browser | — | Best for China — no install |
+
+**Full local desktop** (offline + SQLite in `%AppData%`, ~50 MB): `APERO_J_DESKTOP_LOCAL=1 pnpm build:desktop`
+
+**Release installers** (GitHub) use the **thin shell** when `release-web-url.txt` or `APERIO_J_WEB_URL` is set — same model as Android, no bundled Node/Next server.
 
 **Android APK:** the app opens your self-hosted instance (`APERIO_J_WEB_URL`). For CI/releases, set GitHub secret `APERIO_J_WEB_URL` or commit your public URL to [`apps/desktop/release-web-url.txt`](./apps/desktop/release-web-url.txt). Friends can also open your Render URL in Chrome and **Add to Home screen**.
 

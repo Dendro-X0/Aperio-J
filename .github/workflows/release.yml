@@ -77,7 +77,7 @@ jobs:
 
             | Platform | File | Notes |
             |----------|------|-------|
-            | Windows | `Aperio-J-windows-setup.exe` | Local SQLite — works offline |
+            | Windows | `Aperio-J-windows-setup.exe` | Thin shell (~15 MB) when release URL configured; full local ~50 MB otherwise |
             | Android | `Aperio-J-android.apk` | Shell opens your hosted web app — only attached when `APERIO_J_WEB_URL` secret or `apps/desktop/release-web-url.txt` is configured |
 
             Android missing? Set [GitHub secret `APERIO_J_WEB_URL`](https://github.com/${{ github.repository }}/settings/secrets/actions) or commit your Render URL to `apps/desktop/release-web-url.txt`, then re-run the Release workflow.

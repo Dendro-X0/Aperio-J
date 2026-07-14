@@ -38,11 +38,29 @@ jobs:
           copy X:\.env.example X:\.env
           copy X:\apps\web\.env.example X:\apps\web\.env
 
+      - name: Resolve release web URL
+        id: release_web
+        shell: bash
+        env:
+          WEB_URL: ${{ secrets.APERIO_J_WEB_URL || vars.APERIO_J_WEB_URL }}
+        run: |
+          URL="$WEB_URL"
+          if [ -z "$URL" ]; then
+            URL=$(node scripts/resolve-release-web-url.mjs 2>/dev/null || true)
+          fi
+          if [ -n "$URL" ]; then
+            echo "url=$URL" >> "$GITHUB_OUTPUT"
+            echo "Desktop thin shell URL: $URL"
+          else
+            echo "No release web URL — building full local desktop (~50MB)"
+          fi
+
       - name: Build desktop installer
         shell: cmd
-        run: pnpm build:desktop
-        working-directory: X:\
+        run: node scripts\build-desktop-ci.mjs
+        working-directory: X:\apps\desktop
         env:
+          APERO_J_WEB_URL: ${{ steps.release_web.outputs.url }}
           DATABASE_URL: file:../../data/aperio-j-ci.db
           TAURI_BUILD: "1"
 
